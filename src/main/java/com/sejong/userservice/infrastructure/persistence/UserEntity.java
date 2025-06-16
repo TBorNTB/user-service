@@ -6,46 +6,80 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class UserEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 30)
-    private String username;
+    @Column(nullable = false, length = 50)
+    private String name;
 
-    @Column(nullable = false,length = 50)
+    @Column(nullable = false, unique = true, length = 100)
+    private String email;
+
+    @Column(nullable = false)
     private String encryptPassword;
 
+    private Integer grade;
+
+    @Column(length = 100)
+    private String major;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "user_specialties", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "specialty")
+    private List<String> specialties;
+
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public static UserEntity from(User user){
+    // 도메인 모델 -> 엔티티 변환
+    public static UserEntity from(User user) {
         return UserEntity.builder()
                 .id(user.getId())
-                .username(user.getName())
+                .name(user.getName())
+                .email(user.getEmail())
                 .encryptPassword(user.getEncryptPassword())
+                .grade(user.getGrade())
+                .major(user.getMajor())
+                .specialties(user.getSpecialties() != null ? List.copyOf(user.getSpecialties()) : null)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
     }
 
-    public User toUser(){
+    // 엔티티 -> 도메인 모델 변환
+    public User toDomain() {
         return User.builder()
                 .id(this.id)
-                .name(this.username)
+                .name(this.name)
+                .email(this.email)
                 .encryptPassword(this.encryptPassword)
+                .grade(this.grade)
+                .major(this.major)
+                .specialties(this.specialties != null ? List.copyOf(this.specialties) : null)
                 .createdAt(this.createdAt)
-                .updatedAt(LocalDateTime.now())
+                .updatedAt(this.updatedAt)
                 .build();
     }
 }
