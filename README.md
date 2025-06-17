@@ -18,7 +18,7 @@ Spring Cloud 기반 마이크로서비스 아키텍처에서 Eureka 서비스 �
 
 ## 기술 스택
 
-- Java 17+
+- Java 21+
 - Spring Boot
 - Spring Web
 - Spring Security
