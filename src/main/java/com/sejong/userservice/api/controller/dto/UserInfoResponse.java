@@ -19,7 +19,7 @@ public class UserInfoResponse {
 
     public static UserInfoResponse from(User user){
         return UserInfoResponse.builder()
-                .name(user.getName())
+                .name(user.getRealName())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

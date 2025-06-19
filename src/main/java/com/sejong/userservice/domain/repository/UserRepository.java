@@ -1,13 +1,14 @@
 package com.sejong.userservice.domain.repository;
 
 import com.sejong.userservice.domain.model.User;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository {
-
-    List<User> findAll();
+    User save(User userEntity);
+    boolean existsByUsername(String loginId);
+    User findByUsername(String username);
+    List<User> findAllUsers();
+    void deleteByUsername(String username);
 }
