@@ -16,16 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class UserController {
 
-    private final UserService userService;
-
-    @GetMapping("/health-check")
-    public ResponseEntity<String> healthCheck() {
-        return ResponseEntity.ok("OK");
+    @GetMapping
+    public String userController() {
+        return "메롱";
     }
 
-    @GetMapping("/infos")
-    public ResponseEntity<UserInfosResponse> infos() {
-        UserInfosResponse userInfos = userService.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(userInfos);
-    }
+
 }
