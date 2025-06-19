@@ -6,17 +6,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "member")
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -28,9 +28,15 @@ public class UserEntity {
     private Long id;
 
     @Column(nullable = false, length = 50)
-    private String name;
+    private String username;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(length = 50)
+    private String realName;
+
+    @Column(nullable = false, length = 20)
+    private String role;
+
+    @Column(nullable = true, unique = true, length = 100)
     private String email;
 
     @Column(nullable = false)
@@ -40,11 +46,6 @@ public class UserEntity {
 
     @Column(length = 100)
     private String major;
-
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "user_specialties", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "specialty")
-    private List<String> specialties;
 
     @CreatedDate
     @Column(updatable = false)
@@ -57,12 +58,13 @@ public class UserEntity {
     public static UserEntity from(User user) {
         return UserEntity.builder()
                 .id(user.getId())
-                .name(user.getName())
+                .username(user.getUsername())
+                .role(user.getRole())
+                .realName(user.getRealName())
                 .email(user.getEmail())
                 .encryptPassword(user.getEncryptPassword())
                 .grade(user.getGrade())
                 .major(user.getMajor())
-                .specialties(user.getSpecialties() != null ? List.copyOf(user.getSpecialties()) : null)
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
@@ -72,12 +74,13 @@ public class UserEntity {
     public User toDomain() {
         return User.builder()
                 .id(this.id)
-                .name(this.name)
+                .username(this.getUsername())
+                .role(this.getRole())
+                .realName(this.realName)
                 .email(this.email)
                 .encryptPassword(this.encryptPassword)
                 .grade(this.grade)
                 .major(this.major)
-                .specialties(this.specialties != null ? List.copyOf(this.specialties) : null)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
                 .build();
