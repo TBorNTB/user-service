@@ -9,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaUserRepository extends JpaRepository<UserEntity,Long> {
     boolean existsByUsername(String loginId);
     Optional<UserEntity> findByUsername(String username);
+    void deleteByUsername(String username);
 }

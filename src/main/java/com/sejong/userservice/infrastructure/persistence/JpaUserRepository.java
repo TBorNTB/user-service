@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JpaUserRepository implements UserRepository{
@@ -42,5 +43,9 @@ public class JpaUserRepository implements UserRepository{
         return springDataJpaUserRepository.findAll().stream().map(UserEntity::toDomain).toList();
     }
 
-
+    @Override
+    @Transactional
+    public void deleteByUsername(String username) {
+        springDataJpaUserRepository.deleteByUsername(username);
+    }
 }
