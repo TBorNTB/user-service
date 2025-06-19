@@ -37,5 +37,10 @@ public class JpaUserRepository implements UserRepository{
                 .orElse(null); // UserEntity가 없으면 null 반환
     }
 
+    @Override
+    public List<User> findAllUsers() {
+        return springDataJpaUserRepository.findAll().stream().map(UserEntity::toDomain).toList();
+    }
+
 
 }

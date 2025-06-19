@@ -1,6 +1,7 @@
 package com.sejong.userservice.infrastructure.persistence;
 
 import com.sejong.userservice.domain.model.User;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
