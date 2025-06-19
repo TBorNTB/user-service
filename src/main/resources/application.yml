@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 8080
 
 spring:
   application:
@@ -9,16 +9,17 @@ spring:
     url: jdbc:mysql://localhost:3306/sejong?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: root
+    password: akdlelqldpdyglgl
 
   jpa:
     hibernate:
-      ddl-auto: create  # ?? validate, create, create-drop ?
+      ddl-auto: none  # ?? validate, create, create-drop
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
         format_sql: true
+
 
 eureka:
   instance:
@@ -28,3 +29,8 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://127.0.0.1:8761/eureka
+    enabled: false
+
+
+jwt:
+  secret: apfhdapfhdrnldudnsapxkahddldpdydnglglwkrdmsehffhqustlsgksapxkahd
