@@ -4,6 +4,7 @@ import com.sejong.userservice.api.controller.dto.JoinRequest;
 import com.sejong.userservice.api.controller.dto.UserResponse;
 import com.sejong.userservice.api.controller.dto.UserUpdateRequest;
 import com.sejong.userservice.domain.model.User;
+import com.sejong.userservice.domain.repository.RefreshTokenRepository;
 import com.sejong.userservice.domain.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,12 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RefreshTokenRepository refreshTokenRepository) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public boolean joinProcess(JoinRequest joinRequest) {
@@ -114,12 +116,30 @@ public class UserService {
         // 2. 사용자 삭제
         try {
             userRepository.deleteByUsername(username);
+            refreshTokenRepository.revokeAllTokensForUser(username); // 사용자 삭제 시 관련 리프레시 토큰도 무효화
             log.info("User {} deleted successfully.", username);
             return true; // 삭제 성공
         } catch (Exception e) {
             log.error("Failed to delete user {}: {}", username, e.getMessage());
             // 데이터베이스 제약 조건 위반 등의 예외 처리
             return false; // 삭제 실패
+        }
+    }
+
+    /**
+     * 사용자 로그아웃 처리
+     * @param username 로그아웃할 사용자의 식별자
+     * @return 로그아웃 성공 시 true
+     */
+    @Transactional
+    public boolean logoutUser(String username) {
+        try {
+            refreshTokenRepository.revokeAllTokensForUser(username); // 해당 사용자의 모든 리프레시 토큰 무효화
+            log.info("User {} logged out successfully (all refresh tokens revoked).", username);
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to logout user {}: {}", username, e.getMessage());
+            return false;
         }
     }
 }

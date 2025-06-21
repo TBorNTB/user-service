@@ -5,7 +5,10 @@ import io.jsonwebtoken.Jwts.SIG;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,6 +54,35 @@ public class JWTUtil {
     }
 
     /**
+     * 토큰에서 JTI(JWT ID) 추출
+     */
+    public String getJti(String token) {
+        try {
+            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getId();
+        } catch (io.jsonwebtoken.ExpiredJwtException e) {
+            // 토큰이 만료되었을 경우, ExpiredJwtException 객체에서 클레임을 직접 가져와 JTI 추출
+            // 만료되었더라도 서명이 유효하면 페이로드(클레임)는 읽을 수 있어야 합니다.
+            return e.getClaims().getId();
+        } catch (Exception e) {
+            // 다른 예외 발생 시 (예: 토큰 변조 등)
+            System.err.println("Failed to get JTI from token: " + e.getMessage()); // 로그 출력
+            throw new IllegalArgumentException("Invalid token or missing JTI", e); // 예외 던지기
+        }
+    }
+
+    /**
+     * 토큰에서 만료 시간 추출 (LocalDateTime 반환)
+     */
+    public LocalDateTime getExpirationLocalDateTime(String token) {
+        try {
+            Date expirationDate = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration();
+            return expirationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        } catch (Exception e) {
+            return null; // 토큰이 유효하지 않거나 만료 시간 없음
+        }
+    }
+
+    /**
      * 토큰 발급 : accessToken
      */
     public String createAccessToken(String username, String role) {
@@ -67,11 +99,13 @@ public class JWTUtil {
      * 토큰 발급 : refreshToken
      */
     public String createRefreshToken(String username) {
+        String jti = UUID.randomUUID().toString();
         return Jwts.builder()
                 .claim("username", username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
                 .signWith(secretKey)
+                .id(jti)
                 .compact();
     }
 
