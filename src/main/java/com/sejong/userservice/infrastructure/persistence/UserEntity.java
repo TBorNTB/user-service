@@ -1,7 +1,14 @@
 package com.sejong.userservice.infrastructure.persistence;
 
 import com.sejong.userservice.domain.model.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,10 +18,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
-
 @Entity
-@Table(name = "member")
+@Table(name = "users")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -54,7 +59,6 @@ public class UserEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    // 도메인 모델 -> 엔티티 변환
     public static UserEntity from(User user) {
         return UserEntity.builder()
                 .id(user.getId())
@@ -70,7 +74,6 @@ public class UserEntity {
                 .build();
     }
 
-    // 엔티티 -> 도메인 모델 변환
     public User toDomain() {
         return User.builder()
                 .id(this.id)
