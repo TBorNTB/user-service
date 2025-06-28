@@ -47,25 +47,23 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @PatchMapping("/{username}") // PATCH /users/{username} 요청을 처리
-    public ResponseEntity<UserResponse> updateUser(@PathVariable String username,
+    @PatchMapping
+    public ResponseEntity<UserResponse> updateUser(@RequestHeader("X-User-ID") String username,
                                                    @RequestBody UserUpdateRequest updateRequest) {
 
         UserResponse updatedUser = userService.updateUser(username, updateRequest);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{username}")
-    public ResponseEntity<UserResponse> deleteUser(@PathVariable String username) {
-        // Todo. 삭제 권한 확인 로직 추가
-
+    @DeleteMapping
+    public ResponseEntity<UserResponse> deleteUser(@RequestHeader("X-User-ID") String username) {
         UserResponse userResponse = userService.deleteUser(username);
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
-    @PostMapping("/logout") // POST /users/logout 요청을 처리
+    @PostMapping("/logout")
     public ResponseEntity<UserResponse> logoutUser(
-            @RequestHeader(value = "X-User-ID", required = false) String userIdHeader,
+            @RequestHeader(value = "X-User-ID", required = false) String username,
             HttpServletRequest request,
             HttpServletResponse response
     ) {
