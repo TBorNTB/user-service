@@ -1,8 +1,5 @@
 package com.sejong.userservice.application.user.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -25,14 +22,9 @@ public class JoinRequest {
     @NotBlank(message = "Real name cannot be empty")
     private String realName;
 
-    @NotBlank(message = "Email cannot be empty")
-    @Email(message = "Invalid email format")
-    private String email;
-
-    @Min(value = 1, message = "Grade must be at least 1")
-    @Max(value = 5, message = "Grade cannot be more than 4")
-    private Integer grade;
-
-    @NotBlank(message = "Major cannot be empty")
-    private String major;
+    private String description;
+    private String githubUrl;
+    private String linkedinUrl;
+    private String blogUrl;
+    private String profileImageUrl;
 }

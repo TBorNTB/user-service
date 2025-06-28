@@ -1,13 +1,12 @@
 package com.sejong.userservice.core.user;
 
 import com.sejong.userservice.application.user.dto.JoinRequest;
+import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import java.time.LocalDateTime;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Repository;
 
 @Getter
 @AllArgsConstructor
@@ -20,25 +19,32 @@ public class User {
     private String encryptPassword;
     private String role;
     private String realName;
-    private String email;
-    private Integer grade;
-    private String major;
+    private String description;
+    private String githubUrl;
+    private String linkedinUrl;
+    private String blogUrl;
+    private String profileImageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public User updateProfile(String realName, String email, Integer grade, String major) {
-        // null 체크를 통해 전달된 값만 업데이트하도록 함
-        if (realName != null) {
-            this.realName = realName;
+    public User updateProfile(UserUpdateRequest updateRequest) {
+        if (updateRequest.getRealName() != null) {
+            this.realName = updateRequest.getRealName();
         }
-        if (email != null) {
-            this.email = email;
+        if (updateRequest.getDescription() != null) {
+            this.description = updateRequest.getDescription();
         }
-        if (grade != null) {
-            this.grade = grade;
+        if (updateRequest.getGithubUrl() != null) {
+            this.githubUrl = updateRequest.getGithubUrl();
         }
-        if (major != null) {
-            this.major = major;
+        if (updateRequest.getLinkedinUrl() != null) {
+            this.linkedinUrl = updateRequest.getLinkedinUrl();
+        }
+        if (updateRequest.getBlogUrl() != null) {
+            this.blogUrl = updateRequest.getBlogUrl();
+        }
+        if (updateRequest.getProfileImageUrl() != null) {
+            this.profileImageUrl = updateRequest.getProfileImageUrl();
         }
         this.updatedAt = LocalDateTime.now();
         return this;
@@ -50,24 +56,13 @@ public class User {
                 .encryptPassword(encryptPassword)
                 .role("BASIC")  // todo. 요구사항대로 role 수정
                 .realName(joinRequest.getRealName())
-                .email(joinRequest.getEmail())
-                .grade(joinRequest.getGrade())
-                .major(joinRequest.getMajor())
+                .description(null)
+                .githubUrl(null)
+                .linkedinUrl(null)
+                .blogUrl(null)
+                .profileImageUrl(null)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-    }
-
-    @Repository
-    public static interface UserRepository {
-        User save(User userEntity);
-
-        boolean existsByUsername(String loginId);
-
-        User findByUsername(String username);
-
-        List<User> findAllUsers();
-
-        String deleteByUsername(String username);
     }
 }

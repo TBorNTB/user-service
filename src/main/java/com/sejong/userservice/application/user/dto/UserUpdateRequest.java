@@ -1,13 +1,11 @@
 package com.sejong.userservice.application.user.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -17,12 +15,9 @@ import jakarta.validation.constraints.NotBlank;
 public class UserUpdateRequest {
     @NotBlank(message = "Real name cannot be empty")
     private String realName;
-
-    @Email(message = "Invalid email format")
-    private String email;
-
-    private Integer grade;
-
-    private String major;
-
+    private String description;
+    private String githubUrl;
+    private String linkedinUrl;
+    private String blogUrl;
+    private String profileImageUrl;
 }

@@ -2,7 +2,7 @@ package com.sejong.userservice.application.user;
 
 import com.sejong.userservice.application.user.dto.CustomUserDetails;
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.User.UserRepository;
+import com.sejong.userservice.core.user.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

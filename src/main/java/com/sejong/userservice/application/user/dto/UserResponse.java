@@ -18,9 +18,11 @@ public class UserResponse {
     private String username;
     private String role;
     private String realName;
-    private String email;
-    private Integer grade;
-    private String major;
+    private String description;
+    private String githubUrl;
+    private String linkedinUrl;
+    private String blogUrl;
+    private String profileImageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -33,9 +35,11 @@ public class UserResponse {
                 .username(user.getUsername())
                 .role(user.getRole())
                 .realName(user.getRealName())
-                .email(user.getEmail())
-                .grade(user.getGrade())
-                .major(user.getMajor())
+                .description(user.getDescription())
+                .githubUrl(user.getGithubUrl())
+                .linkedinUrl(user.getLinkedinUrl())
+                .blogUrl(user.getBlogUrl())
+                .profileImageUrl(user.getProfileImageUrl())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

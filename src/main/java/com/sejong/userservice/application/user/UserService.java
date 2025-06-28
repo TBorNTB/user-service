@@ -7,7 +7,7 @@ import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.core.token.RefreshTokenRepository;
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.User.UserRepository;
+import com.sejong.userservice.core.user.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -63,10 +63,7 @@ public class UserService {
         }
 
         existingUser.updateProfile(
-                updateRequest.getRealName(),
-                updateRequest.getEmail(),
-                updateRequest.getGrade(),
-                updateRequest.getMajor()
+                updateRequest
         );
 
         try {

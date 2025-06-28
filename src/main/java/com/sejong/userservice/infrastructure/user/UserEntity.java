@@ -39,16 +39,23 @@ public class UserEntity {
     @Column(nullable = false, length = 20)
     private String role;
 
-    @Column(nullable = true, unique = true, length = 100)
-    private String email;
-
     @Column(nullable = false)
     private String encryptPassword;
 
-    private Integer grade;
+    @Column(length = 500)
+    private String description;
 
-    @Column(length = 100)
-    private String major;
+    @Column(length = 255)
+    private String githubUrl;
+
+    @Column(length = 255)
+    private String linkedinUrl;
+
+    @Column(length = 255)
+    private String blogUrl;
+
+    @Column(length = 255)
+    private String profileImageUrl;
 
     @CreatedDate
     @Column(updatable = false)
@@ -63,10 +70,12 @@ public class UserEntity {
                 .username(user.getUsername())
                 .role(user.getRole())
                 .realName(user.getRealName())
-                .email(user.getEmail())
                 .encryptPassword(user.getEncryptPassword())
-                .grade(user.getGrade())
-                .major(user.getMajor())
+                .description(user.getDescription())
+                .githubUrl(user.getGithubUrl())
+                .linkedinUrl(user.getLinkedinUrl())
+                .blogUrl(user.getBlogUrl())
+                .profileImageUrl(user.getProfileImageUrl())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
@@ -76,12 +85,14 @@ public class UserEntity {
         return User.builder()
                 .id(this.id)
                 .username(this.getUsername())
+                .encryptPassword(this.encryptPassword)
                 .role(this.getRole())
                 .realName(this.realName)
-                .email(this.email)
-                .encryptPassword(this.encryptPassword)
-                .grade(this.grade)
-                .major(this.major)
+                .description(this.description)
+                .blogUrl(this.blogUrl)
+                .githubUrl(this.githubUrl)
+                .linkedinUrl(this.linkedinUrl)
+                .profileImageUrl(this.profileImageUrl)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
                 .build();

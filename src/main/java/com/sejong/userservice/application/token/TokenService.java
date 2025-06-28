@@ -4,7 +4,7 @@ import com.sejong.userservice.application.exception.TokenReissueException;
 import com.sejong.userservice.application.token.dto.TokenReissueResponse;
 import com.sejong.userservice.core.token.RefreshTokenRepository;
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.User.UserRepository;
+import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.infrastructure.common.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

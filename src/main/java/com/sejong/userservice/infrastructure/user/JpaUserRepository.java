@@ -2,7 +2,7 @@ package com.sejong.userservice.infrastructure.user;
 
 import com.sejong.userservice.application.exception.UserNotFoundException;
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.User.UserRepository;
+import com.sejong.userservice.core.user.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
