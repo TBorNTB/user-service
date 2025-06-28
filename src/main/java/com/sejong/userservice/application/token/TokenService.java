@@ -67,7 +67,7 @@ public class TokenService {
 
         refreshTokenRepository.revokeTokenByJti(oldJti);
 
-        String newAccessToken = jwtUtil.createAccessToken(username, user.getRole());
+        String newAccessToken = jwtUtil.createAccessToken(username, user.getRole().name());
         String newRefreshToken = jwtUtil.createRefreshToken(username); // 새로운 JTI 포함
 
         String newJti = jwtUtil.getJti(newRefreshToken);

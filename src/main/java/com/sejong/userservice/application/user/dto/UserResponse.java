@@ -33,7 +33,7 @@ public class UserResponse {
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .role(user.getRole())
+                .role(user.getRole().name())
                 .realName(user.getRealName())
                 .description(user.getDescription())
                 .githubUrl(user.getGithubUrl())

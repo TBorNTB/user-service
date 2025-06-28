@@ -17,7 +17,7 @@ public class User {
     private Long id;
     private String username;
     private String encryptPassword;
-    private String role;
+    private UserRole role;
     private String realName;
     private String description;
     private String githubUrl;
@@ -54,7 +54,7 @@ public class User {
         return User.builder()
                 .username(joinRequest.getUsername())
                 .encryptPassword(encryptPassword)
-                .role("BASIC")  // todo. 요구사항대로 role 수정
+                .role(UserRole.MEMBER)
                 .realName(joinRequest.getRealName())
                 .description(null)
                 .githubUrl(null)

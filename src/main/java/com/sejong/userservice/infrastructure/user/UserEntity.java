@@ -1,9 +1,12 @@
 package com.sejong.userservice.infrastructure.user;
 
 import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.core.user.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -36,8 +39,9 @@ public class UserEntity {
     @Column(length = 50)
     private String realName;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String role;
+    private UserRole role;
 
     @Column(nullable = false)
     private String encryptPassword;
@@ -86,7 +90,7 @@ public class UserEntity {
                 .id(this.id)
                 .username(this.getUsername())
                 .encryptPassword(this.encryptPassword)
-                .role(this.getRole())
+                .role(this.role)
                 .realName(this.realName)
                 .description(this.description)
                 .blogUrl(this.blogUrl)
