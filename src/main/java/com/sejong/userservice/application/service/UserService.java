@@ -8,7 +8,6 @@ import com.sejong.userservice.domain.model.User;
 import com.sejong.userservice.domain.repository.RefreshTokenRepository;
 import com.sejong.userservice.domain.repository.UserRepository;
 import com.sejong.userservice.exception.UserNotFoundException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -34,22 +33,11 @@ public class UserService {
             throw new RuntimeException("이미 사용 중인 사용자 이름입니다: " + username);
         }
 
-        User user = User.builder()
-                .username(username)
-                .encryptPassword(bCryptPasswordEncoder.encode(joinRequest.getPassword()))
-                .role("BASIC")  // todo. 요구사항대로 role 수정
-                .realName(joinRequest.getRealName())
-                .email(joinRequest.getEmail())
-                .grade(joinRequest.getGrade())
-                .major(joinRequest.getMajor())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        User user = User.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
 
         try {
             User savedUser = userRepository.save(user);
             log.info("User registered successfully: {}", username);
-
             return JoinResponse.of(savedUser.getUsername(), "Registration successful!");
         } catch (Exception e) {
             log.error("Failed to save user {}: {}", username, e.getMessage());
@@ -92,8 +80,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse
-    deleteUser(String username) {
+    public UserResponse deleteUser(String username) {
         boolean exists = userRepository.existsByUsername(username);
         if (!exists) {
             log.warn("Attempted to delete non-existent user: {}", username);

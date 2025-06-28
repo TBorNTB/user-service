@@ -1,11 +1,11 @@
 package com.sejong.userservice.domain.model;
 
+import com.sejong.userservice.api.controller.dto.JoinRequest;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
@@ -38,7 +38,21 @@ public class User {
         if (major != null) {
             this.major = major;
         }
-        this.updatedAt = LocalDateTime.now(); // 업데이트 시간 갱신
-        return this; // 자신을 반환하여 메서드 체이닝 가능
+        this.updatedAt = LocalDateTime.now();
+        return this;
+    }
+
+    public static User from(JoinRequest joinRequest, String encryptPassword) {
+        return User.builder()
+                .username(joinRequest.getUsername())
+                .encryptPassword(encryptPassword)
+                .role("BASIC")  // todo. 요구사항대로 role 수정
+                .realName(joinRequest.getRealName())
+                .email(joinRequest.getEmail())
+                .grade(joinRequest.getGrade())
+                .major(joinRequest.getMajor())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 }
