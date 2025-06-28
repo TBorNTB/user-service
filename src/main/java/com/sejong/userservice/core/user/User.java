@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Getter
 @AllArgsConstructor
@@ -14,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class User {
 
+    private static final Logger log = LoggerFactory.getLogger(User.class);
     private Long id;
     private String username;
     private String encryptPassword;
@@ -47,6 +50,15 @@ public class User {
             this.profileImageUrl = updateRequest.getProfileImageUrl();
         }
         this.updatedAt = LocalDateTime.now();
+        return this;
+    }
+
+    public User grantRole(UserRole newRole) {
+        if (this.role != newRole) {
+            log.info("권한 변경 발생. " + this.username + "의 권한 : " + this.role + " > " + newRole);
+            this.role = newRole;
+            this.updatedAt = LocalDateTime.now();
+        }
         return this;
     }
 

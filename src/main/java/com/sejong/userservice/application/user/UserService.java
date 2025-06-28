@@ -8,6 +8,7 @@ import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.core.token.RefreshTokenRepository;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
+import com.sejong.userservice.core.user.UserRole;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -107,6 +108,32 @@ public class UserService {
         } catch (Exception e) {
             log.error("Failed to logout user {}: {}", username, e.getMessage());
             throw new RuntimeException("로그아웃 처리 중 오류가 발생했습니다.", e);
+        }
+    }
+
+    @Transactional
+    public UserResponse grantAdminRole(String targetUsername) {
+        User userToGrantAdmin = userRepository.findByUsername(targetUsername);
+
+        if (userToGrantAdmin == null) {
+            log.warn("Attempted to grant admin role to non-existent user: {}", targetUsername);
+            throw new UserNotFoundException("관리자 권한을 부여할 사용자를 찾을 수 없습니다: " + targetUsername);
+        }
+
+        if (userToGrantAdmin.getRole() == UserRole.ADMIN) {
+            log.info("User {} already has ADMIN role. No change made.", targetUsername);
+            return UserResponse.from(userToGrantAdmin);
+        }
+
+        userToGrantAdmin.grantRole(UserRole.ADMIN);
+
+        try {
+            User updatedUser = userRepository.save(userToGrantAdmin);
+            log.info("Admin role granted successfully to user: {}", targetUsername);
+            return UserResponse.from(updatedUser);
+        } catch (Exception e) {
+            log.error("Failed to grant admin role to user {}: {}", targetUsername, e.getMessage());
+            throw new RuntimeException("관리자 권한 부여 중 오류가 발생했습니다.", e);
         }
     }
 }
