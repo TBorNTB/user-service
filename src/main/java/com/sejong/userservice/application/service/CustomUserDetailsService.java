@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class CustomUserDetailsService  implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -25,7 +25,7 @@ public class CustomUserDetailsService  implements UserDetailsService {
             return new CustomUserDetails(user);
         }
 
-        throw new UsernameNotFoundException("엥 그런 유저 네임은 없어요!!! 메롱");
+        throw new UsernameNotFoundException("엥 그런 유저 네임은 없어요!!!");
     }
 
 }

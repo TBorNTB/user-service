@@ -2,17 +2,13 @@ package com.sejong.userservice.infrastructure.persistence;
 
 import com.sejong.userservice.domain.model.User;
 import com.sejong.userservice.domain.repository.UserRepository;
-import java.util.Optional;
-import javax.swing.text.html.Option;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Repository;
-
 import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JpaUserRepository implements UserRepository{
+public class JpaUserRepository implements UserRepository {
 
     private final SpringDataJpaUserRepository springDataJpaUserRepository;
 
@@ -22,7 +18,8 @@ public class JpaUserRepository implements UserRepository{
 
     @Override
     public User save(User user) {
-        return springDataJpaUserRepository.save(UserEntity.from(user)).toDomain();
+        UserEntity savedUserEntity = springDataJpaUserRepository.save(UserEntity.from(user));
+        return savedUserEntity.toDomain();
     }
 
     @Override
@@ -34,8 +31,8 @@ public class JpaUserRepository implements UserRepository{
     public User findByUsername(String username) {
         Optional<UserEntity> userEntityOptional = springDataJpaUserRepository.findByUsername(username);
 
-        return userEntityOptional.map(UserEntity::toDomain) // UserEntity가 존재하면 toDomain() 호출
-                .orElse(null); // UserEntity가 없으면 null 반환
+        return userEntityOptional.map(UserEntity::toDomain)
+                .orElse(null);
     }
 
     @Override
