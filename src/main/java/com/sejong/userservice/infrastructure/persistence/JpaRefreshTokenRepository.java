@@ -1,14 +1,12 @@
 package com.sejong.userservice.infrastructure.persistence;
 
 import com.sejong.userservice.domain.repository.RefreshTokenRepository;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.List; // Import List
-import java.util.stream.Collectors; // Import Collectors
 
 @Repository
 @RequiredArgsConstructor
@@ -19,15 +17,8 @@ public class JpaRefreshTokenRepository implements RefreshTokenRepository {
     @Override
     @Transactional
     public void saveRefreshToken(String token, String username, LocalDateTime expiryDate, String jti) {
-        // 기존에 해당 JTI를 가진 토큰이 있을 경우 업데이트하거나 새로 저장 (RTR 구현 방식에 따라 다름)
-        // 여기서는 단순히 새로 저장.
-        RefreshTokenEntity refreshTokenEntity = RefreshTokenEntity.builder()
-                .token(token)
-                .username(username)
-                .expiryDate(expiryDate)
-                .jti(jti)
-                .revoked(false) // 최초 생성 시 무효화되지 않음
-                .build();
+
+        RefreshTokenEntity refreshTokenEntity = RefreshTokenEntity.issue(token, username, expiryDate, jti);
         springDataJpaRefreshTokenRepository.save(refreshTokenEntity);
     }
 
