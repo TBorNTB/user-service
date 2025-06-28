@@ -7,6 +7,7 @@ import com.sejong.userservice.api.controller.dto.UserUpdateRequest;
 import com.sejong.userservice.domain.model.User;
 import com.sejong.userservice.domain.repository.RefreshTokenRepository;
 import com.sejong.userservice.domain.repository.UserRepository;
+import com.sejong.userservice.exception.UserNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,7 +71,7 @@ public class UserService {
 
         if (existingUser == null) {
             log.warn("User not found for update: {}", username);
-            throw new RuntimeException("사용자를 찾을 수 없습니다: " + username);
+            throw new UserNotFoundException("사용자를 찾을 수 없습니다: " + username);
         }
 
         existingUser.updateProfile(
@@ -96,7 +97,7 @@ public class UserService {
         boolean exists = userRepository.existsByUsername(username);
         if (!exists) {
             log.warn("Attempted to delete non-existent user: {}", username);
-            throw new RuntimeException("삭제하려는 사용자를 찾을 수 없습니다: " + username);
+            throw new UserNotFoundException("삭제하려는 사용자를 찾을 수 없습니다: " + username);
         }
 
         try {

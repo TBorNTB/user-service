@@ -5,6 +5,7 @@ import com.sejong.userservice.api.controller.dto.JoinResponse;
 import com.sejong.userservice.api.controller.dto.UserResponse;
 import com.sejong.userservice.api.controller.dto.UserUpdateRequest;
 import com.sejong.userservice.application.service.UserService;
+import com.sejong.userservice.exception.UserNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -42,7 +42,7 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userService.getAllUsers();
         if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            throw new UserNotFoundException("사용자 정보가 존재하지 않습니다.");
         }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
@@ -69,7 +69,6 @@ public class UserController {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        String username = userIdHeader;
 
         if (username == null || username.trim().isEmpty()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
