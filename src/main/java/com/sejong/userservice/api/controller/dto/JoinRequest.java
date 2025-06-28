@@ -15,7 +15,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JoinRequest {
-    @NotBlank(message = "Username cannot be empty") // Example validation
+    @NotBlank(message = "Username cannot be empty")
     private String username;
 
     @NotBlank(message = "Password cannot be empty")
@@ -25,14 +25,14 @@ public class JoinRequest {
     @NotBlank(message = "Real name cannot be empty")
     private String realName;
 
-     @NotBlank(message = "Email cannot be empty")
-     @Email(message = "Invalid email format")
+    @NotBlank(message = "Email cannot be empty")
+    @Email(message = "Invalid email format")
     private String email;
 
-     @Min(value = 1, message = "Grade must be at least 1")
-     @Max(value = 4, message = "Grade cannot be more than 4")
+    @Min(value = 1, message = "Grade must be at least 1")
+    @Max(value = 5, message = "Grade cannot be more than 4")
     private Integer grade;
 
-     @NotBlank(message = "Major cannot be empty")
+    @NotBlank(message = "Major cannot be empty")
     private String major;
 }
