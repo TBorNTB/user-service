@@ -2,6 +2,7 @@ package com.sejong.userservice.infrastructure.persistence;
 
 import com.sejong.userservice.domain.model.User;
 import com.sejong.userservice.domain.repository.UserRepository;
+import com.sejong.userservice.exception.UserNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
@@ -32,7 +33,7 @@ public class JpaUserRepository implements UserRepository {
         Optional<UserEntity> userEntityOptional = springDataJpaUserRepository.findByUsername(username);
 
         return userEntityOptional.map(UserEntity::toDomain)
-                .orElse(null);
+                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없어요."));
     }
 
     @Override
@@ -42,7 +43,8 @@ public class JpaUserRepository implements UserRepository {
 
     @Override
     @Transactional
-    public void deleteByUsername(String username) {
+    public String deleteByUsername(String username) {
         springDataJpaUserRepository.deleteByUsername(username);
+        return username;
     }
 }
