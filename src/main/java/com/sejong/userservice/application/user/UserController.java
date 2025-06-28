@@ -82,10 +82,17 @@ public class UserController {
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
-    @PatchMapping("/{username}")
+    @PatchMapping("/{username}/admin")
     public ResponseEntity<UserResponse> grantAdminRole(@PathVariable("username") String username,
                                                        HttpServletResponse response) {
         UserResponse userResponse = userService.grantAdminRole(username);
+
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+    }
+
+    @PatchMapping("/{username}/confirm")
+    public ResponseEntity<UserResponse> confirmMember(@PathVariable("username") String username) {
+        UserResponse userResponse = userService.confirmMember(username);
 
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }

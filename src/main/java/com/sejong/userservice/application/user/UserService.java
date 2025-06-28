@@ -136,4 +136,32 @@ public class UserService {
             throw new RuntimeException("관리자 권한 부여 중 오류가 발생했습니다.", e);
         }
     }
+
+    @Transactional
+    public UserResponse confirmMember(String targetUsername) {
+        User userToApprove = userRepository.findByUsername(targetUsername);
+
+        if (userToApprove == null) {
+            log.warn("Attempted to approve non-existent user: {}", targetUsername);
+            throw new UserNotFoundException("승인할 사용자를 찾을 수 없습니다: " + targetUsername);
+        }
+
+        if (userToApprove.getRole() != UserRole.UNCONFIRMED_MEMBER) {
+            log.warn("User {} is not in UNCONFIRMED_MEMBER state. Current role: {}", targetUsername,
+                    userToApprove.getRole());
+            throw new IllegalStateException(
+                    "사용자 " + targetUsername + "은(는) 승인 대기 상태가 아닙니다. (현재 권한: " + userToApprove.getRole().name() + ")");
+        }
+
+        userToApprove.grantRole(UserRole.MEMBER);
+
+        try {
+            User updatedUser = userRepository.save(userToApprove);
+            log.info("User {} membership approved successfully. New role: {}", targetUsername, updatedUser.getRole());
+            return UserResponse.from(updatedUser);
+        } catch (Exception e) {
+            log.error("Failed to approve membership for user {}: {}", targetUsername, e.getMessage());
+            throw new RuntimeException("사용자 회원 승인 중 오류가 발생했습니다.", e);
+        }
+    }
 }
