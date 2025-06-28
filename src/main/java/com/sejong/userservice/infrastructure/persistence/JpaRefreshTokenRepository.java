@@ -3,7 +3,6 @@ package com.sejong.userservice.infrastructure.persistence;
 import com.sejong.userservice.domain.repository.RefreshTokenRepository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,22 +15,24 @@ public class JpaRefreshTokenRepository implements RefreshTokenRepository {
 
     @Override
     @Transactional
-    public void saveRefreshToken(String token, String username, LocalDateTime expiryDate, String jti) {
-
+    public String saveRefreshToken(String token, String username, LocalDateTime expiryDate, String jti) {
         RefreshTokenEntity refreshTokenEntity = RefreshTokenEntity.issue(token, username, expiryDate, jti);
         springDataJpaRefreshTokenRepository.save(refreshTokenEntity);
+
+        return username;
     }
 
     @Override
-    public Optional<String> findUsernameByToken(String token) {
+    public String findUsernameByToken(String token) {
         return springDataJpaRefreshTokenRepository.findByToken(token)
-                .map(RefreshTokenEntity::getUsername); // 사용자 이름만 반환
+                .map(RefreshTokenEntity::getUsername)
+                .orElseThrow(() -> new RuntimeException("사용자 이름을 찾을 수 없어요. 토큰의 유효성을 검사해주세요."));
     }
 
     @Override
-    public Optional<String> findUsernameByJti(String jti) {
+    public String findUsernameByJti(String jti) {
         return springDataJpaRefreshTokenRepository.findByJti(jti)
-                .map(RefreshTokenEntity::getUsername);
+                .map(RefreshTokenEntity::getUsername).orElseThrow(() -> new RuntimeException("존재하지 않는 JTI에요."));
     }
 
     @Override
@@ -39,7 +40,7 @@ public class JpaRefreshTokenRepository implements RefreshTokenRepository {
     public boolean revokeToken(String token) {
         return springDataJpaRefreshTokenRepository.findByToken(token)
                 .map(refreshTokenEntity -> {
-                    refreshTokenEntity.setRevoked(true); // 무효화 상태로 변경
+                    refreshTokenEntity.setRevoked(true);
                     springDataJpaRefreshTokenRepository.save(refreshTokenEntity);
                     return true;
                 })
@@ -69,8 +70,7 @@ public class JpaRefreshTokenRepository implements RefreshTokenRepository {
     @Transactional
     public void revokeAllTokensForUser(String username) {
         List<RefreshTokenEntity> userTokens = springDataJpaRefreshTokenRepository.findAllByUsername(username);
-        userTokens.forEach(token -> token.setRevoked(true)); // 모든 토큰 무효화
+        userTokens.forEach(token -> token.setRevoked(true));
         springDataJpaRefreshTokenRepository.saveAll(userTokens);
-        // 또는 deleteAllByUsername(username);으로 완전히 삭제할 수도 있음 (정책에 따라)
     }
 }
