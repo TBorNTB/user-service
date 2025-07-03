@@ -20,6 +20,16 @@ spring:
       hibernate:
         format_sql: true
 
+springdoc:
+  api-docs:
+    version: openapi_3_0
+    enabled: true
+    path: /v3/api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
 
 eureka:
   instance:

@@ -36,7 +36,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String username = obtainUsername(request);
         String password = obtainPassword(request);
 
-        // request 값 검증을 위해 DTO로 변환
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password,
                 null);
 
