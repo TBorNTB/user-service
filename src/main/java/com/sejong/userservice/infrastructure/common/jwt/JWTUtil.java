@@ -1,5 +1,6 @@
 package com.sejong.userservice.infrastructure.common.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;
 import jakarta.servlet.http.Cookie;
@@ -24,7 +25,7 @@ public class JWTUtil {
                    @Value("${jwt.expiration-time}") long accessTokenExpirationTime,
                    @Value("${jwt.refresh-expiration-time}") long refreshTokenExpirationTime) {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
-                SIG.HS256.key().build().getAlgorithm());  // 더 강력한 HMAC SHA-256으로?
+                SIG.HS256.key().build().getAlgorithm());
 
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
@@ -34,8 +35,18 @@ public class JWTUtil {
      * 토큰 검증
      */
     public String getUsername(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-                .get("username", String.class);
+        try {
+            return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+                    .get("username", String.class);
+        } catch (ExpiredJwtException e) {
+    
+            return e.getClaims().getSubject(); // <-- 이 부분 수정
+        } catch (Exception e) {
+            // 다른 예외 (예: SignatureException, MalformedJwtException 등) 처리
+            // 토큰이 유효하지 않은 경우 (변조 등) null을 반환하거나 특정 예외를 던질 수 있습니다.
+            // 현재 로직에서는 NullPointerException을 방지하기 위해 null 반환
+            return null;
+        }
     }
 
     public String getRole(String token) {
@@ -91,12 +102,14 @@ public class JWTUtil {
      * 토큰 발급 : accessToken
      */
     public String createAccessToken(String username, String role) {
+        String jti = UUID.randomUUID().toString();
         return Jwts.builder()
                 .claim("username", username)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
                 .signWith(secretKey)
+                .id(jti)
                 .compact();
     }
 
@@ -139,5 +152,14 @@ public class JWTUtil {
             }
         }
         return null;
+    }
+
+    public String getAccessTokenFromHeader(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            return authorizationHeader.substring(7);    //  "   Bearer_" 이후의 토큰 부분
+            //    0123456
+        }
+        throw new RuntimeException("Authorization header is missing or invalid format");
     }
 }

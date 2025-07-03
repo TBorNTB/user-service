@@ -1,7 +1,10 @@
-package com.sejong.userservice.infrastructure.refreshtoken;
+package com.sejong.userservice.infrastructure.token;
 
+import com.sejong.userservice.core.token.TokenType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,26 +17,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "refresh_token")
+@Table(name = "token")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RefreshTokenEntity {
+public class TokenEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 500) // JWT 토큰 문자열
+    @Column(nullable = false, unique = true, length = 500)
     private String token;
 
     @Column(nullable = false)
-    private String username; // 사용자 이름 (사용자 엔티티와 연결)
+    private String username;
 
     @Column(nullable = false)
-    private LocalDateTime expiryDate; // 토큰 만료일 (DB에서 관리)
+    private LocalDateTime expiryDate;
 
     @Column(nullable = false)
     private boolean revoked; // 토큰이 무효화되었는지 여부 (한 번 사용되거나 로그아웃 시 true)
@@ -41,12 +44,18 @@ public class RefreshTokenEntity {
     @Column(nullable = false, unique = true, length = 255)
     private String jti; // JWT ID (고유 식별자, 재사용 공격 방지에 중요)
 
-    public static RefreshTokenEntity issue(String token, String username, LocalDateTime expiryDate, String jti) {
-        return RefreshTokenEntity.builder()
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TokenType tokenType; // (ACCESS, REFRESH)
+
+    public static TokenEntity issue(String token, String username, LocalDateTime expiryDate, String jti,
+                                    TokenType tokenType) {
+        return TokenEntity.builder()
                 .token(token)
                 .username(username)
                 .expiryDate(expiryDate)
                 .jti(jti)
+                .tokenType(tokenType)
                 .revoked(false)
                 .build();
     }

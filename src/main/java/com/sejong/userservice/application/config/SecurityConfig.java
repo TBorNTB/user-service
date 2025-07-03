@@ -1,6 +1,7 @@
 package com.sejong.userservice.application.config;
 
-import com.sejong.userservice.core.token.RefreshTokenRepository;
+import com.sejong.userservice.core.token.TokenRepository;
+import com.sejong.userservice.infrastructure.common.jwt.HeaderAuthenticationFilter;
 import com.sejong.userservice.infrastructure.common.jwt.JWTUtil;
 import com.sejong.userservice.infrastructure.common.jwt.LoginFilter;
 import org.springframework.context.annotation.Bean;
@@ -20,13 +21,13 @@ public class SecurityConfig {
 
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
 
     public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil,
-                          RefreshTokenRepository refreshTokenRepository) {
+                          TokenRepository tokenRepository) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
-        this.refreshTokenRepository = refreshTokenRepository;
+        this.tokenRepository = tokenRepository;
     }
 
     @Bean
@@ -64,8 +65,10 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
 
         http
+                .addFilterBefore(new HeaderAuthenticationFilter("X-User-ID", "X-User-Roles"), LoginFilter.class);
+        http
                 .addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil,
-                        refreshTokenRepository), UsernamePasswordAuthenticationFilter.class);
+                        tokenRepository), UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정 > session을 stateless로 설정
         http

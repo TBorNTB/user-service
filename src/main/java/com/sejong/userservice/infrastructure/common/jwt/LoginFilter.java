@@ -1,7 +1,8 @@
 package com.sejong.userservice.infrastructure.common.jwt;
 
 import com.sejong.userservice.application.user.dto.CustomUserDetails;
-import com.sejong.userservice.core.token.RefreshTokenRepository;
+import com.sejong.userservice.core.token.TokenRepository;
+import com.sejong.userservice.core.token.TokenType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,13 +21,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
 
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
-                       RefreshTokenRepository refreshTokenRepository) {
+                       TokenRepository tokenRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.refreshTokenRepository = refreshTokenRepository;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
@@ -58,14 +59,15 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createAccessToken(username, role);
         String refreshToken = jwtUtil.createRefreshToken(username);
 
-        // Refresh Token 정보 추출
-        String jti = jwtUtil.getJti(refreshToken);
-        LocalDateTime expiryDate = jwtUtil.getExpirationLocalDateTime(refreshToken);
+        // Token 정보 추출
+        String accessJti = jwtUtil.getJti(accessToken);
+        LocalDateTime accessExpiryDate = jwtUtil.getExpirationLocalDateTime(accessToken);
+        String refreshJti = jwtUtil.getJti(refreshToken);
+        LocalDateTime refreshExpiryDate = jwtUtil.getExpirationLocalDateTime(refreshToken);
 
-        // 이전 Refresh Token 무효화 및 새 Refresh Token 저장 (RTR 핵심)
-        // 이 사용자의 모든 기존 토큰을 무효화/삭제 (새로운 로그인 시)
-        refreshTokenRepository.revokeAllTokensForUser(username); // 이 메서드를 통해 기존 토큰 무효화
-        refreshTokenRepository.saveRefreshToken(refreshToken, username, expiryDate, jti); // 새로운 토큰 저장
+        tokenRepository.revokeAllTokensForUser(username);
+        tokenRepository.saveToken(accessToken, username, accessExpiryDate, accessJti, TokenType.ACCESS);
+        tokenRepository.saveToken(refreshToken, username, refreshExpiryDate, refreshJti, TokenType.REFRESH);
 
         response.addHeader("Authorization", "Bearer " + accessToken);
 

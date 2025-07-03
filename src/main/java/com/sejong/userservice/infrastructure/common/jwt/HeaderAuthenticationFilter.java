@@ -36,13 +36,15 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
         String roles = request.getHeader(rolesHeaderName);
 
         if (username == null || username.isEmpty()) {
-            log.error("헤더에 username이 포함되어 있지 않아요! 헤더 이름: {}", userIdHeaderName);
-            throw new RuntimeException("헤더에 적절한 값이 포함되지 않았어요!");
+            log.info("헤더에 username이 포함되어 있지 않아요! 헤더 이름: {}", userIdHeaderName);
+            filterChain.doFilter(request, response);
+            return;
         }
 
         if (roles == null || roles.isEmpty()) {
             log.error("헤더에 roles가 포함되어 있지 않아요! 헤더 이름: {}", rolesHeaderName);
-            throw new RuntimeException("헤더에 적절한 값이 포함되지 않았어요!");
+            filterChain.doFilter(request, response);
+            return;
         }
 
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(roles.split(","))

@@ -25,9 +25,10 @@ public class TokenController {
     @PostMapping("/reissue")
     public ResponseEntity<String> reissueToken(HttpServletRequest request, HttpServletResponse response) {
         String oldRefreshToken = jwtUtil.getRefreshTokenFromCookie(request);
+        String oldAccessToken = jwtUtil.getAccessTokenFromHeader(request);
 
         try {
-            TokenReissueResponse reissueResponse = tokenService.reissueTokens(oldRefreshToken);
+            TokenReissueResponse reissueResponse = tokenService.reissueTokens(oldAccessToken, oldRefreshToken);
 
             response.addHeader("Authorization", "Bearer " + reissueResponse.getNewAccessToken());
             response.addCookie(reissueResponse.getNewRefreshTokenCookie());

@@ -2,8 +2,8 @@ package com.sejong.userservice.core.token;
 
 import java.time.LocalDateTime;
 
-public interface RefreshTokenRepository {
-    String saveRefreshToken(String token, String username, LocalDateTime expiryDate, String jti);
+public interface TokenRepository {
+    String saveToken(String token, String username, LocalDateTime expiryDate, String jti, TokenType tokenType);
 
     String findUsernameByToken(String token);
 

@@ -5,7 +5,7 @@ import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
-import com.sejong.userservice.core.token.RefreshTokenRepository;
+import com.sejong.userservice.core.token.TokenRepository;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
@@ -24,7 +24,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenRepository tokenRepository;
 
     public JoinResponse joinProcess(JoinRequest joinRequest) {
         String username = joinRequest.getUsername();
@@ -89,7 +89,7 @@ public class UserService {
             User user = userRepository.findByUsername(username);
             UserResponse userResponse = UserResponse.from(user);
             userRepository.deleteByUsername(username);
-            refreshTokenRepository.revokeAllTokensForUser(username);
+            tokenRepository.revokeAllTokensForUser(username);
             log.info("User {} deleted successfully.", username);
             return userResponse;
         } catch (Exception e) {
@@ -101,9 +101,9 @@ public class UserService {
     @Transactional
     public UserResponse logoutUser(String username) {
         try {
-            refreshTokenRepository.revokeAllTokensForUser(username);
-            User user = userRepository.findByUsername(username);
+            tokenRepository.revokeAllTokensForUser(username);
             log.info("User {} logged out successfully (all refresh tokens revoked).", username);
+            User user = userRepository.findByUsername(username);
             return UserResponse.from(user);
         } catch (Exception e) {
             log.error("Failed to logout user {}: {}", username, e.getMessage());
