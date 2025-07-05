@@ -8,9 +8,8 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/sejong?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: akdlelqldpdyglgl
-
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: none  # ?? validate, create, create-drop
@@ -19,6 +18,16 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      credentials:
+        access-key: ${S3_ACCESS_KEY}
+        secret-key: ${S3_SECRET_KEY}
+      stack:
+        auto: false
 
 springdoc:
   api-docs:
@@ -46,3 +55,10 @@ jwt:
   secret: apfhdapfhdrnldudnsapxkahddldpdydnglglwkrdmsehffhqustlsgksapxkahd
   expiration-time: 36000 # 액세스 토큰 만료 시간: 1시간 (밀리초)
   refresh-expiration-time: 604800000 # 리프레시 토큰 만료 시간: 7일 (밀리초)
+
+
+
+aws:
+  s3:
+    bucket: ${S3_BUCKET}
+    region: ap-northeast-2
