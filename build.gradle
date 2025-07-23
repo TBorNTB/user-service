@@ -13,6 +13,7 @@ java {
     }
 }
 
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -66,7 +67,8 @@ dependencies {
 
     // Configuration metadata (IDE 지원용)
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

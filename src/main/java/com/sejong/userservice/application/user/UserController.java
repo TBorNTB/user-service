@@ -38,6 +38,11 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/health")
+    public String healthCheck() {
+        return "OK";
+    }
+
     @PostMapping
     public ResponseEntity<JoinResponse> joinProcess(@Valid @RequestBody JoinRequest joinRequest) {
         JoinResponse response = userService.joinProcess(joinRequest);

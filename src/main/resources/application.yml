@@ -55,8 +55,6 @@ jwt:
   expiration-time: 36000 # 액세스 토큰 만료 시간: 1시간 (밀리초)
   refresh-expiration-time: 604800000 # 리프레시 토큰 만료 시간: 7일 (밀리초)
 
-
-
 aws:
   s3:
     bucket: ${S3_BUCKET}
