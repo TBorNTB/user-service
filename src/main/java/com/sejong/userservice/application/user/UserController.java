@@ -6,7 +6,6 @@ import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
-import com.sejong.userservice.application.user.dto.UsersExistenceRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -124,19 +123,5 @@ public class UserController {
         UserResponse userResponse = userService.confirmMember(grantedUsername);
 
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
-    }
-
-    @GetMapping("/{userId}/exists")
-    public ResponseEntity<Boolean> exists(@PathVariable("userId") String username) {
-        boolean exists = userService.exists(username);
-        return new ResponseEntity<>(exists, HttpStatus.OK);
-    }
-
-    @PostMapping("/exists")
-    public ResponseEntity<Boolean> existAll(@RequestBody UsersExistenceRequest usersExistenceRequest) {
-
-        boolean existAll = userService.existAll(usersExistenceRequest.getUsernames());
-
-        return new ResponseEntity<>(existAll, HttpStatus.OK);
     }
 }
