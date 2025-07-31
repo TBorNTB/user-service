@@ -1,6 +1,11 @@
 package com.sejong.userservice.application.user;
 
+import static com.sejong.userservice.application.exception.exception.ExceptionType.DUPLICATED_USER_REQUEST;
+import static com.sejong.userservice.application.exception.exception.ExceptionType.EMPTY_USER_REQUEST;
+import static com.sejong.userservice.application.exception.exception.ExceptionType.NOT_FOUND_USER;
+
 import com.sejong.userservice.application.exception.UserNotFoundException;
+import com.sejong.userservice.application.exception.exception.ApiException;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
@@ -9,6 +14,7 @@ import com.sejong.userservice.core.token.TokenRepository;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -173,19 +179,19 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public boolean existAll(List<String> userIds) {
-        Set<String> usernames = userIds.stream().collect(Collectors.toSet());
+        Set<String> usernames = new HashSet<>(userIds);
         if (usernames.isEmpty()) {
-            log.warn("Empty user ID list provided for existence check.");
-            throw new IllegalArgumentException("사용자 ID 목록이 비어 있습니다.");
+            log.warn("사용자 ID 목록이 비어 있습니다.");
+            return false;
         }
         if (usernames.size() != userIds.size()) {
-            log.warn("Duplicate user IDs found in the provided list: {}", userIds);
-            throw new IllegalArgumentException("사용자 ID 목록에 중복된 값이 있습니다.");
+            log.warn("사용자 ID 목록에 중복된 값이 있습니다.: {}", userIds);
+            return false;
         }
         List<User> users = userRepository.findAllByUsernameIn(userIds);
         if (users.size() != userIds.size()) {
             log.warn("Some users not found for IDs: {}", userIds);
-            throw new UserNotFoundException("해당 ID를 가진 일부 사용자를 찾을 수 없습니다.");
+            return false;
         }
         return true;
     }

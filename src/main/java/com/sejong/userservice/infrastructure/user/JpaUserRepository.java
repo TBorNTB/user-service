@@ -51,9 +51,6 @@ public class JpaUserRepository implements UserRepository {
     @Override
     public List<User> findAllByUsernameIn(List<String> userIds) {
         List<UserEntity> userEntities = springDataJpaUserRepository.findAllByUsernameIn(userIds);
-        if (userEntities.isEmpty()) {
-            throw new UserNotFoundException("해당 ID를 가진 사용자를 찾을 수 없어요.");
-        }
         return userEntities.stream().map(UserEntity::toDomain).toList();
     }
 }
