@@ -1,11 +1,6 @@
 package com.sejong.userservice.application.user;
 
-import static com.sejong.userservice.application.exception.exception.ExceptionType.DUPLICATED_USER_REQUEST;
-import static com.sejong.userservice.application.exception.exception.ExceptionType.EMPTY_USER_REQUEST;
-import static com.sejong.userservice.application.exception.exception.ExceptionType.NOT_FOUND_USER;
-
 import com.sejong.userservice.application.exception.UserNotFoundException;
-import com.sejong.userservice.application.exception.exception.ApiException;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
