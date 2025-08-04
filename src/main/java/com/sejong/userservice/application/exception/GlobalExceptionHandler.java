@@ -1,12 +1,11 @@
 package com.sejong.userservice.application.exception;
 
-import com.sejong.userservice.application.exception.exception.ApiException;
+import com.sejong.userservice.application.exception.exception.BaseException;
 import com.sejong.userservice.application.exception.exception.ExceptionResponse;
 import com.sejong.userservice.application.exception.exception.ExceptionType;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.shaded.com.google.protobuf.Api;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,8 +16,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Hidden
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ExceptionResponse> handleException(HttpServletRequest request, ApiException e) {
+    @ExceptionHandler(BaseException.class)
+    public ResponseEntity<ExceptionResponse> handleException(HttpServletRequest request, BaseException e) {
         ExceptionType type = e.exceptionType();
         log.info("잘못된 요청이 들어왔습니다. URI: {},  내용:  {}", request.getRequestURI(), type.description());
         return ResponseEntity.status(type.httpStatus())
