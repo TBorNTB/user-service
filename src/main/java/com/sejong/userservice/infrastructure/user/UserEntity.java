@@ -34,7 +34,7 @@ public class UserEntity {
     private Long id;
 
     @Column(nullable = false, length = 50)
-    private String username;
+    private String nickname;
 
     @Column(length = 50)
     private String realName;
@@ -71,7 +71,7 @@ public class UserEntity {
     public static UserEntity from(User user) {
         return UserEntity.builder()
                 .id(user.getId())
-                .username(user.getUsername())
+                .nickname(user.getNickname())
                 .role(user.getRole())
                 .realName(user.getRealName())
                 .encryptPassword(user.getEncryptPassword())
@@ -88,7 +88,7 @@ public class UserEntity {
     public User toDomain() {
         return User.builder()
                 .id(this.id)
-                .username(this.getUsername())
+                .nickname(this.getNickname())
                 .encryptPassword(this.encryptPassword)
                 .role(this.role)
                 .realName(this.realName)

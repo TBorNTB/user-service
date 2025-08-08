@@ -18,7 +18,9 @@ public class User {
 
     private static final Logger log = LoggerFactory.getLogger(User.class);
     private Long id;
-    private String username;
+    private String nickname;
+    // TODO: email 구현
+//    private Email email;
     private String encryptPassword;
     private UserRole role;
     private String realName;
@@ -29,6 +31,22 @@ public class User {
     private String profileImageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public static User from(JoinRequest joinRequest, String encryptPassword) {
+        return User.builder()
+                .nickname(joinRequest.getNickname())
+                .encryptPassword(encryptPassword)
+                .role(UserRole.UNCONFIRMED_MEMBER)
+                .realName(joinRequest.getRealName())
+                .description(null)
+                .githubUrl(null)
+                .linkedinUrl(null)
+                .blogUrl(null)
+                .profileImageUrl(null)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
     public User updateProfile(UserUpdateRequest updateRequest) {
         if (updateRequest.getRealName() != null) {
@@ -55,26 +73,10 @@ public class User {
 
     public User grantRole(UserRole newRole) {
         if (this.role != newRole) {
-            log.info("권한 변경 발생. " + this.username + "의 권한 : " + this.role + " > " + newRole);
+            log.info("권한 변경 발생. " + this.nickname + "의 권한 : " + this.role + " > " + newRole);
             this.role = newRole;
             this.updatedAt = LocalDateTime.now();
         }
         return this;
-    }
-
-    public static User from(JoinRequest joinRequest, String encryptPassword) {
-        return User.builder()
-                .username(joinRequest.getUsername())
-                .encryptPassword(encryptPassword)
-                .role(UserRole.UNCONFIRMED_MEMBER)
-                .realName(joinRequest.getRealName())
-                .description(null)
-                .githubUrl(null)
-                .linkedinUrl(null)
-                .blogUrl(null)
-                .profileImageUrl(null)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
     }
 }
