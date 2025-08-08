@@ -17,16 +17,15 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JWTUtil {
-    private SecretKey secretKey;
     private final long accessTokenExpirationTime;
     private final long refreshTokenExpirationTime;
+    private SecretKey secretKey;
 
     public JWTUtil(@Value("${jwt.secret}") String secret,
                    @Value("${jwt.expiration-time}") long accessTokenExpirationTime,
                    @Value("${jwt.refresh-expiration-time}") long refreshTokenExpirationTime) {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
                 SIG.HS256.key().build().getAlgorithm());
-
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
@@ -108,7 +107,7 @@ public class JWTUtil {
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
-                .signWith(secretKey)
+                .signWith(secretKey, SIG.HS256)
                 .id(jti)
                 .compact();
     }
@@ -122,7 +121,7 @@ public class JWTUtil {
                 .claim("username", username)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
-                .signWith(secretKey)
+                .signWith(secretKey, SIG.HS256)
                 .id(jti)
                 .compact();
     }

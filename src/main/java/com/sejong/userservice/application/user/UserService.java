@@ -29,21 +29,21 @@ public class UserService {
     private final TokenRepository tokenRepository;
 
     public JoinResponse joinProcess(JoinRequest joinRequest) {
-        String username = joinRequest.getUsername();
+        String nickname = joinRequest.getNickname();
 
-        if (userRepository.existsByUsername(username)) {
-            log.warn("Attempted to register with existing username: {}", username);
-            throw new RuntimeException("이미 사용 중인 사용자 이름입니다: " + username);
+        if (userRepository.existsByNickname(nickname)) {
+            log.warn("Attempted to register with existing username: {}", nickname);
+            throw new RuntimeException("이미 사용 중인 사용자 이름입니다: " + nickname);
         }
 
         User user = User.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
 
         try {
             User savedUser = userRepository.save(user);
-            log.info("User registered successfully: {}", username);
-            return JoinResponse.of(savedUser.getUsername(), "Registration successful!");
+            log.info("User registered successfully: {}", nickname);
+            return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
         } catch (Exception e) {
-            log.error("Failed to save user {}: {}", username, e.getMessage());
+            log.error("Failed to save user {}: {}", nickname, e.getMessage());
             throw new RuntimeException("회원가입 중 데이터베이스 오류가 발생했습니다.", e);
         }
     }
@@ -80,22 +80,22 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse deleteUser(String username) {
-        boolean exists = userRepository.existsByUsername(username);
+    public UserResponse deleteUser(String nickname) {
+        boolean exists = userRepository.existsByNickname(nickname);
         if (!exists) {
-            log.warn("Attempted to delete non-existent user: {}", username);
-            throw new UserNotFoundException("삭제하려는 사용자를 찾을 수 없습니다: " + username);
+            log.warn("Attempted to delete non-existent user: {}", nickname);
+            throw new UserNotFoundException("삭제하려는 사용자를 찾을 수 없습니다: " + nickname);
         }
 
         try {
-            User user = userRepository.findByUsername(username);
+            User user = userRepository.findByUsername(nickname);
             UserResponse userResponse = UserResponse.from(user);
-            userRepository.deleteByUsername(username);
-            tokenRepository.revokeAllTokensForUser(username);
-            log.info("User {} deleted successfully.", username);
+            userRepository.deleteByUserNickname(nickname);
+            tokenRepository.revokeAllTokensForUser(nickname);
+            log.info("User {} deleted successfully.", nickname);
             return userResponse;
         } catch (Exception e) {
-            log.error("Failed to delete user {}: {}", username, e.getMessage());
+            log.error("Failed to delete user {}: {}", nickname, e.getMessage());
             throw new RuntimeException("사용자 삭제 중 오류가 발생했습니다.", e);
         }
     }
@@ -169,7 +169,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public boolean exists(String userId) {
-        return userRepository.existsByUsername(userId);
+        return userRepository.existsByNickname(userId);
     }
 
     @Transactional(readOnly = true)

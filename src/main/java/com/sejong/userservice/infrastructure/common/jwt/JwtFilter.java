@@ -18,12 +18,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
-public class HeaderAuthenticationFilter extends OncePerRequestFilter {
+public class JwtFilter extends OncePerRequestFilter {
 
     private final String userIdHeaderName;
     private final String rolesHeaderName;
 
-    public HeaderAuthenticationFilter(String userIdHeaderName, String rolesHeaderName) {
+    public JwtFilter(String userIdHeaderName, String rolesHeaderName) {
         this.userIdHeaderName = userIdHeaderName;
         this.rolesHeaderName = rolesHeaderName;
     }

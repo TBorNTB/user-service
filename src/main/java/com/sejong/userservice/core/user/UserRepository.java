@@ -7,13 +7,13 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository {
     User save(User userEntity);
 
-    boolean existsByUsername(String username);
+    boolean existsByNickname(String nickname);
 
     User findByUsername(String username);
 
     List<User> findAllUsers();
 
-    String deleteByUsername(String username);
+    String deleteByUserNickname(String username);
 
     List<User> findAllByUsernameIn(List<String> userIds);
 }
