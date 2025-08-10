@@ -148,14 +148,14 @@ public class UserService {
             throw new UserNotFoundException("승인할 사용자를 찾을 수 없습니다: " + targetUsername);
         }
 
-        if (userToApprove.getRole() != UserRole.UNCONFIRMED_MEMBER) {
+        if (userToApprove.getRole() != UserRole.OUTSIDER) {
             log.warn("User {} is not in UNCONFIRMED_MEMBER state. Current role: {}", targetUsername,
                     userToApprove.getRole());
             throw new IllegalStateException(
                     "사용자 " + targetUsername + "은(는) 승인 대기 상태가 아닙니다. (현재 권한: " + userToApprove.getRole().name() + ")");
         }
 
-        userToApprove.grantRole(UserRole.MEMBER);
+        userToApprove.grantRole(UserRole.ASSOCIATE_MEMBER);
 
         try {
             User updatedUser = userRepository.save(userToApprove);

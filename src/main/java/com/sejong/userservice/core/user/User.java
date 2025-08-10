@@ -36,7 +36,7 @@ public class User {
         return User.builder()
                 .nickname(joinRequest.getNickname())
                 .encryptPassword(encryptPassword)
-                .role(UserRole.UNCONFIRMED_MEMBER)
+                .role(UserRole.OUTSIDER)
                 .realName(joinRequest.getRealName())
                 .description(null)
                 .githubUrl(null)
