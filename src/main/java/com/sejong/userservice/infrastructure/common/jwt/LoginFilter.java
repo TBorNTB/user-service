@@ -10,24 +10,28 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Iterator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 // 로그인 필터처리 시 재이용할 것.
-public class LoginFilter extends NicknamePasswordAuthenticationFilter {
+@Slf4j
+@RequiredArgsConstructor
+public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final TokenRepository tokenRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil,
-                       TokenRepository tokenRepository) {
-        this.authenticationManager = authenticationManager;
-        this.jwtUtil = jwtUtil;
-        this.tokenRepository = tokenRepository;
+    @Override
+    protected String obtainUsername(HttpServletRequest request) {
+        // 기본적으로 'username'을 사용하던 것을 'email'로 변경
+        return request.getParameter("email");
     }
 
     @Override
