@@ -1,5 +1,8 @@
 package com.sejong.userservice.application.config;
 
+import com.sejong.userservice.application.jwt.JwtExceptionFilter;
+import com.sejong.userservice.infrastructure.common.jwt.JwtFilter;
+import lombok.NoArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,13 +12,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@NoArgsConstructor
 public class SecurityConfig {
-
-    public SecurityConfig() {
-    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -51,10 +53,9 @@ public class SecurityConfig {
                         )
                         .permitAll()
 //                        .requestMatchers("/admin").hasRole("ADMIN")
-                        .anyRequest().authenticated());
-
-//        http
-//                .addFilterBefore(new JwtFilter("X-User-ID", "X-User-Roles"), UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().authenticated())
+                .addFilterBefore(new JwtExceptionFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
         //세션 설정 > session을 stateless로 설정
         http

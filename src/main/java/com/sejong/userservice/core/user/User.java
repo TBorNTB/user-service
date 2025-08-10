@@ -19,8 +19,8 @@ public class User {
     private static final Logger log = LoggerFactory.getLogger(User.class);
     private Long id;
     private String nickname;
-    // TODO: email 구현
-//    private Email email;
+    // TODO: Email vo
+    private String email;
     private String encryptPassword;
     private UserRole role;
     private String realName;

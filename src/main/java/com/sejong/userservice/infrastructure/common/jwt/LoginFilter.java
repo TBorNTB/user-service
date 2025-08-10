@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 
+// 로그인 필터처리 시 재이용할 것.
 public class LoginFilter extends NicknamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
@@ -47,7 +48,7 @@ public class LoginFilter extends NicknamePasswordAuthenticationFilter {
                                             Authentication authentication) {
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-        String username = customUserDetails.getNickname();
+        String username = customUserDetails.getEmail();
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();

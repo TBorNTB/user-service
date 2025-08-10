@@ -20,29 +20,24 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final String userIdHeaderName;
-    private final String rolesHeaderName;
-
-    public JwtFilter(String userIdHeaderName, String rolesHeaderName) {
-        this.userIdHeaderName = userIdHeaderName;
-        this.rolesHeaderName = rolesHeaderName;
-    }
+    private static final String NICKNAME_HEADER = "X-User-Nickname";
+    private static final String ROLES_HEADER = "X-User-Roles";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String username = request.getHeader(userIdHeaderName);
-        String roles = request.getHeader(rolesHeaderName);
+        String username = request.getHeader(NICKNAME_HEADER);
+        String roles = request.getHeader(ROLES_HEADER);
 
         if (username == null || username.isEmpty()) {
-            log.info("헤더에 username이 포함되어 있지 않아요! 헤더 이름: {}", userIdHeaderName);
+            log.info("헤더에 username이 포함되어 있지 않아요! 헤더 이름: {}", NICKNAME_HEADER);
             filterChain.doFilter(request, response);
             return;
         }
 
         if (roles == null || roles.isEmpty()) {
-            log.error("헤더에 roles가 포함되어 있지 않아요! 헤더 이름: {}", rolesHeaderName);
+            log.error("헤더에 roles가 포함되어 있지 않아요! 헤더 이름: {}", ROLES_HEADER);
             filterChain.doFilter(request, response);
             return;
         }

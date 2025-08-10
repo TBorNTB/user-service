@@ -17,6 +17,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +30,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import java.util.Collection;
-import java.util.Iterator;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -68,7 +68,7 @@ public class UserController {
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getNickname(), 
+                    loginRequest.getEmail(),
                     loginRequest.getPassword(), 
                     null
             );
@@ -76,25 +76,28 @@ public class UserController {
             Authentication authentication = authenticationManager.authenticate(authToken);
             CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
 
-            String username = customUserDetails.getNickname();
+            String email = customUserDetails.getEmail();
 
+            // ------------ 권한 찾기 ------------
+            // authentication 인증된 사용자 객체
+            // getAuthorities() : 해당 사용자에게 부여된 권한(들)을 반환 (<- 여러개 일 수 있음: Collection<? extends GrantedAuthority>)
             Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
             Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
             GrantedAuthority auth = iterator.next();
 
             String role = auth.getAuthority();
 
-            String accessToken = jwtUtil.createAccessToken(username, role);
-            String refreshToken = jwtUtil.createRefreshToken(username);
+            String accessToken = jwtUtil.createAccessToken(email, role);
+            String refreshToken = jwtUtil.createRefreshToken(email);
 
             String accessJti = jwtUtil.getJti(accessToken);
             LocalDateTime accessExpiryDate = jwtUtil.getExpirationLocalDateTime(accessToken);
             String refreshJti = jwtUtil.getJti(refreshToken);
             LocalDateTime refreshExpiryDate = jwtUtil.getExpirationLocalDateTime(refreshToken);
 
-            tokenRepository.revokeAllTokensForUser(username);
-            tokenRepository.saveToken(accessToken, username, accessExpiryDate, accessJti, TokenType.ACCESS);
-            tokenRepository.saveToken(refreshToken, username, refreshExpiryDate, refreshJti, TokenType.REFRESH);
+            tokenRepository.revokeAllTokensForUser(email);
+            tokenRepository.saveToken(accessToken, email, accessExpiryDate, accessJti, TokenType.ACCESS);
+            tokenRepository.saveToken(refreshToken, email, refreshExpiryDate, refreshJti, TokenType.REFRESH);
 
             response.addHeader("Authorization", "Bearer " + accessToken);
 
@@ -124,7 +127,7 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@AuthenticationPrincipal CustomUserDetails userDetails,
                                                    @RequestBody UserUpdateRequest updateRequest) {
 
-        UserResponse updatedUser = userService.updateUser(userDetails.getNickname(), updateRequest);
+        UserResponse updatedUser = userService.updateUser(userDetails.getEmail(), updateRequest);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
@@ -132,7 +135,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ROLE_MEMBER', 'ROLE_ADMIN')")
     @DeleteMapping
     public ResponseEntity<UserResponse> deleteUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        UserResponse userResponse = userService.deleteUser(userDetails.getNickname());
+        UserResponse userResponse = userService.deleteUser(userDetails.getEmail());
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
@@ -145,7 +148,7 @@ public class UserController {
             HttpServletResponse response
     ) {
 
-        String username = userDetails.getNickname();
+        String username = userDetails.getEmail();
 
         if (username == null || username.trim().isEmpty()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -169,7 +172,7 @@ public class UserController {
             @PathVariable("username") String grantedUsername,
             HttpServletResponse response) {
 
-        log.info("관리자 권한 부여 {}: {}가 {}에게 관리자 권한을 부여합니다. ", LocalDateTime.now(), userDetails.getNickname(),
+        log.info("관리자 권한 부여 {}: {}가 {}에게 관리자 권한을 부여합니다. ", LocalDateTime.now(), userDetails.getEmail(),
                 grantedUsername);
         UserResponse userResponse = userService.grantAdminRole(grantedUsername);
 
@@ -183,7 +186,7 @@ public class UserController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @PathVariable("username") String grantedUsername) {
 
-        log.info("정식회원 권한 부여 {}: {}가 {}에게 정식 회원 권한을 부여합니다. ", LocalDateTime.now(), userDetails.getNickname(),
+        log.info("정식회원 권한 부여 {}: {}가 {}에게 정식 회원 권한을 부여합니다. ", LocalDateTime.now(), userDetails.getEmail(),
                 grantedUsername);
         UserResponse userResponse = userService.confirmMember(grantedUsername);
 
