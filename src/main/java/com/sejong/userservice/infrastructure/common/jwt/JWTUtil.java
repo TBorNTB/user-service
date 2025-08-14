@@ -129,6 +129,18 @@ public class JWTUtil {
     }
 
     /**
+     * 액세스 토큰을 위한 HTTP Only 쿠키 생성
+     */
+    public Cookie createAccessTokenCookie(String accessToken) {
+        Cookie cookie = new Cookie("accessToken", accessToken);
+        cookie.setMaxAge((int) (accessTokenExpirationTime / 1000)); // 쿠키 만료 시간 (초 단위)
+        cookie.setHttpOnly(false); // JavaScript에서 접근 가능
+        // cookie.setSecure(true); // HTTPS 환경에서만 전송
+        cookie.setPath("/"); // 모든 경로에서 접근 가능하도록 설정
+        return cookie;
+    }
+
+    /**
      * 리프레시 토큰을 위한 HTTP Only 쿠키 생성
      */
     public Cookie createRefreshTokenCookie(String refreshToken) {
