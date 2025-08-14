@@ -1,6 +1,8 @@
 package com.sejong.userservice.infrastructure.user;
 
-import com.sejong.userservice.application.common.exception.UserNotFoundException;
+import static com.sejong.userservice.application.common.exception.ExceptionType.NOT_FOUND_USER;
+
+import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import java.util.List;
@@ -31,7 +33,7 @@ public class UserRepositoryImpl implements UserRepository {
         Optional<UserEntity> userEntityOptional = jpaUserRepository.findByNickname(username);
 
         return userEntityOptional.map(UserEntity::toDomain)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없어요."));
+                .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
     }
 
     @Override
@@ -41,15 +43,14 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     @Transactional
-    public String deleteByUserNickname(String nickname) {
+    public void deleteByUserNickname(String nickname) {
         jpaUserRepository.deleteByNickname(nickname);
-        return nickname;
     }
 
     @Override
     public List<User> findAllByUsernameIn(List<String> nicknames) {
         return nicknames.stream().map((nickname) -> jpaUserRepository.findByNickname(nickname)
-                        .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없어요.")))
+                        .orElseThrow(() -> new BaseException(NOT_FOUND_USER)))
                 .map(UserEntity::toDomain)
                 .toList();
     }

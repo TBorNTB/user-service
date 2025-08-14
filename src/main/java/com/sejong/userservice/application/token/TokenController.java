@@ -1,6 +1,5 @@
 package com.sejong.userservice.application.token;
 
-import com.sejong.userservice.application.common.exception.TokenReissueException;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.token.dto.TokenReissueResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,15 +30,11 @@ public class TokenController {
         String oldRefreshToken = jwtUtil.getRefreshTokenFromCookie(request);
         String oldAccessToken = jwtUtil.getAccessTokenFromHeader(request);
 
-        try {
-            TokenReissueResponse reissueResponse = tokenService.reissueTokens(oldAccessToken, oldRefreshToken);
+        TokenReissueResponse reissueResponse = tokenService.reissueTokens(oldAccessToken, oldRefreshToken);
 
-            response.addHeader("Authorization", "Bearer " + reissueResponse.getNewAccessToken());
-            response.addCookie(reissueResponse.getNewRefreshTokenCookie());
+        response.addHeader("Authorization", "Bearer " + reissueResponse.getNewAccessToken());
+        response.addCookie(reissueResponse.getNewRefreshTokenCookie());
 
-            return new ResponseEntity<>("토큰이 성공적으로 재발급되었습니다.", HttpStatus.OK);
-        } catch (TokenReissueException e) {
-            return new ResponseEntity<>(e.getMessage(), e.getStatus().getHttpStatus());
-        }
+        return new ResponseEntity<>("토큰이 성공적으로 재발급되었습니다.", HttpStatus.OK);
     }
 }

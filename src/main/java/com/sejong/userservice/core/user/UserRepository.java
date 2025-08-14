@@ -13,7 +13,7 @@ public interface UserRepository {
 
     List<User> findAllUsers();
 
-    String deleteByUserNickname(String username);
+    void deleteByUserNickname(String username);
 
     List<User> findAllByUsernameIn(List<String> userIds);
 }

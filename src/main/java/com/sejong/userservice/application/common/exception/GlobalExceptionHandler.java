@@ -1,8 +1,5 @@
 package com.sejong.userservice.application.common.exception;
 
-import com.sejong.userservice.application.common.exception.exception.BaseException;
-import com.sejong.userservice.application.common.exception.exception.ExceptionResponse;
-import com.sejong.userservice.application.common.exception.exception.ExceptionType;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -22,12 +19,6 @@ public class GlobalExceptionHandler {
         log.info("잘못된 요청이 들어왔습니다. URI: {},  내용:  {}", request.getRequestURI(), type.description());
         return ResponseEntity.status(type.httpStatus())
                 .body(new ExceptionResponse(type.description()));
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
-        log.error("User not found error: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)

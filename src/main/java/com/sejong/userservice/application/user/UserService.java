@@ -1,6 +1,5 @@
 package com.sejong.userservice.application.user;
 
-import com.sejong.userservice.application.common.exception.UserNotFoundException;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
@@ -59,12 +58,6 @@ public class UserService {
     @Transactional
     public UserResponse updateUser(String username, UserUpdateRequest updateRequest) {
         User existingUser = userRepository.findByUsername(username);
-
-        if (existingUser == null) {
-            log.warn("User not found for update: {}", username);
-            throw new UserNotFoundException("사용자를 찾을 수 없습니다: " + username);
-        }
-
         existingUser.updateProfile(
                 updateRequest
         );
@@ -81,12 +74,6 @@ public class UserService {
 
     @Transactional
     public UserResponse deleteUser(String nickname) {
-        boolean exists = userRepository.existsByNickname(nickname);
-        if (!exists) {
-            log.warn("Attempted to delete non-existent user: {}", nickname);
-            throw new UserNotFoundException("삭제하려는 사용자를 찾을 수 없습니다: " + nickname);
-        }
-
         try {
             User user = userRepository.findByUsername(nickname);
             UserResponse userResponse = UserResponse.from(user);
@@ -117,11 +104,6 @@ public class UserService {
     public UserResponse grantAdminRole(String targetUsername) {
         User userToGrantAdmin = userRepository.findByUsername(targetUsername);
 
-        if (userToGrantAdmin == null) {
-            log.warn("Attempted to grant admin role to non-existent user: {}", targetUsername);
-            throw new UserNotFoundException("관리자 권한을 부여할 사용자를 찾을 수 없습니다: " + targetUsername);
-        }
-
         if (userToGrantAdmin.getRole() == UserRole.ADMIN) {
             log.info("User {} already has ADMIN role. No change made.", targetUsername);
             return UserResponse.from(userToGrantAdmin);
@@ -142,11 +124,6 @@ public class UserService {
     @Transactional
     public UserResponse confirmMember(String targetUsername) {
         User userToApprove = userRepository.findByUsername(targetUsername);
-
-        if (userToApprove == null) {
-            log.warn("Attempted to approve non-existent user: {}", targetUsername);
-            throw new UserNotFoundException("승인할 사용자를 찾을 수 없습니다: " + targetUsername);
-        }
 
         if (userToApprove.getRole() != UserRole.OUTSIDER) {
             log.warn("User {} is not in UNCONFIRMED_MEMBER state. Current role: {}", targetUsername,

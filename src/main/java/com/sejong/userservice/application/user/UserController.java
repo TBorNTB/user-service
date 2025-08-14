@@ -1,6 +1,5 @@
 package com.sejong.userservice.application.user;
 
-import com.sejong.userservice.application.common.exception.UserNotFoundException;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.user.dto.CustomUserDetails;
 import com.sejong.userservice.application.user.dto.JoinRequest;
@@ -118,9 +117,6 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userService.getAllUsers();
-        if (users.isEmpty()) {
-            throw new UserNotFoundException("사용자 정보가 존재하지 않습니다.");
-        }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
