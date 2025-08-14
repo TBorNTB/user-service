@@ -12,13 +12,15 @@ import java.util.Date;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@Getter
 public class JWTUtil {
-    private final long accessTokenExpirationTime;
-    private final long refreshTokenExpirationTime;
+    final long accessTokenExpirationTime;
+    final long refreshTokenExpirationTime;
     private SecretKey secretKey;
 
     public JWTUtil(@Value("${jwt.secret}") String secret,

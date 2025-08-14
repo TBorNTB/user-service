@@ -99,12 +99,20 @@ public class UserController {
             tokenRepository.saveToken(accessToken, email, accessExpiryDate, accessJti, TokenType.ACCESS);
             tokenRepository.saveToken(refreshToken, email, refreshExpiryDate, refreshJti, TokenType.REFRESH);
 
-            response.addHeader("Authorization", "Bearer " + accessToken);
+            // Access Token을 쿠키로 설정
+            Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+            accessTokenCookie.setMaxAge((int) (jwtUtil.getAccessTokenExpirationTime() / 1000));
+            accessTokenCookie.setHttpOnly(true);
+            accessTokenCookie.setPath("/");
+            response.addCookie(accessTokenCookie);
 
             Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
+            refreshTokenCookie.setMaxAge((int) (jwtUtil.getRefreshTokenExpirationTime() / 1000));
+            refreshTokenCookie.setHttpOnly(true);
+            refreshTokenCookie.setPath("/");
             response.addCookie(refreshTokenCookie);
 
-            return ResponseEntity.ok(new LoginResponse("로그인 성공", accessToken));
+            return ResponseEntity.ok(new LoginResponse("로그인 성공", null));
         } catch (Exception e) {
             return ResponseEntity.status(401).body(new LoginResponse("로그인 실패: " + e.getMessage(), null));
         }
