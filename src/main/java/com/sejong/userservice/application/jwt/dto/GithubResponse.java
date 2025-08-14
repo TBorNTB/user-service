@@ -14,13 +14,12 @@ public class GithubResponse implements OAuth2Response{
     }
 
     @Override
-    public String getProviderId() {
-        // github 사용자명
+    public String getProviderId() { // 깃헙에서 사용하는 유저 pk
         return attribute.get("id").toString();
     }
 
     @Override
-    public String getNickname() {
+    public String getNickname() { // 깃헙에서 사용하는 닉네임
         return attribute.get("login").toString();
     }
 
@@ -30,7 +29,7 @@ public class GithubResponse implements OAuth2Response{
     }
 
     @Override
-    public String getName() {
+    public String getName() { // 실제 이름
         return attribute.get("name").toString();
     }
 
