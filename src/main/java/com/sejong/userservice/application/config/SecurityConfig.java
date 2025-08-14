@@ -3,7 +3,6 @@ package com.sejong.userservice.application.config;
 import com.sejong.userservice.application.jwt.CustomOAuth2UserService;
 import com.sejong.userservice.application.jwt.JwtExceptionFilter;
 import com.sejong.userservice.application.oauth.CustomSuccessHandler;
-import com.sejong.userservice.infrastructure.common.jwt.JWTUtil;
 import com.sejong.userservice.infrastructure.common.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-    private final JWTUtil jwtUtil;
+    
     private final CustomSuccessHandler customSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
 
@@ -55,6 +53,13 @@ public class SecurityConfig {
         http
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // OAuth2 로그인 설정
+        http
+                .oauth2Login(oauth2 -> oauth2
+                        .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                                .userService(customOAuth2UserService))
+                        .successHandler(customSuccessHandler));
 
         //경로별 인가 작업
         http

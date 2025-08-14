@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Getter
 public class JWTUtil {
+
     final long accessTokenExpirationTime;
     final long refreshTokenExpirationTime;
     private SecretKey secretKey;
