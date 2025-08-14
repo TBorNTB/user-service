@@ -1,8 +1,11 @@
 package com.sejong.userservice.application.config;
 
+import com.sejong.userservice.application.jwt.CustomOAuth2UserService;
 import com.sejong.userservice.application.jwt.JwtExceptionFilter;
+import com.sejong.userservice.application.oauth.CustomSuccessHandler;
+import com.sejong.userservice.infrastructure.common.jwt.JWTUtil;
 import com.sejong.userservice.infrastructure.common.jwt.JwtFilter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,8 +19,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final JWTUtil jwtUtil;
+    private final CustomSuccessHandler customSuccessHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -44,6 +51,11 @@ public class SecurityConfig {
         http
                 .httpBasic((auth) -> auth.disable());
 
+        //세션 설정 > session을 stateless로 설정
+        http
+                .sessionManagement((session) -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
@@ -56,11 +68,6 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtExceptionFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
-
-        //세션 설정 > session을 stateless로 설정
-        http
-                .sessionManagement((session) -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }
