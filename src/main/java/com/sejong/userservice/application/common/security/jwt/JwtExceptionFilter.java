@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.jwt;
+package com.sejong.userservice.application.common.security.jwt;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;

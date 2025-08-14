@@ -1,4 +1,4 @@
-package com.sejong.userservice.infrastructure.common.jwt;
+package com.sejong.userservice.application.common.security.jwt;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.jwt.dto;
+package com.sejong.userservice.application.common.security.oauth.dto;
 
 import java.util.Map;
 import lombok.RequiredArgsConstructor;

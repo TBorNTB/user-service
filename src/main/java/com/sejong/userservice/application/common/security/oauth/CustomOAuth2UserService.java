@@ -1,9 +1,9 @@
-package com.sejong.userservice.application.jwt;
+package com.sejong.userservice.application.common.security.oauth;
 
-import com.sejong.userservice.application.jwt.dto.CustomOAuth2User;
-import com.sejong.userservice.application.jwt.dto.GithubResponse;
-import com.sejong.userservice.application.jwt.dto.OAuth2Response;
-import com.sejong.userservice.application.jwt.dto.UserDTO;
+import com.sejong.userservice.application.common.security.oauth.dto.CustomOAuth2User;
+import com.sejong.userservice.application.common.security.oauth.dto.GithubResponse;
+import com.sejong.userservice.application.common.security.oauth.dto.OAuth2Response;
+import com.sejong.userservice.application.common.security.oauth.dto.UserDTO;
 import com.sejong.userservice.core.user.UserRole;
 import com.sejong.userservice.infrastructure.user.JpaUserRepository;
 import com.sejong.userservice.infrastructure.user.UserEntity;

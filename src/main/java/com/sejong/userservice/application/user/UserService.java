@@ -1,6 +1,6 @@
 package com.sejong.userservice.application.user;
 
-import com.sejong.userservice.application.exception.UserNotFoundException;
+import com.sejong.userservice.application.common.exception.UserNotFoundException;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;

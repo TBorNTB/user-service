@@ -1,18 +1,21 @@
 server:
-  port: 0
+  port: 8080
+
+  profiles:
+    active: local
 
 spring:
   application:
     name: user-service
 
   datasource:
-    url: jdbc:mysql://mysql:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/sejong?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: create  # ?? validate, create, create-drop
+      ddl-auto: none  # ?? validate, create, create-drop
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
@@ -29,15 +32,6 @@ spring:
       stack:
         auto: false
 
-  security:
-    oauth2:
-      client:
-        registration:
-          github:
-            client-id: ${GITHUB_CLIENT_ID}
-            client-secret: ${GITHUB_CLIENT_SECRET}
-            redirect-uri: http://localhost:8000/user-service/users/callback
-
 springdoc:
   api-docs:
     version: openapi_3_0
@@ -52,18 +46,20 @@ springdoc:
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-    prefer-ip-address: true
   client:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: ${EUREKA_DEFAULTZONE}
+      defaultZone: http://127.0.0.1:8761@ipaddress/eureka
+    enabled: false
 
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: apfhdapfhdrnldudnsapxkahddldpdydnglglwkrdmsehffhqustlsgksapxkahdapfhdapfhdrnldudnsapxkahddldpdydnglglwkrdmsehffhqustlsgksapxkahd
   expiration-time: 36000 # 액세스 토큰 만료 시간: 1시간 (밀리초)
   refresh-expiration-time: 604800000 # 리프레시 토큰 만료 시간: 7일 (밀리초)
+
+
 
 aws:
   s3:

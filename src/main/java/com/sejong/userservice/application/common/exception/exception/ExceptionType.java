@@ -1,7 +1,6 @@
-package com.sejong.userservice.application.exception.exception;
+package com.sejong.userservice.application.common.exception.exception;
 
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
 @AllArgsConstructor
 public enum ExceptionType implements ExceptionTypeIfs {

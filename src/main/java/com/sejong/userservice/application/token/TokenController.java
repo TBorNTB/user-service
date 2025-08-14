@@ -1,8 +1,8 @@
 package com.sejong.userservice.application.token;
 
-import com.sejong.userservice.application.exception.TokenReissueException;
+import com.sejong.userservice.application.common.exception.TokenReissueException;
+import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.token.dto.TokenReissueResponse;
-import com.sejong.userservice.infrastructure.common.jwt.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;

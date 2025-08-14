@@ -1,12 +1,12 @@
 package com.sejong.userservice.application.token;
 
-import com.sejong.userservice.application.exception.TokenReissueException;
+import com.sejong.userservice.application.common.exception.TokenReissueException;
+import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.token.dto.TokenReissueResponse;
 import com.sejong.userservice.core.token.TokenRepository;
 import com.sejong.userservice.core.token.TokenType;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
-import com.sejong.userservice.infrastructure.common.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.sejong.userservice.infrastructure.common.jwt;
+package com.sejong.userservice.application.common.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

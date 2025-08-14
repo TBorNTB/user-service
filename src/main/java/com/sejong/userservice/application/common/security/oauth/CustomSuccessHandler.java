@@ -1,7 +1,7 @@
-package com.sejong.userservice.application.oauth;
+package com.sejong.userservice.application.common.security.oauth;
 
-import com.sejong.userservice.application.jwt.dto.CustomOAuth2User;
-import com.sejong.userservice.infrastructure.common.jwt.JWTUtil;
+import com.sejong.userservice.application.common.security.jwt.JWTUtil;
+import com.sejong.userservice.application.common.security.oauth.dto.CustomOAuth2User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

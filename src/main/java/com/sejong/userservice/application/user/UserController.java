@@ -1,6 +1,7 @@
 package com.sejong.userservice.application.user;
 
-import com.sejong.userservice.application.exception.UserNotFoundException;
+import com.sejong.userservice.application.common.exception.UserNotFoundException;
+import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.user.dto.CustomUserDetails;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
@@ -10,7 +11,6 @@ import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.core.token.TokenRepository;
 import com.sejong.userservice.core.token.TokenType;
-import com.sejong.userservice.infrastructure.common.jwt.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,8 +1,8 @@
-package com.sejong.userservice.application.exception;
+package com.sejong.userservice.application.common.exception;
 
-import com.sejong.userservice.application.exception.exception.BaseException;
-import com.sejong.userservice.application.exception.exception.ExceptionResponse;
-import com.sejong.userservice.application.exception.exception.ExceptionType;
+import com.sejong.userservice.application.common.exception.exception.BaseException;
+import com.sejong.userservice.application.common.exception.exception.ExceptionResponse;
+import com.sejong.userservice.application.common.exception.exception.ExceptionType;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

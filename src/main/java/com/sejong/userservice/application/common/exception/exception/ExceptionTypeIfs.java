@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.exception.exception;
+package com.sejong.userservice.application.common.exception.exception;
 
 public interface ExceptionTypeIfs {
     Integer httpStatus();

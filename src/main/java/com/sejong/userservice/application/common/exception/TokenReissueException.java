@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.exception;
+package com.sejong.userservice.application.common.exception;
 
 import com.sejong.userservice.application.token.TokenReissueStatus;
 import lombok.Getter;
