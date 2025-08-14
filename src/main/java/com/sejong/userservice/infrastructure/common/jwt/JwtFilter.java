@@ -19,8 +19,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
-    private static final String NICKNAME_HEADER = "X-User-Nickname";
-    private static final String ROLES_HEADER = "X-User-Roles";
+    private static final String NICKNAME_HEADER = "X-User-Id";
+    private static final String ROLES_HEADER = "X-User-Role";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
