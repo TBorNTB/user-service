@@ -1,5 +1,6 @@
 package com.sejong.userservice.application.common.config;
 
+import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.common.security.jwt.JwtExceptionFilter;
 import com.sejong.userservice.application.common.security.jwt.JwtFilter;
 import com.sejong.userservice.application.common.security.oauth.CustomOAuth2UserService;
@@ -21,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     
+    private final JWTUtil jwtUtil;
     private final CustomSuccessHandler customSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
 
@@ -66,13 +68,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/login", "/", "/users", "/users/login", "/users/health", "/token/reissue", "/webjars/swagger-ui/**",
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui/index.html#/",
-                                "/internal/**"
+                                "/internal/**", "/oauth2/**", "/login/oauth2/**"
                         )
                         .permitAll()
 //                        .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtExceptionFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
