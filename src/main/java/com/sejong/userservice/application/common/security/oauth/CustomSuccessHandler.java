@@ -49,8 +49,12 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
         response.addCookie(refreshTokenCookie);
 
-        // 프론트엔드로 리다이렉트
-        response.sendRedirect("http://localhost:3000/");
+        // TODO: 프론트엔드로 리다이렉트
+//        response.sendRedirect("http://localhost:3000/");
+        // OAuth2 로그인 성공 응답 (프론트엔드 없을 때)
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write("{\"status\":\"success\",\"message\":\"OAuth2 login successful\"}");
     }
 }
 
