@@ -8,6 +8,7 @@ import com.sejong.userservice.application.user.dto.LoginRequest;
 import com.sejong.userservice.application.user.dto.LoginResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
+import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.token.TokenRepository;
 import com.sejong.userservice.core.token.TokenType;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,10 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,9 +44,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final TokenRepository tokenRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Operation(summary = "헬스 체크", description = "서비스 상태를 확인합니다")
     @GetMapping("/health")
@@ -62,29 +61,23 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "사용자 로그인", description = "닉네임과 패스워드로 로그인하여 JWT 토큰을 발급받습니다")
+    @Operation(summary = "사용자 로그인", description = "이메일과 패스워드로 로그인하여 JWT 토큰을 발급받습니다")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         try {
-            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(),
-                    loginRequest.getPassword(), 
-                    null
-            );
+            // 사용자 정보 조회
+            User user = userService.findByEmail(loginRequest.getEmail());
+            if (user == null) {
+                return ResponseEntity.status(401).body(new LoginResponse("로그인 실패: 사용자를 찾을 수 없습니다.", null));
+            }
 
-            Authentication authentication = authenticationManager.authenticate(authToken);
-            CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
+            // 비밀번호 검증
+            if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getEncryptPassword())) {
+                return ResponseEntity.status(401).body(new LoginResponse("로그인 실패: 잘못된 비밀번호입니다.", null));
+            }
 
-            String email = customUserDetails.getEmail();
-
-            // ------------ 권한 찾기 ------------
-            // authentication 인증된 사용자 객체
-            // getAuthorities() : 해당 사용자에게 부여된 권한(들)을 반환 (<- 여러개 일 수 있음: Collection<? extends GrantedAuthority>)
-            Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-            Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-            GrantedAuthority auth = iterator.next();
-
-            String role = auth.getAuthority();
+            String email = user.getEmail();
+            String role = user.getRole().name();
 
             String accessToken = jwtUtil.createAccessToken(email, role);
             String refreshToken = jwtUtil.createRefreshToken(email);

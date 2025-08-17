@@ -168,4 +168,14 @@ public class UserService {
         }
         return true;
     }
+
+    @Transactional(readOnly = true)
+    public User findByEmail(String email) {
+        try {
+            return userRepository.findByUsername(email);
+        } catch (Exception e) {
+            log.error("Error finding user by email {}: {}", email, e.getMessage());
+            return null;
+        }
+    }
 }
