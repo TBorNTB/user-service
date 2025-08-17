@@ -35,6 +35,7 @@ public class User {
     public static User from(JoinRequest joinRequest, String encryptPassword) {
         return User.builder()
                 .nickname(joinRequest.getNickname())
+                .email(joinRequest.getEmail())
                 .encryptPassword(encryptPassword)
                 .role(UserRole.OUTSIDER)
                 .realName(joinRequest.getRealName())
@@ -49,6 +50,9 @@ public class User {
     }
 
     public User updateProfile(UserUpdateRequest updateRequest) {
+        if (updateRequest.getEmail() != null) {
+            this.email = updateRequest.getEmail();
+        }
         if (updateRequest.getRealName() != null) {
             this.realName = updateRequest.getRealName();
         }

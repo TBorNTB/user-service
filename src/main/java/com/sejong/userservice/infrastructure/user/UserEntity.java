@@ -41,6 +41,9 @@ public class UserEntity {
     @Column(nullable = false, length = 50)
     private String nickname;
 
+    @Column(unique = true, nullable = false, length = 255)
+    private String email;
+
     @Column(length = 50)
     private String realName;
 
@@ -62,9 +65,6 @@ public class UserEntity {
 
     @Column(length = 255)
     private String blogUrl;
-
-    @Column(length = 255)
-    private String email;
 
     @Column(length = 255)
     private String profileImageUrl;

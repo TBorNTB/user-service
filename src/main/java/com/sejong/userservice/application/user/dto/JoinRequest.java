@@ -22,6 +22,9 @@ public class JoinRequest {
     @NotBlank(message = "Real name cannot be empty")
     private String realName;
 
+    @NotBlank(message = "Email cannot be empty")
+    private String email;
+
     private String description;
     private String githubUrl;
     private String linkedinUrl;

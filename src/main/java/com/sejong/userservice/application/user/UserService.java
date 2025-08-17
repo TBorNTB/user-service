@@ -30,6 +30,7 @@ public class UserService {
     public JoinResponse joinProcess(JoinRequest joinRequest) {
         String nickname = joinRequest.getNickname();
 
+        // todo: email로 변경
         if (userRepository.existsByNickname(nickname)) {
             log.warn("Attempted to register with existing username: {}", nickname);
             throw new RuntimeException("이미 사용 중인 사용자 이름입니다: " + nickname);
@@ -166,10 +167,5 @@ public class UserService {
             return false;
         }
         return true;
-    }
-
-    @Transactional(readOnly = true)
-    public boolean exist(Long userId) {
-        return userRepository.existsByUserId(userId);
     }
 }
