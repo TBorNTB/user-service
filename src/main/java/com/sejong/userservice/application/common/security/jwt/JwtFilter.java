@@ -1,54 +1,73 @@
 package com.sejong.userservice.application.common.security.jwt;
 
+import com.sejong.userservice.application.common.security.oauth.dto.CustomOAuth2User;
+import com.sejong.userservice.application.common.security.oauth.dto.UserDTO;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
+@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private static final String NICKNAME_HEADER = "X-User-Id";
-    private static final String ROLES_HEADER = "X-User-Role";
+    private final JWTUtil jwtUtil;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String username = request.getHeader(NICKNAME_HEADER);
-        String roles = request.getHeader(ROLES_HEADER);
+        // 쿠키에서 accessToken 추출
+        String token = null;
+        Cookie[] cookies = request.getCookies();
+        
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("accessToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
-        if (username == null || username.isEmpty()) {
-            log.info("헤더에 username이 포함되어 있지 않아요! 헤더 이름: {}", NICKNAME_HEADER);
+        // 토큰이 없으면 다음 필터로 넘어감
+        if (token == null) {
+            log.info("쿠키에 accessToken이 없습니다.");
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (roles == null || roles.isEmpty()) {
-            log.error("헤더에 roles가 포함되어 있지 않아요! 헤더 이름: {}", ROLES_HEADER);
+        if (jwtUtil.isExpired(token)) {
+            log.info("토큰이 만료되었습니다.");
             filterChain.doFilter(request, response);
             return;
         }
 
-        Collection<? extends GrantedAuthority> authorities = Arrays.stream(roles.split(","))
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+        // 토큰에서 username과 role 획득
+        String username = jwtUtil.getUsername(token);
+        String role = jwtUtil.getRole(token);
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // userDTO를 생성하여 값 set
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(username);
+        userDTO.setRole(role);
 
-        log.info("헤더 인증 필터가 실행되었습니다. 사용자: {}, 권한: {}인 사용자 SecurityContext를 생성했습니다.", username, roles);
+        // UserDetails에 회원 정보 객체 담기
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(userDTO);
+
+        // 스프링 시큐리티 인증 토큰 생성
+        Authentication authToken = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        log.info("JWT 토큰 인증 필터가 실행되었습니다. 사용자: {}, 권한: {}인 사용자 SecurityContext를 생성했습니다.", username, role);
 
         filterChain.doFilter(request, response);
     }
