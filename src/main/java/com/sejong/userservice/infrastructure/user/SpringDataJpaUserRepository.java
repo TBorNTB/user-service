@@ -13,4 +13,6 @@ public interface SpringDataJpaUserRepository extends JpaRepository<UserEntity, L
 
     List<UserEntity> findAllByUsernameIn(List<String> userIds);
 
+
+
 }

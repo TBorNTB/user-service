@@ -1,9 +1,7 @@
 package com.sejong.userservice.core.user;
 
 import java.util.List;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface UserRepository {
     User save(User userEntity);
 
@@ -16,4 +14,6 @@ public interface UserRepository {
     String deleteByUsername(String username);
 
     List<User> findAllByUsernameIn(List<String> userIds);
+
+    boolean existsByUserId(Long userId);
 }

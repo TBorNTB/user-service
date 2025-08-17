@@ -56,4 +56,9 @@ public class JpaUserRepository implements UserRepository {
         }
         return userEntities.stream().map(UserEntity::toDomain).toList();
     }
+
+    @Override
+    public boolean existsByUserId(Long userId) {
+        return springDataJpaUserRepository.existsById(userId);
+    }
 }

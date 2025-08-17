@@ -58,7 +58,7 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/login", "/", "/users/**", "/token/reissue", "/webjars/swagger-ui/**",
+                        .requestMatchers("/api/login","/login", "/", "/users/**", "/token/reissue", "/webjars/swagger-ui/**",
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui/index.html#/","/users/health")
                         .permitAll()
 //                        .requestMatchers("/admin").hasRole("ADMIN")

@@ -190,4 +190,8 @@ public class UserService {
         return true;
     }
 
+    @Transactional(readOnly = true)
+    public boolean exist(Long userId) {
+        return userRepository.existsByUserId(userId);
+    }
 }
