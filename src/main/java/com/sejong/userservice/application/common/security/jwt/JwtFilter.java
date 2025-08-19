@@ -38,6 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = request.getHeader(USER_ID_HEADER);
         String role = request.getHeader(USER_ROLE_HEADER);
 
+
         if (username != null && role != null) {
             UserContext userContext = UserContext.of(username, role);
 
@@ -52,6 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             log.debug("User context set: userId={}, userRole={}", username, role);
+            filterChain.doFilter(request, response);
             return;
         }
 
