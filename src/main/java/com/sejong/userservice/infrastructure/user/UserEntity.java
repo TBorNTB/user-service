@@ -35,7 +35,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
+//    @Column(unique = true) 고유해지니까 괜찮겠지?
     private String username;
 
     @Column(nullable = false, length = 50)
@@ -80,6 +80,7 @@ public class UserEntity {
         return UserEntity.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
+                .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .realName(user.getRealName())
@@ -98,6 +99,7 @@ public class UserEntity {
         return User.builder()
                 .id(this.id)
                 .nickname(this.getNickname())
+                .username(this.username)
                 .email(this.email)
                 .encryptPassword(this.encryptPassword)
                 .role(this.role)
@@ -110,5 +112,9 @@ public class UserEntity {
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
                 .build();
+    }
+
+    public void updateUsername() {
+        this.username = "tbntb" + this.id;
     }
 }

@@ -14,4 +14,6 @@ public interface UserRepository {
     void deleteByUserNickname(String username);
 
     List<User> findAllByUsernameIn(List<String> userIds);
+
+    User findByEmail(String email);
 }

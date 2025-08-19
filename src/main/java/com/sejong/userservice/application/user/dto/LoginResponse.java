@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+// Todo: 그냥 삭제!
 @Schema(description = "로그인 응답")
 @AllArgsConstructor
 @Getter

@@ -21,6 +21,7 @@ public class User {
     private String nickname;
     // TODO: Email vo
     private String email;
+    private String username;
     private String encryptPassword;
     private UserRole role;
     private String realName;
@@ -36,6 +37,7 @@ public class User {
         return User.builder()
                 .nickname(joinRequest.getNickname())
                 .email(joinRequest.getEmail())
+                .username(null)
                 .encryptPassword(encryptPassword)
                 .role(UserRole.OUTSIDER)
                 .realName(joinRequest.getRealName())

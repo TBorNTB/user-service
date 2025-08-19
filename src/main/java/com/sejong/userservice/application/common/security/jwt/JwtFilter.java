@@ -1,24 +1,29 @@
 package com.sejong.userservice.application.common.security.jwt;
 
+import com.sejong.userservice.application.common.security.UserContext;
 import com.sejong.userservice.application.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.application.common.security.oauth.dto.UserDTO;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Slf4j
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
+    private static final String USER_ID_HEADER = "X-User-Id";
+    private static final String USER_ROLE_HEADER = "X-User-Role";
     private final JWTUtil jwtUtil;
 
     @Override
@@ -30,36 +35,25 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        String username = request.getHeader(USER_ID_HEADER);
+        String role = request.getHeader(USER_ROLE_HEADER);
 
-        // 쿠키에서 accessToken 추출
-        String token = null;
-        Cookie[] cookies = request.getCookies();
-        
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        if (username != null && role != null) {
+            UserContext userContext = UserContext.of(username, role);
 
-        // 토큰이 없으면 다음 필터로 넘어감
-        if (token == null) {
-            log.info("쿠키에 accessToken이 없습니다.");
-            filterChain.doFilter(request, response);
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            userContext,
+                            null,
+                            List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    );
+
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            log.debug("User context set: userId={}, userRole={}", username, role);
             return;
         }
-
-        if (jwtUtil.isExpired(token)) {
-            log.info("토큰이 만료되었습니다.");
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // 토큰에서 username과 role 획득
-        String username = jwtUtil.getUsername(token);
-        String role = jwtUtil.getRole(token);
 
         // userDTO를 생성하여 값 set
         UserDTO userDTO = new UserDTO();

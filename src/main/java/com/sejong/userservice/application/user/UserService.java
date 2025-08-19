@@ -27,12 +27,14 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenRepository tokenRepository;
 
+    @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
         String nickname = joinRequest.getNickname();
 
         // todo: email로 변경
         if (userRepository.existsByNickname(nickname)) {
             log.warn("Attempted to register with existing username: {}", nickname);
+            // todo: BaseException
             throw new RuntimeException("이미 사용 중인 사용자 이름입니다: " + nickname);
         }
 
@@ -172,7 +174,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
         try {
-            return userRepository.findByUsername(email);
+            return userRepository.findByEmail(email);
         } catch (Exception e) {
             log.error("Error finding user by email {}: {}", email, e.getMessage());
             return null;

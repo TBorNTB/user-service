@@ -19,7 +19,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) {
+        // todo: exception 처리
         UserEntity savedUserEntity = jpaUserRepository.save(UserEntity.from(user));
+        savedUserEntity.updateUsername();
         return savedUserEntity.toDomain();
     }
 
@@ -53,5 +55,11 @@ public class UserRepositoryImpl implements UserRepository {
                         .orElseThrow(() -> new BaseException(NOT_FOUND_USER)))
                 .map(UserEntity::toDomain)
                 .toList();
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        UserEntity userEntity = jpaUserRepository.findByEmail(email).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+        return userEntity.toDomain();
     }
 }
