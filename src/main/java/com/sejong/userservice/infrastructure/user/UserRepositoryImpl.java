@@ -32,7 +32,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByUsername(String username) {
-        Optional<UserEntity> userEntityOptional = jpaUserRepository.findByNickname(username);
+        Optional<UserEntity> userEntityOptional = jpaUserRepository.findByUsername(username);
 
         return userEntityOptional.map(UserEntity::toDomain)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
@@ -50,8 +50,8 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> findAllByUsernameIn(List<String> nicknames) {
-        return nicknames.stream().map((nickname) -> jpaUserRepository.findByNickname(nickname)
+    public List<User> findAllByUsernameIn(List<String> usernames) {
+        return usernames.stream().map((username) -> jpaUserRepository.findByUsername(username)
                         .orElseThrow(() -> new BaseException(NOT_FOUND_USER)))
                 .map(UserEntity::toDomain)
                 .toList();

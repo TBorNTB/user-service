@@ -33,9 +33,9 @@ public class UserService {
 
         // todo: email로 변경
         if (userRepository.existsByNickname(nickname)) {
-            log.warn("Attempted to register with existing username: {}", nickname);
+            log.warn("Attempted to register with existing nickname: {}", nickname);
             // todo: BaseException
-            throw new RuntimeException("이미 사용 중인 사용자 이름입니다: " + nickname);
+            throw new RuntimeException("이미 사용 중인 사용자 닉네임입니다: " + nickname);
         }
 
         User user = User.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
@@ -76,16 +76,16 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse deleteUser(String nickname) {
+    public UserResponse deleteUser(String username) {
         try {
-            User user = userRepository.findByUsername(nickname);
+            User user = userRepository.findByUsername(username);
             UserResponse userResponse = UserResponse.from(user);
-            userRepository.deleteByUserNickname(nickname);
-            tokenRepository.revokeAllTokensForUser(nickname);
-            log.info("User {} deleted successfully.", nickname);
+            userRepository.deleteByUserNickname(username);
+            tokenRepository.revokeAllTokensForUser(username);
+            log.info("User {} deleted successfully.", username);
             return userResponse;
         } catch (Exception e) {
-            log.error("Failed to delete user {}: {}", nickname, e.getMessage());
+            log.error("Failed to delete user {}: {}", username, e.getMessage());
             throw new RuntimeException("사용자 삭제 중 오류가 발생했습니다.", e);
         }
     }

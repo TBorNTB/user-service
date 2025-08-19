@@ -115,6 +115,6 @@ public class UserEntity {
     }
 
     public void updateUsername() {
-        this.username = "tbntb" + this.id;
+        this.username = "tbntb " + this.id;
     }
 }

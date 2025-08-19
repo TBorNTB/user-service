@@ -6,11 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByNickname(String nickname);
 
-    Optional<UserEntity> findByNickname(String username);
-
     void deleteByNickname(String username);
 
     UserEntity findByRealName(String realName);
 
     Optional<UserEntity> findByEmail(String email);
+
+    Optional<UserEntity> findByUsername(String username);
 }

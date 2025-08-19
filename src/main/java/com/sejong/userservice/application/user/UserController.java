@@ -2,7 +2,6 @@ package com.sejong.userservice.application.user;
 
 import com.sejong.userservice.application.common.security.UserContext;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
-import com.sejong.userservice.application.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.LoginRequest;
@@ -15,7 +14,6 @@ import com.sejong.userservice.core.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -25,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -118,7 +115,6 @@ public class UserController {
     @PatchMapping
     public ResponseEntity<UserResponse> updateUser(@RequestBody UserUpdateRequest updateRequest) {
         UserContext currentUser = getCurrentUser();
-
         UserResponse updatedUser = userService.updateUser(currentUser.getUsername(), updateRequest);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
@@ -127,11 +123,10 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
     @DeleteMapping
-    public ResponseEntity<UserResponse> deleteUser(@AuthenticationPrincipal CustomOAuth2User userDetails) {
+    public ResponseEntity<UserResponse> deleteUser() {
         UserContext currentUser = getCurrentUser();
-
-
-        UserResponse userResponse = userService.deleteUser(userDetails.getName());
+        UserResponse userResponse = userService.
+                deleteUser(currentUser.getUsername());
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
@@ -140,12 +135,10 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
     @PostMapping("/logout")
     public ResponseEntity<UserResponse> logoutUser(
-            @AuthenticationPrincipal CustomOAuth2User userDetails,
-            HttpServletRequest request,
             HttpServletResponse response
     ) {
-
-        String username = userDetails.getName();
+        UserContext currentUser = getCurrentUser();
+        String username = currentUser.getUsername();
 
         if (username == null || username.trim().isEmpty()) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
@@ -164,15 +157,15 @@ public class UserController {
     @Operation(summary = "관리자 권한 부여", description = "특정 사용자에게 관리자 권한을 부여합니다 (관리자 권한 필요)")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{username}/admin")
+    @PatchMapping("/{grantedUsername}/admin")
     public ResponseEntity<UserResponse> grantAdminRole(
-            @AuthenticationPrincipal CustomOAuth2User userDetails,
-            @PathVariable("username") String grantedUsername,
-            HttpServletResponse response) {
+            @PathVariable("grantedUsername") String grantedUsername) {
+        UserContext currentUser = getCurrentUser();
 
-        log.info("관리자 권한 부여 {}: {}가 {}에게 관리자 권한을 부여합니다. ", LocalDateTime.now(), userDetails.getName(),
+        log.info("관리자 권한 부여 {}: {}가 {}에게 관리자 권한을 부여합니다. ", LocalDateTime.now(), currentUser.getUsername(),
                 grantedUsername);
-        UserResponse userResponse = userService.grantAdminRole(grantedUsername);
+        UserResponse userResponse = userService.
+                grantAdminRole(grantedUsername);
 
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
@@ -182,10 +175,10 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{username}/confirm")
     public ResponseEntity<UserResponse> confirmMember(
-            @AuthenticationPrincipal CustomOAuth2User userDetails,
             @PathVariable("username") String grantedUsername) {
+        UserContext currentUser = getCurrentUser();
 
-        log.info("정식회원 권한 부여 {}: {}가 {}에게 정식 회원 권한을 부여합니다. ", LocalDateTime.now(), userDetails.getName(),
+        log.info("정식회원 권한 부여 {}: {}가 {}에게 정식 회원 권한을 부여합니다. ", LocalDateTime.now(), currentUser.getUsername(),
                 grantedUsername);
         UserResponse userResponse = userService.confirmMember(grantedUsername);
 
