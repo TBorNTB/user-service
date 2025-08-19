@@ -38,6 +38,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = request.getHeader(USER_ID_HEADER);
         String role = request.getHeader(USER_ROLE_HEADER);
 
+        log.info("JwtFilter - Headers: X-User-Id={}, X-User-Role={}", username, role);
 
         if (username != null && role != null) {
             UserContext userContext = UserContext.of(username, role);
