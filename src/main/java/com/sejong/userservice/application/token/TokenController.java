@@ -3,13 +3,13 @@ package com.sejong.userservice.application.token;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.token.dto.TokenReissueResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,8 +24,8 @@ public class TokenController {
     private final TokenService tokenService;
 
     @Operation(summary = "토큰 재발급", description = "만료된 액세스 토큰을 리프레시 토큰을 이용하여 재발급합니다 (회원/관리자 권한 필요)")
-    @PreAuthorize("hasAnyRole('ROLE_MEMBER', 'ROLE_ADMIN')")
     @PostMapping("/reissue")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<String> reissueToken(HttpServletRequest request, HttpServletResponse response) {
         String oldRefreshToken = jwtUtil.getRefreshTokenFromCookie(request);
         String oldAccessToken = jwtUtil.getAccessTokenFromHeader(request);

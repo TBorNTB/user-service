@@ -36,7 +36,7 @@ public class TokenService {
 
     @Transactional
     public TokenReissueResponse reissueTokens(String oldAccessToken, String oldRefreshToken) {
-        if (!jwtUtil.isExpired(oldAccessToken)) {
+        if (!jwtUtil.isExpired(oldAccessToken)) { // Todo: revoked 도 안됐는지 판단해야함!
             log.warn("재발급 시도: 액세스 토큰이 아직 유효합니다. oldAccessToken JTI: {}", jwtUtil.getJti(oldAccessToken));
             throw new BaseException(ACCESS_TOKEN_NOT_EXPIRED);
         }
@@ -63,7 +63,7 @@ public class TokenService {
                 tokenRepository.revokeTokenByJti(oldJti);
                 log.info("만료된 리프레시 토큰 JTI 무효화: {}", oldJti);
             }
-            log.warn("재발급 시도 실패: 리프레시 토큰이 만료되었습니다. Refresh Token JTI: {}", oldJti);
+            log.warn("재발급 시도 실패: 리프레시 토큰이 만료되었습니다. 다시 로그인하세요. Refresh Token JTI: {}", oldJti);
             throw new BaseException(EXPIRED_TOKEN);
         }
 

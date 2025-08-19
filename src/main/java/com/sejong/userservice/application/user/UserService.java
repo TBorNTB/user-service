@@ -80,7 +80,7 @@ public class UserService {
         try {
             User user = userRepository.findByUsername(username);
             UserResponse userResponse = UserResponse.from(user);
-            userRepository.deleteByUserNickname(username);
+            userRepository.deleteByUsername(username);
             tokenRepository.revokeAllTokensForUser(username);
             log.info("User {} deleted successfully.", username);
             return userResponse;

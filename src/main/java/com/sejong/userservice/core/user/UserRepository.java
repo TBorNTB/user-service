@@ -11,7 +11,7 @@ public interface UserRepository {
 
     List<User> findAllUsers();
 
-    void deleteByUserNickname(String username);
+    void deleteByUsername(String username);
 
     List<User> findAllByUsernameIn(List<String> userIds);
 

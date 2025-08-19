@@ -35,6 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        // API-Gateway에서 검증된 경우
         String username = request.getHeader(USER_ID_HEADER);
         String role = request.getHeader(USER_ROLE_HEADER);
 

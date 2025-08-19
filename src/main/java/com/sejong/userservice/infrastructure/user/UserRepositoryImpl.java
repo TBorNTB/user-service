@@ -45,8 +45,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     @Transactional
-    public void deleteByUserNickname(String nickname) {
-        jpaUserRepository.deleteByNickname(nickname);
+    public void deleteByUsername(String username) {
+        jpaUserRepository.deleteByUsername(username);
     }
 
     @Override
