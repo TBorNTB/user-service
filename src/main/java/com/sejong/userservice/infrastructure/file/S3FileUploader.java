@@ -84,13 +84,18 @@ public class S3FileUploader implements FileUploader {
     }
 
     private String generateKey(String serviceName, String dirName, String fileName) {
-        String fileExtension = fileName.substring(fileName.lastIndexOf("."));
+        int lastDotIndex = fileName.lastIndexOf(".");
+        String fileExtension = lastDotIndex != -1 ? fileName.substring(lastDotIndex) : "";
         String uuid = UUID.randomUUID().toString();
-        String cleanFileName = fileName.substring(0, fileName.lastIndexOf("."));
+        String cleanFileName = lastDotIndex != -1 ? fileName.substring(0, lastDotIndex) : fileName;
         return String.format("%s/%s/%s_%s%s", serviceName, dirName, cleanFileName, uuid, fileExtension);
     }
 
     private String extractKeyFromUrl(String url) {
-        return url.substring(url.indexOf(".com/") + 5);
+        int comIndex = url.indexOf(".com/");
+        if (comIndex == -1) {
+            throw new IllegalArgumentException("Invalid S3 URL format: " + url);
+        }
+        return url.substring(comIndex + 5);
     }
 }
