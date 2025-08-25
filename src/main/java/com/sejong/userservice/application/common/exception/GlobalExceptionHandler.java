@@ -1,13 +1,11 @@
-package com.sejong.userservice.application.exception;
+package com.sejong.userservice.application.common.exception;
 
-import com.sejong.userservice.application.exception.exception.BaseException;
-import com.sejong.userservice.application.exception.exception.ExceptionResponse;
-import com.sejong.userservice.application.exception.exception.ExceptionType;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -24,10 +22,11 @@ public class GlobalExceptionHandler {
                 .body(new ExceptionResponse(type.description()));
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
-        log.error("User not found error: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionResponse> handleAccessDeniedException(HttpServletRequest request, AccessDeniedException e) {
+        log.warn("권한이 없는 요청입니다. URI: {}, 메시지: {}", request.getRequestURI(), e.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ExceptionResponse("접근 권한이 없습니다. 관리자에게 문의하세요."));
     }
 
     @ExceptionHandler(Exception.class)

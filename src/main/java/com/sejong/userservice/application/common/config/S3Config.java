@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.config;
+package com.sejong.userservice.application.common.config;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

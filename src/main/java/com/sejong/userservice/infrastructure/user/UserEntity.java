@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -26,6 +27,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class UserEntity {
 
@@ -33,8 +35,14 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 50)
+//    @Column(unique = true) 고유해지니까 괜찮겠지?
     private String username;
+
+    @Column(nullable = false, length = 50)
+    private String nickname;
+
+    @Column(unique = true, nullable = false, length = 255)
+    private String email;
 
     @Column(length = 50)
     private String realName;
@@ -71,7 +79,9 @@ public class UserEntity {
     public static UserEntity from(User user) {
         return UserEntity.builder()
                 .id(user.getId())
+                .nickname(user.getNickname())
                 .username(user.getUsername())
+                .email(user.getEmail())
                 .role(user.getRole())
                 .realName(user.getRealName())
                 .encryptPassword(user.getEncryptPassword())
@@ -88,7 +98,9 @@ public class UserEntity {
     public User toDomain() {
         return User.builder()
                 .id(this.id)
-                .username(this.getUsername())
+                .nickname(this.getNickname())
+                .username(this.username)
+                .email(this.email)
                 .encryptPassword(this.encryptPassword)
                 .role(this.role)
                 .realName(this.realName)
@@ -100,5 +112,9 @@ public class UserEntity {
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
                 .build();
+    }
+
+    public void updateUsername() {
+        this.username = "tbntb " + this.id;
     }
 }

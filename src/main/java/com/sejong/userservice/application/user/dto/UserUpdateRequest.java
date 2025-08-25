@@ -14,6 +14,7 @@ import lombok.Setter;
 @Builder
 public class UserUpdateRequest {
     @NotBlank(message = "Real name cannot be empty")
+    private String email;
     private String realName;
     private String description;
     private String githubUrl;

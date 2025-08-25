@@ -5,15 +5,15 @@ import java.util.List;
 public interface UserRepository {
     User save(User userEntity);
 
-    boolean existsByUsername(String username);
+    boolean existsByNickname(String nickname);
 
     User findByUsername(String username);
 
     List<User> findAllUsers();
 
-    String deleteByUsername(String username);
+    void deleteByUsername(String username);
 
     List<User> findAllByUsernameIn(List<String> userIds);
 
-    boolean existsByUserId(Long userId);
+    User findByEmail(String email);
 }

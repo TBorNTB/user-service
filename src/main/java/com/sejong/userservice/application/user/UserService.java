@@ -1,11 +1,10 @@
 package com.sejong.userservice.application.user;
 
-import com.sejong.userservice.application.exception.UserNotFoundException;
+import com.sejong.userservice.application.token.TokenService;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
-import com.sejong.userservice.core.token.TokenRepository;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
@@ -26,24 +25,27 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final TokenRepository tokenRepository;
+    private final TokenService tokenService;
 
+    @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
-        String username = joinRequest.getUsername();
+        String nickname = joinRequest.getNickname();
 
-        if (userRepository.existsByUsername(username)) {
-            log.warn("Attempted to register with existing username: {}", username);
-            throw new RuntimeException("이미 사용 중인 사용자 이름입니다: " + username);
+        // todo: email로 변경
+        if (userRepository.existsByNickname(nickname)) {
+            log.warn("Attempted to register with existing nickname: {}", nickname);
+            // todo: BaseException
+            throw new RuntimeException("이미 사용 중인 사용자 닉네임입니다: " + nickname);
         }
 
         User user = User.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
 
         try {
             User savedUser = userRepository.save(user);
-            log.info("User registered successfully: {}", username);
-            return JoinResponse.of(savedUser.getUsername(), "Registration successful!");
+            log.info("User registered successfully: {}", nickname);
+            return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
         } catch (Exception e) {
-            log.error("Failed to save user {}: {}", username, e.getMessage());
+            log.error("Failed to save user {}: {}", nickname, e.getMessage());
             throw new RuntimeException("회원가입 중 데이터베이스 오류가 발생했습니다.", e);
         }
     }
@@ -59,12 +61,6 @@ public class UserService {
     @Transactional
     public UserResponse updateUser(String username, UserUpdateRequest updateRequest) {
         User existingUser = userRepository.findByUsername(username);
-
-        if (existingUser == null) {
-            log.warn("User not found for update: {}", username);
-            throw new UserNotFoundException("사용자를 찾을 수 없습니다: " + username);
-        }
-
         existingUser.updateProfile(
                 updateRequest
         );
@@ -81,17 +77,11 @@ public class UserService {
 
     @Transactional
     public UserResponse deleteUser(String username) {
-        boolean exists = userRepository.existsByUsername(username);
-        if (!exists) {
-            log.warn("Attempted to delete non-existent user: {}", username);
-            throw new UserNotFoundException("삭제하려는 사용자를 찾을 수 없습니다: " + username);
-        }
-
         try {
             User user = userRepository.findByUsername(username);
             UserResponse userResponse = UserResponse.from(user);
             userRepository.deleteByUsername(username);
-            tokenRepository.revokeAllTokensForUser(username);
+            // 토큰 처리는 TokenService에서 관리
             log.info("User {} deleted successfully.", username);
             return userResponse;
         } catch (Exception e) {
@@ -101,14 +91,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse logoutUser(String username) {
+    public void logout(String accessToken, String refreshToken) {
         try {
-            tokenRepository.revokeAllTokensForUser(username);
-            log.info("User {} logged out successfully (all refresh tokens revoked).", username);
-            User user = userRepository.findByUsername(username);
-            return UserResponse.from(user);
+            tokenService.blacklist(accessToken, refreshToken);
         } catch (Exception e) {
-            log.error("Failed to logout user {}: {}", username, e.getMessage());
             throw new RuntimeException("로그아웃 처리 중 오류가 발생했습니다.", e);
         }
     }
@@ -116,11 +102,6 @@ public class UserService {
     @Transactional
     public UserResponse grantAdminRole(String targetUsername) {
         User userToGrantAdmin = userRepository.findByUsername(targetUsername);
-
-        if (userToGrantAdmin == null) {
-            log.warn("Attempted to grant admin role to non-existent user: {}", targetUsername);
-            throw new UserNotFoundException("관리자 권한을 부여할 사용자를 찾을 수 없습니다: " + targetUsername);
-        }
 
         if (userToGrantAdmin.getRole() == UserRole.ADMIN) {
             log.info("User {} already has ADMIN role. No change made.", targetUsername);
@@ -143,19 +124,14 @@ public class UserService {
     public UserResponse confirmMember(String targetUsername) {
         User userToApprove = userRepository.findByUsername(targetUsername);
 
-        if (userToApprove == null) {
-            log.warn("Attempted to approve non-existent user: {}", targetUsername);
-            throw new UserNotFoundException("승인할 사용자를 찾을 수 없습니다: " + targetUsername);
-        }
-
-        if (userToApprove.getRole() != UserRole.UNCONFIRMED_MEMBER) {
+        if (userToApprove.getRole() != UserRole.OUTSIDER) {
             log.warn("User {} is not in UNCONFIRMED_MEMBER state. Current role: {}", targetUsername,
                     userToApprove.getRole());
             throw new IllegalStateException(
                     "사용자 " + targetUsername + "은(는) 승인 대기 상태가 아닙니다. (현재 권한: " + userToApprove.getRole().name() + ")");
         }
 
-        userToApprove.grantRole(UserRole.MEMBER);
+        userToApprove.grantRole(UserRole.ASSOCIATE_MEMBER);
 
         try {
             User updatedUser = userRepository.save(userToApprove);
@@ -169,7 +145,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public boolean exists(String userId) {
-        return userRepository.existsByUsername(userId);
+        return userRepository.existsByNickname(userId);
     }
 
     @Transactional(readOnly = true)
@@ -192,7 +168,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public boolean exist(Long userId) {
-        return userRepository.existsByUserId(userId);
+    public User findByEmail(String email) {
+        try {
+            return userRepository.findByEmail(email);
+        } catch (Exception e) {
+            log.error("Error finding user by email {}: {}", email, e.getMessage());
+            return null;
+        }
     }
 }

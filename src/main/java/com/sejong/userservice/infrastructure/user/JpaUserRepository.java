@@ -1,61 +1,18 @@
 package com.sejong.userservice.infrastructure.user;
 
-import com.sejong.userservice.application.exception.UserNotFoundException;
-import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.UserRepository;
-import java.util.List;
 import java.util.Optional;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-@Repository
-public class JpaUserRepository implements UserRepository {
+public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
+    boolean existsByNickname(String nickname);
 
-    private final SpringDataJpaUserRepository springDataJpaUserRepository;
+    void deleteByNickname(String username);
 
-    public JpaUserRepository(SpringDataJpaUserRepository springDataJpaUserRepository) {
-        this.springDataJpaUserRepository = springDataJpaUserRepository;
-    }
+    UserEntity findByRealName(String realName);
 
-    @Override
-    public User save(User user) {
-        UserEntity savedUserEntity = springDataJpaUserRepository.save(UserEntity.from(user));
-        return savedUserEntity.toDomain();
-    }
+    Optional<UserEntity> findByEmail(String email);
 
-    @Override
-    public boolean existsByUsername(String loginId) {
-        return springDataJpaUserRepository.existsByUsername(loginId);
-    }
+    Optional<UserEntity> findByUsername(String username);
 
-    @Override
-    public User findByUsername(String username) {
-        Optional<UserEntity> userEntityOptional = springDataJpaUserRepository.findByUsername(username);
-
-        return userEntityOptional.map(UserEntity::toDomain)
-                .orElseThrow(() -> new UserNotFoundException("사용자를 찾을 수 없어요."));
-    }
-
-    @Override
-    public List<User> findAllUsers() {
-        return springDataJpaUserRepository.findAll().stream().map(UserEntity::toDomain).toList();
-    }
-
-    @Override
-    @Transactional
-    public String deleteByUsername(String username) {
-        springDataJpaUserRepository.deleteByUsername(username);
-        return username;
-    }
-
-    @Override
-    public List<User> findAllByUsernameIn(List<String> userIds) {
-        List<UserEntity> userEntities = springDataJpaUserRepository.findAllByUsernameIn(userIds);
-        return userEntities.stream().map(UserEntity::toDomain).toList();
-    }
-
-    @Override
-    public boolean existsByUserId(Long userId) {
-        return springDataJpaUserRepository.existsById(userId);
-    }
+    void deleteByUsername(String username);
 }

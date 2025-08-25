@@ -43,6 +43,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // JSON 파싱용
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // OAuth2 클라이언트 지원
 
     // Validation (Spring Boot 3.x 이상은 jakarta.validation 사용)
     implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
@@ -80,6 +81,9 @@ dependencies {
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
 }
 

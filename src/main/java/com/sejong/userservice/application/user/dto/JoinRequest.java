@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JoinRequest {
     @NotBlank(message = "Username cannot be empty")
-    private String username;
+    private String nickname;
 
     @NotBlank(message = "Password cannot be empty")
     @Size(min = 8, message = "Password must be at least 8 characters long")
@@ -21,6 +21,9 @@ public class JoinRequest {
 
     @NotBlank(message = "Real name cannot be empty")
     private String realName;
+
+    @NotBlank(message = "Email cannot be empty")
+    private String email;
 
     private String description;
     private String githubUrl;
