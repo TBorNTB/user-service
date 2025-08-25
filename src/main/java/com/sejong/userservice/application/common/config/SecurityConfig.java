@@ -5,6 +5,7 @@ import com.sejong.userservice.application.common.security.jwt.JwtExceptionFilter
 import com.sejong.userservice.application.common.security.jwt.JwtFilter;
 import com.sejong.userservice.application.common.security.oauth.CustomOAuth2UserService;
 import com.sejong.userservice.application.common.security.oauth.CustomSuccessHandler;
+import com.sejong.userservice.core.token.TokenBlacklistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +26,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final CustomSuccessHandler customSuccessHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -70,7 +72,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtExceptionFilter(), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtFilter(jwtUtil, tokenBlacklistRepository), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

@@ -1,5 +1,8 @@
 package com.sejong.userservice.application.token;
 
+import static com.sejong.userservice.application.common.exception.ExceptionType.REFRESH_TOKEN_NOT_FOUND;
+
+import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.token.dto.TokenReissueResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/token")
 @RequiredArgsConstructor
+@Slf4j
 public class TokenController {
 
     private final JWTUtil jwtUtil;
@@ -29,6 +34,11 @@ public class TokenController {
     public ResponseEntity<String> reissueToken(HttpServletRequest request, HttpServletResponse response) {
         String oldRefreshToken = jwtUtil.getRefreshTokenFromCookie(request);
         String oldAccessToken = jwtUtil.getAccessTokenFromHeader(request);
+
+        if (oldRefreshToken == null) {
+            log.error("재발급 시도 실패: 쿠키에 리프레시 토큰이 없습니다.");
+            throw new BaseException(REFRESH_TOKEN_NOT_FOUND);
+        }
 
         TokenReissueResponse reissueResponse = tokenService.reissueTokens(oldAccessToken, oldRefreshToken);
 

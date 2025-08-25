@@ -175,4 +175,13 @@ public class JWTUtil {
         }
         throw new RuntimeException("Authorization header is missing or invalid format");
     }
+
+    /**
+     * 두 토큰의 사용자가 같은지 확인
+     */
+    public boolean isSameUser(String token1, String token2) {
+        String username1 = getUsername(token1);
+        String username2 = getUsername(token2);
+        return username1 != null && username2 != null && username1.equals(username2);
+    }
 }

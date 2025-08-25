@@ -8,12 +8,11 @@ import com.sejong.userservice.application.user.dto.LoginRequest;
 import com.sejong.userservice.application.user.dto.LoginResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
-import com.sejong.userservice.core.token.TokenRepository;
-import com.sejong.userservice.core.token.TokenType;
 import com.sejong.userservice.core.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
@@ -42,7 +41,6 @@ public class UserController {
 
     private final UserService userService;
     private final JWTUtil jwtUtil;
-    private final TokenRepository tokenRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Operation(summary = "헬스 체크", description = "서비스 상태를 확인합니다")
@@ -79,14 +77,7 @@ public class UserController {
             String accessToken = jwtUtil.createAccessToken(username, role);
             String refreshToken = jwtUtil.createRefreshToken(username);
 
-            String accessJti = jwtUtil.getJti(accessToken);
-            LocalDateTime accessExpiryDate = jwtUtil.getExpirationLocalDateTime(accessToken);
-            String refreshJti = jwtUtil.getJti(refreshToken);
-            LocalDateTime refreshExpiryDate = jwtUtil.getExpirationLocalDateTime(refreshToken);
-
-            tokenRepository.revokeAllTokensForUser(username);
-            tokenRepository.saveToken(accessToken, username, accessExpiryDate, accessJti, TokenType.ACCESS);
-            tokenRepository.saveToken(refreshToken, username, refreshExpiryDate, refreshJti, TokenType.REFRESH);
+            log.info("로그인 성공: 사용자 {}", username);
 
             // Access Token을 쿠키에 저장 (API Gateway에서 읽기 위해)
             Cookie accessTokenCookie = jwtUtil.createAccessTokenCookie(accessToken);
@@ -135,7 +126,7 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
     @PostMapping("/logout")
     public ResponseEntity<UserResponse> logoutUser(
-            HttpServletResponse response
+            HttpServletRequest request, HttpServletResponse response
     ) {
         UserContext currentUser = getCurrentUser();
         String username = currentUser.getUsername();
@@ -144,7 +135,10 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        UserResponse userResponse = userService.logoutUser(username);
+        String accessToken = jwtUtil.getAccessTokenFromHeader(request);
+        String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
+
+        UserResponse userResponse = userService.logoutUser(username, accessToken, refreshToken);
 
         Cookie expiredCookie = new Cookie("refreshToken", null);
         expiredCookie.setMaxAge(0);
@@ -189,39 +183,4 @@ public class UserController {
         return (UserContext) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
     }
-
-//    @Operation(summary = "토큰 갱신", description = "리프레시 토큰으로 새로운 액세스 토큰을 발급받습니다")
-//    @PostMapping("/token/refresh")
-//    public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-//        try {
-//            String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
-//
-//            if (refreshToken == null) {
-//                return ResponseEntity.status(401).body(new LoginResponse("리프레시 토큰이 없습니다.", null));
-//            }
-//
-//            if (jwtUtil.isExpired(refreshToken)) {
-//                return ResponseEntity.status(401).body(new LoginResponse("리프레시 토큰이 만료되었습니다.", null));
-//            }
-//
-//            // 리프레시 토큰에서 사용자 정보 추출
-//            String username = jwtUtil.getUsername(refreshToken);
-//            User user = userService.findByEmail(username);
-//
-//            if (user == null) {
-//                return ResponseEntity.status(401).body(new LoginResponse("유효하지 않은 사용자입니다.", null));
-//            }
-//
-//            // 새로운 액세스 토큰 생성
-//            String newAccessToken = jwtUtil.createAccessToken(username, user.getRole().name());
-//
-//            // 새로운 액세스 토큰 쿠키 설정
-//            Cookie newAccessTokenCookie = jwtUtil.createAccessTokenCookie(newAccessToken);
-//            response.addCookie(newAccessTokenCookie);
-//
-//            return ResponseEntity.ok(new LoginResponse("토큰 갱신 성공", null));
-//        } catch (Exception e) {
-//            return ResponseEntity.status(401).body(new LoginResponse("토큰 갱신 실패: " + e.getMessage(), null));
-//        }
-//    }
 }

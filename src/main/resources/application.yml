@@ -19,6 +19,19 @@ spring:
       hibernate:
         format_sql: true
 
+  # Redis 설정
+  data:
+    redis:
+      host: redis
+      port: 6379
+      password: 
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
   cloud:
     aws:
       region:

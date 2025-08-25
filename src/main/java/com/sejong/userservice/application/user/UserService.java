@@ -1,10 +1,10 @@
 package com.sejong.userservice.application.user;
 
+import com.sejong.userservice.application.token.TokenService;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
-import com.sejong.userservice.core.token.TokenRepository;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
@@ -25,7 +25,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final TokenRepository tokenRepository;
+    private final TokenService tokenService;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
@@ -81,7 +81,7 @@ public class UserService {
             User user = userRepository.findByUsername(username);
             UserResponse userResponse = UserResponse.from(user);
             userRepository.deleteByUsername(username);
-            tokenRepository.revokeAllTokensForUser(username);
+            // 토큰 처리는 TokenService에서 관리
             log.info("User {} deleted successfully.", username);
             return userResponse;
         } catch (Exception e) {
@@ -91,10 +91,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse logoutUser(String username) {
+    public UserResponse logoutUser(String username, String accessToken, String refreshToken) {
         try {
-            tokenRepository.revokeAllTokensForUser(username);
-            log.info("User {} logged out successfully (all refresh tokens revoked).", username);
+            tokenService.logout(accessToken, refreshToken);
+            log.info("User {} logged out successfully.", username);
             User user = userRepository.findByUsername(username);
             return UserResponse.from(user);
         } catch (Exception e) {

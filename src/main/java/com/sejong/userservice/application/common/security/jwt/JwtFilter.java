@@ -3,6 +3,7 @@ package com.sejong.userservice.application.common.security.jwt;
 import com.sejong.userservice.application.common.security.UserContext;
 import com.sejong.userservice.application.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.application.common.security.oauth.dto.UserDTO;
+import com.sejong.userservice.core.token.TokenBlacklistRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final String USER_ID_HEADER = "X-User-Id";
     private static final String USER_ROLE_HEADER = "X-User-Role";
     private final JWTUtil jwtUtil;
+    private final TokenBlacklistRepository tokenBlacklistRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
