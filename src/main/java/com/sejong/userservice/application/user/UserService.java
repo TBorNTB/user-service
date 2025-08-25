@@ -91,14 +91,10 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse logoutUser(String username, String accessToken, String refreshToken) {
+    public void logout(String accessToken, String refreshToken) {
         try {
-            tokenService.logout(accessToken, refreshToken);
-            log.info("User {} logged out successfully.", username);
-            User user = userRepository.findByUsername(username);
-            return UserResponse.from(user);
+            tokenService.blacklist(accessToken, refreshToken);
         } catch (Exception e) {
-            log.error("Failed to logout user {}: {}", username, e.getMessage());
             throw new RuntimeException("로그아웃 처리 중 오류가 발생했습니다.", e);
         }
     }

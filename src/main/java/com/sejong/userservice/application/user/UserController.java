@@ -125,7 +125,7 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
     @PostMapping("/logout")
-    public ResponseEntity<UserResponse> logoutUser(
+    public ResponseEntity<UserResponse> logout(
             HttpServletRequest request, HttpServletResponse response
     ) {
         UserContext currentUser = getCurrentUser();
@@ -138,14 +138,14 @@ public class UserController {
         String accessToken = jwtUtil.getAccessTokenFromHeader(request);
         String refreshToken = jwtUtil.getRefreshTokenFromCookie(request);
 
-        UserResponse userResponse = userService.logoutUser(username, accessToken, refreshToken);
+        userService.logout(accessToken, refreshToken);
 
         Cookie expiredCookie = new Cookie("refreshToken", null);
         expiredCookie.setMaxAge(0);
         expiredCookie.setHttpOnly(true);
         expiredCookie.setPath("/");
         response.addCookie(expiredCookie);
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Operation(summary = "관리자 권한 부여", description = "특정 사용자에게 관리자 권한을 부여합니다 (관리자 권한 필요)")
