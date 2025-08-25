@@ -4,10 +4,13 @@ import com.sejong.userservice.application.common.security.oauth.dto.CustomOAuth2
 import com.sejong.userservice.application.common.security.oauth.dto.GithubResponse;
 import com.sejong.userservice.application.common.security.oauth.dto.OAuth2Response;
 import com.sejong.userservice.application.common.security.oauth.dto.UserDTO;
+import com.sejong.userservice.application.user.dto.UserUpdateRequest;
+import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
-import com.sejong.userservice.infrastructure.user.JpaUserRepository;
-import com.sejong.userservice.infrastructure.user.UserEntity;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -18,7 +21,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final JpaUserRepository jpaUserRepository;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -36,20 +40,20 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return null;
         }
         String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
-        UserEntity existData = jpaUserRepository.findByRealName(username);
+        User existData = userRepository.findByUsername(username);
 
         if (existData == null) {
 
-            UserEntity userEntity = UserEntity.builder()
+            User user = User.builder()
                     .username(username)
                     .nickname(oAuth2Response.getNickname())
                     .email(oAuth2Response.getEmail())
-                    .encryptPassword("OAUTH2_USER") // OAuth2 사용자용 더미 비밀번호
+                    .encryptPassword(bCryptPasswordEncoder.encode(UUID.randomUUID().toString())) // OAuth2 사용자용 더미 비밀번호
                     .role(UserRole.OUTSIDER)
                     .profileImageUrl(oAuth2Response.getAvatarUrl())
                     .build();
 
-            jpaUserRepository.save(userEntity);
+            userRepository.save(user);
 
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(username);
@@ -58,11 +62,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
             return new CustomOAuth2User(userDTO);
         } else {
-
-            existData.setEmail(oAuth2Response.getEmail());
-            existData.setRealName(oAuth2Response.getName());
-
-            jpaUserRepository.save(existData);
+            // 기존 사용자 정보 업데이트
+            UserUpdateRequest updateRequest = new UserUpdateRequest();
+            updateRequest.setEmail(oAuth2Response.getEmail());
+            updateRequest.setRealName(oAuth2Response.getName());
+            
+            existData.updateProfile(updateRequest);
+            userRepository.save(existData);
 
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(existData.getUsername());
