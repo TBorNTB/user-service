@@ -5,8 +5,10 @@ import static com.sejong.userservice.application.common.exception.ExceptionType.
 import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
+
 import java.util.List;
 import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,5 +63,27 @@ public class UserRepositoryImpl implements UserRepository {
     public User findByEmail(String email) {
         UserEntity userEntity = jpaUserRepository.findByEmail(email).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         return userEntity.toDomain();
+    }
+
+    @Override
+    public boolean existsByUsernames(String username, List<String> collaboratorUserNames) {
+        if (!jpaUserRepository.existsByUsername(username)) {
+            return false;
+        }
+        for (String collaborator : collaboratorUserNames) {
+            if (!jpaUserRepository.existsByUsername(collaborator)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public List<User> findByUsernameIn(List<String> usernames) {
+        List<UserEntity> userEntityList = jpaUserRepository.findByUsernameIn(usernames);
+
+        return userEntityList.stream()
+                .map(UserEntity::toDomain)
+                .toList();
     }
 }

@@ -12,7 +12,7 @@ spring:
     password: ${DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: create  # ?? validate, create, create-drop
+      ddl-auto: update  # ?? validate, create, create-drop
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:

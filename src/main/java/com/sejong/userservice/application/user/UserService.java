@@ -10,6 +10,7 @@ import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -149,6 +150,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public boolean exists(String username, List<String> collaboratorUsernames) {
+        return userRepository.existsByUsernames(username, collaboratorUsernames);
+    }
+
+    @Transactional(readOnly = true)
     public boolean existAll(List<String> userIds) {
         Set<String> usernames = new HashSet<>(userIds);
         if (usernames.isEmpty()) {
@@ -175,5 +181,16 @@ public class UserService {
             log.error("Error finding user by email {}: {}", email, e.getMessage());
             return null;
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, String> getAllUsernames(List<String> usernames) {
+       List<User> users = userRepository.findByUsernameIn(usernames);
+
+       return users.stream()
+               .collect(Collectors.toMap(
+                       User::getUsername,
+                       User::getNickname
+               ));
     }
 }
