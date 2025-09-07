@@ -20,9 +20,9 @@ public class InternalController {
     private final UserService userService;
 
     @Operation(summary = "사용자 존재 여부 확인", description = "단일 사용자의 존재 여부를 확인합니다 (내부 API)")
-    @GetMapping("/{userId}/exists")
-    public ResponseEntity<Boolean> exists(@PathVariable("userId") String nickname) {
-        boolean exists = userService.exists(nickname);
+    @GetMapping("/{username}/exists")
+    public ResponseEntity<Boolean> exists(@PathVariable("username") String username) {
+        boolean exists = userService.exists(username);
         return new ResponseEntity<>(exists, HttpStatus.OK);
     }
 

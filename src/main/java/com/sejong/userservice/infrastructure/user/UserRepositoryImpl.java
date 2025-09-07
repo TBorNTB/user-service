@@ -86,4 +86,12 @@ public class UserRepositoryImpl implements UserRepository {
                 .map(UserEntity::toDomain)
                 .toList();
     }
+
+    @Override
+    public boolean existsByUsername(String username) {
+        if (!jpaUserRepository.existsByUsername(username)) {
+            return false;
+        }
+        return true;
+    }
 }

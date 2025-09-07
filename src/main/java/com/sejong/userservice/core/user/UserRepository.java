@@ -20,4 +20,6 @@ public interface UserRepository {
     boolean existsByUsernames(String username, List<String> collaboratorUsernames);
 
     List<User> findByUsernameIn(List<String> usernames);
+
+    boolean existsByUsername(String username);
 }

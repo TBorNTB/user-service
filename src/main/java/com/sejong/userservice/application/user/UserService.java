@@ -145,8 +145,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public boolean exists(String userId) {
-        return userRepository.existsByNickname(userId);
+    public boolean exists(String username) {
+        return userRepository.existsByUsername(username);
     }
 
     @Transactional(readOnly = true)
