@@ -5,7 +5,6 @@ spring:
   application:
     name: user-service
 
-
   datasource:
     url: jdbc:mysql://mysql1:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     driver-class-name: com.mysql.cj.jdbc.Driver
