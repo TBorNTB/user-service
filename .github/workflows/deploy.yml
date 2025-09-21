@@ -5,6 +5,7 @@ on:
     branches:
       - main
 
+
 jobs:
   build-and-push:
     name: 🔧 Build & Push Docker Image to ECR
@@ -68,8 +69,8 @@ jobs:
 
             docker pull 869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
 
-            docker run -d --name ${{ secrets.IMAGE_NAME }} \
-              --network ${{secrets.DOCKER_NETWORK_NAME}} \
+            docker run -d --name ${{ seER_NETWORKcrets.IMAGE_NAME }} \
+              --network ${{secrets.DOCK_NAME}} \
               -e S3_SECRET_KEY="${{ secrets.S3_SECRET_KEY }}" \
               -e S3_BUCKET="${{ secrets.S3_BUCKET }}" \
               -e S3_ACCESS_KEY="${{ secrets.S3_ACCESS_KEY }}" \
