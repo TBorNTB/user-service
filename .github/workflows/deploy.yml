@@ -70,8 +70,10 @@ jobs:
 
             docker run -d --name ${{ secrets.IMAGE_NAME }} \
               --network ${{secrets.DOCKER_NETWORK_NAME}} \
-              -e EC2_HOST_APP="${{secrets.EC2_HOST_APP}}
+              -e EC2_HOST_APP="${{secrets.EC2_HOST_APP}}" \
+              -e EC2_HOST_INFRA="${{secrets.EC2_HOST_INFRA}}" \
               -e S3_SECRET_KEY="${{ secrets.S3_SECRET_KEY }}" \
+              
               -e S3_BUCKET="${{ secrets.S3_BUCKET }}" \
               -e S3_ACCESS_KEY="${{ secrets.S3_ACCESS_KEY }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
