@@ -1,6 +1,9 @@
 package com.sejong.userservice.infrastructure.user;
 
+import java.util.List;
 import java.util.Optional;
+
+import com.sejong.userservice.core.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
@@ -15,4 +18,8 @@ public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByUsername(String username);
 
     void deleteByUsername(String username);
+
+    boolean existsByUsername(String username);
+
+    List<UserEntity> findByUsernameIn(List<String> usernames);
 }
