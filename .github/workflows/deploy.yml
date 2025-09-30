@@ -73,7 +73,7 @@ jobs:
               -e EC2_HOST_APP="${{secrets.EC2_HOST_APP}}" \
               -e EC2_HOST_APP_PRIVATE="${{secrets.EC2_HOST_APP_PRIVATE}}" \
               -e EC2_HOST_INFRA="${{secrets.EC2_HOST_INFRA}}" \
-              -e EC2_HOST_APP_PRIVATE="${{secrets.EC2_HOST_INFRA_PRIVATE}}" \
+              -e EC2_HOST_INFRA_PRIVATE="${{secrets.EC2_HOST_INFRA_PRIVATE}}" \
               -e S3_SECRET_KEY="${{ secrets.S3_SECRET_KEY }}" \
               
               -e S3_BUCKET="${{ secrets.S3_BUCKET }}" \
