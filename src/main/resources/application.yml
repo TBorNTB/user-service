@@ -6,10 +6,16 @@ spring:
     name: user-service
 
   datasource:
-    url: jdbc:mysql://${EC2_HOST_INFRA}:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://172.31.41.153:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      validation-timeout: 5000
+      idle-timeout: 600000
   jpa:
     hibernate:
       ddl-auto: create  # ?? validate, create, create-drop
@@ -22,7 +28,7 @@ spring:
   # Redis 설정
   data:
     redis:
-      host: redis
+      host: 172.31.41.153
       port: 6379
       password: 
       timeout: 3000ms
@@ -49,7 +55,7 @@ spring:
           github:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
-            redirect-uri: http://localhost:8000/user-service/login/oauth2/code/github
+            redirect-uri: http://${EC2_HOST_APP}:8000/user-service/login/oauth2/code/github
 
 springdoc:
   api-docs:
