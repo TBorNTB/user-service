@@ -6,7 +6,7 @@ spring:
     name: user-service
 
   datasource:
-    url: jdbc:mysql://172.31.41.153:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${EC2_HOST_INFRA_PRIVATE}:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -28,7 +28,7 @@ spring:
   # Redis 설정
   data:
     redis:
-      host: 172.31.41.153
+      host: ${EC2_HOST_INFRA_PRIVATE}
       port: 6379
       password: 
       timeout: 3000ms
