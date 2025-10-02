@@ -64,7 +64,6 @@ public class UserRoleController {
         return ResponseEntity.ok(roles);
     }
 
-
     private UserContext getCurrentUser() {
         return (UserContext) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
