@@ -99,17 +99,8 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @Operation(summary = "전체 유저 Role 조회", description = "모든 userRole을 조회합니다")
-    @GetMapping
-    public ResponseEntity<List<String>> getAllUserRoles() {
-        List<String> roles = Arrays.stream(UserRole.values())
-                .map(Enum::name)
-                .toList();
-        return ResponseEntity.ok(roles);
-    }
-
     @Operation(summary = "등급명 수정 어드민 전용 api")
-    @PatchMapping
+    @PatchMapping("role-update")
     public ResponseEntity<String> updateUserRole(
             @PathVariable(name = "id") Long id,
             @RequestBody UserUpdateRoleRequest userUpdateRoleRequest
