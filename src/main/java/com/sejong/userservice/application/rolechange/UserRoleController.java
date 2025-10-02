@@ -42,7 +42,7 @@ public class UserRoleController {
         return ResponseEntity.ok(message);
     }
 
-    @PatchMapping("/manage")
+    @PatchMapping("/manage/{roleChangeId}")
     @Operation(summary = "유저 role 승인 및 거절 api")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN')")

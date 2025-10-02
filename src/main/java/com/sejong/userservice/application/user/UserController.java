@@ -100,9 +100,9 @@ public class UserController {
     }
 
     @Operation(summary = "등급명 수정 어드민 전용 api")
-    @PatchMapping("role-update")
+    @PatchMapping("role-update/{id}")
     public ResponseEntity<String> updateUserRole(
-            @PathVariable(name = "id") Long id,
+            @PathVariable("id") Long id,
             @RequestBody UserUpdateRoleRequest userUpdateRoleRequest
     ) {
         UserContext currentUser = getCurrentUser();
