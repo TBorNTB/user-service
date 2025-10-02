@@ -57,7 +57,7 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/users", "/users/login", "/users/health", "/token/reissue", "/webjars/swagger-ui/**",
+                        .requestMatchers("/", "/users","/users/role", "/users/login", "/users/health", "/token/reissue", "/webjars/swagger-ui/**",
                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui/index.html#/",
                                 "/internal/**", "/oauth2/**", "/login/oauth2/**"
                         )
