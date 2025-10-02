@@ -117,4 +117,8 @@ public class UserEntity {
     public void updateUsername() {
         this.username = "tbntb " + this.id;
     }
+
+    public void updateUserRole(String userRole) {
+        this.role = UserRole.valueOf(userRole);
+    }
 }

@@ -2,21 +2,20 @@ package com.sejong.userservice.application.user;
 
 import com.sejong.userservice.application.common.security.UserContext;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
-import com.sejong.userservice.application.user.dto.JoinRequest;
-import com.sejong.userservice.application.user.dto.JoinResponse;
-import com.sejong.userservice.application.user.dto.LoginRequest;
-import com.sejong.userservice.application.user.dto.LoginResponse;
-import com.sejong.userservice.application.user.dto.UserResponse;
-import com.sejong.userservice.application.user.dto.UserUpdateRequest;
+import com.sejong.userservice.application.user.dto.*;
 import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.core.user.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -99,6 +98,27 @@ public class UserController {
         List<UserResponse> users = userService.getAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
+
+    @Operation(summary = "전체 유저 Role 조회", description = "모든 userRole을 조회합니다")
+    @GetMapping
+    public ResponseEntity<List<String>> getAllUserRoles() {
+        List<String> roles = Arrays.stream(UserRole.values())
+                .map(Enum::name)
+                .toList();
+        return ResponseEntity.ok(roles);
+    }
+
+    @Operation(summary = "등급명 수정 어드민 전용 api")
+    @PatchMapping
+    public ResponseEntity<String> updateUserRole(
+            @PathVariable(name = "id") Long id,
+            @RequestBody UserUpdateRoleRequest userUpdateRoleRequest
+    ) {
+        UserContext currentUser = getCurrentUser();
+        String message = userService.updateUserRole(id, userUpdateRoleRequest.getUserRole(), currentUser.getRole());
+        return new ResponseEntity<>(message, HttpStatus.OK);
+    }
+
 
     @Operation(summary = "사용자 정보 수정", description = "자신의 사용자 정보를 수정합니다 (회원 권한 필요)")
     @SecurityRequirement(name = "bearerAuth")

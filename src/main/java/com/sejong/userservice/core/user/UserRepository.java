@@ -22,4 +22,6 @@ public interface UserRepository {
     List<User> findByUsernameIn(List<String> usernames);
 
     boolean existsByUsername(String username);
+
+    void updateUserRole(Long id, String userRole);
 }

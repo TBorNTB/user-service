@@ -193,4 +193,14 @@ public class UserService {
                        User::getNickname
                ));
     }
+
+    @Transactional
+    public String updateUserRole(Long id, String newUserRole, String userRole) {
+        if(!userRole.equalsIgnoreCase("ADMIN")){
+            throw new RuntimeException("어드민 전용 api입니다");
+        }
+
+        userRepository.updateUserRole(id, newUserRole);
+        return "유저 업데이트 성공";
+    }
 }

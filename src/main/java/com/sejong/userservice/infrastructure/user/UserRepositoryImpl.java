@@ -94,4 +94,12 @@ public class UserRepositoryImpl implements UserRepository {
         }
         return true;
     }
+
+    @Override
+    public void updateUserRole(Long id, String userRole) {
+        UserEntity userEntity = jpaUserRepository.findById(id)
+                .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+
+        userEntity.updateUserRole(userRole);
+    }
 }
