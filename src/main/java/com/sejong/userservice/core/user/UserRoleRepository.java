@@ -1,4 +1,14 @@
 package com.sejong.userservice.core.user;
 
-public class UserRoleRepository {
+import java.util.List;
+
+public interface UserRoleRepository {
+
+    RoleChange save(RoleChange roleChange);
+
+    void updateAccept(Long roleChangeId, String adminUsername);
+
+    void updateReject(Long roleChangeId, String adminUsername);
+
+    List<RoleChange> findAllAboutStatusIsPending();
 }

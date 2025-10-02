@@ -1,4 +1,4 @@
-package com.sejong.userservice.infrastructure.user;
+package com.sejong.userservice.infrastructure.rolechange;
 
 import com.sejong.userservice.core.user.RoleChange;
 import com.sejong.userservice.core.user.User;
@@ -21,6 +21,7 @@ public class RoleChangeEntity {
     private Long id;
 
     private String realName;
+    private String email;
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
@@ -35,26 +36,41 @@ public class RoleChangeEntity {
     private String processedBy;
 
 
-   public static RoleChangeEntity from(User user, String requestedRole, LocalDateTime requestedAt, String processedBy, RequestStatus requestStatus) {
+   public static RoleChangeEntity from(RoleChange roleChange) {
        return RoleChangeEntity.builder()
-               .realName(user.getRealName())
-               .role(user.getRole())
-               .requestedRole(requestedRole)
-               .requestedAt(requestedAt)
-               .processedAt(LocalDateTime.now())
-               .requestStatus(requestStatus)
-               .processedBy(processedBy)
+               .realName(roleChange.getRealName())
+               .role(roleChange.getRole())
+               .email(roleChange.getEmail())
+               .requestedRole(roleChange.getRequestedRole())
+               .requestedAt(roleChange.getRequestedAt())
+               .processedAt(roleChange.getProcessedAt())
+               .requestStatus(roleChange.getRequestStatus())
+               .processedBy(roleChange.getProcessedBy())
                .build();
    }
 
    public RoleChange toDomain(){
        return RoleChange.builder()
+               .id(id)
                .realName(realName)
                .role(role)
+               .email(email)
                .requestedRole(requestedRole)
                .requestedAt(requestedAt)
                .processedAt(processedAt)
                .requestStatus(requestStatus)
                .build();
    }
+
+    public void updateAccept(String adminUsername) {
+       this.processedBy = adminUsername;
+       this.processedAt = LocalDateTime.now();
+       this.requestStatus = RequestStatus.APPROVED;
+    }
+
+    public void updateReject(String adminUsername) {
+        this.processedBy = adminUsername;
+        this.processedAt = LocalDateTime.now();
+        this.requestStatus = RequestStatus.REJECTED;
+    }
 }

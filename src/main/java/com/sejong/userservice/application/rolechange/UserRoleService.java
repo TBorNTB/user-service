@@ -1,12 +1,10 @@
-package com.sejong.userservice.application.user;
+package com.sejong.userservice.application.rolechange;
 
-import com.sejong.userservice.core.user.RoleChange;
-import com.sejong.userservice.core.user.UserRepository;
-import com.sejong.userservice.core.user.UserRole;
-import com.sejong.userservice.core.user.UserRoleRepository;
-import com.sejong.userservice.infrastructure.user.RoleChangeEntity;
+import com.sejong.userservice.core.user.*;
+import com.sejong.userservice.infrastructure.rolechange.RequestStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,8 +12,31 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserRoleService {
     private final UserRoleRepository userRoleRepository;
+    private final UserRepository userRepository;
 
+    @Transactional(readOnly = true)
     public List<RoleChange> findAll() {
-        return userRoleRepository.findAll();
+        return userRoleRepository.findAllAboutStatusIsPending();
+    }
+
+    @Transactional
+    public String addRoleChange(String username, String requestRole) {
+        User user = userRepository.findByUsername(username);
+        RoleChange roleChange = RoleChange.from(user, requestRole, RequestStatus.PENDING);
+        RoleChange savedRoleChange = userRoleRepository.save(roleChange);
+        return "저장성공";
+    }
+
+    @Transactional
+    public String manageRoleChange(boolean isAccepted, Long roleChangeId, String adminUsername) {
+
+        if(isAccepted) {
+            userRoleRepository.updateAccept(roleChangeId,adminUsername);
+            return "승인 성공";
+        }
+        else{
+            userRoleRepository.updateReject(roleChangeId, adminUsername);
+            return "승인 거절";
+        }
     }
 }

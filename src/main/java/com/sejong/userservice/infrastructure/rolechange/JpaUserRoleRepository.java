@@ -1,6 +1,9 @@
-package com.sejong.userservice.infrastructure.user;
+package com.sejong.userservice.infrastructure.rolechange;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface JpaUserRoleRepository extends JpaRepository<RoleChangeEntity,Long> {
+import java.util.List;
+
+public interface JpaUserRoleRepository extends JpaRepository<RoleChangeEntity, Long> {
+    List<RoleChangeEntity> findAllByRequestStatus(RequestStatus requestStatus);
 }
