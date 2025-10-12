@@ -18,6 +18,8 @@ public class UserResponse {
     private String nickname;
     private String role;
     private String realName;
+    private String email;
+    private String username;
     private String description;
     private String githubUrl;
     private String linkedinUrl;
@@ -35,6 +37,8 @@ public class UserResponse {
                 .nickname(user.getNickname())
                 .role(user.getRole().name())
                 .realName(user.getRealName())
+                .email(user.getEmail())
+                .username(user.getUsername())
                 .description(user.getDescription())
                 .githubUrl(user.getGithubUrl())
                 .linkedinUrl(user.getLinkedinUrl())
