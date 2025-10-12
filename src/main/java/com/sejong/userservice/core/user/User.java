@@ -19,7 +19,7 @@ public class User {
     private static final Logger log = LoggerFactory.getLogger(User.class);
     private Long id;
     private String nickname;
-    // TODO: Email vo
+    private Integer generation;
     private String email;
     private String username;
     private String encryptPassword;
@@ -35,6 +35,7 @@ public class User {
 
     public static User from(JoinRequest joinRequest, String encryptPassword) {
         return User.builder()
+                .generation(null)
                 .nickname(joinRequest.getNickname())
                 .email(joinRequest.getEmail())
                 .username(null)

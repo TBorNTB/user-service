@@ -38,6 +38,8 @@ public class UserEntity {
 //    @Column(unique = true) 고유해지니까 괜찮겠지?
     private String username;
 
+    private Integer generation;
+
     @Column(nullable = false, length = 50)
     private String nickname;
 
@@ -81,6 +83,7 @@ public class UserEntity {
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .username(user.getUsername())
+                .generation(user.getGeneration())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .realName(user.getRealName())
@@ -100,6 +103,7 @@ public class UserEntity {
                 .id(this.id)
                 .nickname(this.getNickname())
                 .username(this.username)
+                .generation(this.generation)
                 .email(this.email)
                 .encryptPassword(this.encryptPassword)
                 .role(this.role)
