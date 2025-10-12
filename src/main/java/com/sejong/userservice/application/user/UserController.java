@@ -10,6 +10,7 @@ import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.application.user.dto.UserUpdateRoleRequest;
 import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.core.user.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
@@ -190,6 +191,16 @@ public class UserController {
         UserResponse userResponse = userService.confirmMember(grantedUsername);
 
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
+    }
+
+    @Operation(summary = "자신의 역할 조회", description = "자신의 역할 조회")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
+    @GetMapping("/role/one")
+    public ResponseEntity<String> getUserRole() {
+        UserContext currentUser = getCurrentUser();
+        String role = currentUser.getRole();
+        return new ResponseEntity<>(role, HttpStatus.OK);
     }
 
     private UserContext getCurrentUser() {
