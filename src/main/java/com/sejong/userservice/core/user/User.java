@@ -78,12 +78,22 @@ public class User {
         return this;
     }
 
-    public User grantRole(UserRole newRole) {
+    public User approveAs(UserRole newRole, Integer generation) {
         if (this.role != newRole) {
             log.info("권한 변경 발생. " + this.nickname + "의 권한 : " + this.role + " > " + newRole);
             this.role = newRole;
+            this.generation = generation;
             this.updatedAt = LocalDateTime.now();
         }
         return this;
+    }
+
+    public User getRole(UserRole newRole) {
+      if (this.role != newRole) {
+        log.info("권한 변경 발생. " + this.nickname + "의 권한 : " + this.role + " > " + newRole);
+        this.role = newRole;
+        this.updatedAt = LocalDateTime.now();
+      }
+      return this;
     }
 }

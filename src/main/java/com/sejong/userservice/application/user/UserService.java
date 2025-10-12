@@ -109,7 +109,7 @@ public class UserService {
             return UserResponse.from(userToGrantAdmin);
         }
 
-        userToGrantAdmin.grantRole(UserRole.ADMIN);
+        userToGrantAdmin.getRole(UserRole.ADMIN);
 
         try {
             User updatedUser = userRepository.save(userToGrantAdmin);
@@ -122,7 +122,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse confirmMember(String targetUsername) {
+    public UserResponse confirmMember(String targetUsername, Integer generation) {
         User userToApprove = userRepository.findByUsername(targetUsername);
 
         if (userToApprove.getRole() != UserRole.GUEST) {
@@ -132,7 +132,7 @@ public class UserService {
                     "사용자 " + targetUsername + "은(는) 승인 대기 상태가 아닙니다. (현재 권한: " + userToApprove.getRole().name() + ")");
         }
 
-        userToApprove.grantRole(UserRole.ASSOCIATE_MEMBER);
+        userToApprove.approveAs(UserRole.ASSOCIATE_MEMBER, generation);
 
         try {
             User updatedUser = userRepository.save(userToApprove);

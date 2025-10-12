@@ -10,7 +10,6 @@ import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.application.user.dto.UserUpdateRoleRequest;
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
@@ -183,12 +182,13 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{username}/confirm")
     public ResponseEntity<UserResponse> confirmMember(
-            @PathVariable("username") String grantedUsername) {
+            @PathVariable("username") String grantedUsername,
+            @RequestBody Integer generation ) {
         UserContext currentUser = getCurrentUser();
 
         log.info("정식회원 권한 부여 {}: {}가 {}에게 정식 회원 권한을 부여합니다. ", LocalDateTime.now(), currentUser.getUsername(),
                 grantedUsername);
-        UserResponse userResponse = userService.confirmMember(grantedUsername);
+        UserResponse userResponse = userService.confirmMember(grantedUsername, generation);
 
         return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
