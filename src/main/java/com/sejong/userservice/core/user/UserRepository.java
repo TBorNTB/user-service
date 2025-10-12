@@ -24,4 +24,6 @@ public interface UserRepository {
     boolean existsByUsername(String username);
 
     void updateUserRole(Long id, String userRole);
+
+    User getUserInfo(String username);
 }

@@ -203,6 +203,17 @@ public class UserController {
         return new ResponseEntity<>(role, HttpStatus.OK);
     }
 
+    @Operation(summary = "자신의 프로파일 조회", description = "자신의 프로파일 조회")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponse> getUserProfile() {
+        UserContext currentUser = getCurrentUser();
+        String username = currentUser.getUsername();
+        UserResponse response = userService.getUserInfo(username);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     private UserContext getCurrentUser() {
         return (UserContext) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();

@@ -102,4 +102,12 @@ public class UserRepositoryImpl implements UserRepository {
 
         userEntity.updateUserRole(userRole);
     }
+
+    @Override
+    public User getUserInfo(String username) {
+        UserEntity userEntity = jpaUserRepository.findByUsername(username)
+                .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+
+        return userEntity.toDomain();
+    }
 }

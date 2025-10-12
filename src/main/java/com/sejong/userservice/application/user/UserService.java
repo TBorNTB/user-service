@@ -203,4 +203,9 @@ public class UserService {
         userRepository.updateUserRole(id, newUserRole);
         return "유저 업데이트 성공";
     }
+
+    public UserResponse getUserInfo(String username) {
+        User user = userRepository.getUserInfo(username);
+        return UserResponse.from(user);
+    }
 }
