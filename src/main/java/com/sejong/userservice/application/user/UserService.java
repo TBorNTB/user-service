@@ -125,7 +125,7 @@ public class UserService {
     public UserResponse confirmMember(String targetUsername) {
         User userToApprove = userRepository.findByUsername(targetUsername);
 
-        if (userToApprove.getRole() != UserRole.OUTSIDER) {
+        if (userToApprove.getRole() != UserRole.GUEST) {
             log.warn("User {} is not in UNCONFIRMED_MEMBER state. Current role: {}", targetUsername,
                     userToApprove.getRole());
             throw new IllegalStateException(

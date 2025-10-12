@@ -2,20 +2,22 @@ package com.sejong.userservice.application.user;
 
 import com.sejong.userservice.application.common.security.UserContext;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
-import com.sejong.userservice.application.user.dto.*;
+import com.sejong.userservice.application.user.dto.JoinRequest;
+import com.sejong.userservice.application.user.dto.JoinResponse;
+import com.sejong.userservice.application.user.dto.LoginRequest;
+import com.sejong.userservice.application.user.dto.LoginResponse;
+import com.sejong.userservice.application.user.dto.UserResponse;
+import com.sejong.userservice.application.user.dto.UserUpdateRequest;
+import com.sejong.userservice.application.user.dto.UserUpdateRoleRequest;
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.UserRole;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -113,7 +115,7 @@ public class UserController {
 
     @Operation(summary = "사용자 정보 수정", description = "자신의 사용자 정보를 수정합니다 (회원 권한 필요)")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER', 'OUTSIDER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER', 'GUEST')")
     @PatchMapping
     public ResponseEntity<UserResponse> updateUser(@RequestBody UserUpdateRequest updateRequest) {
         UserContext currentUser = getCurrentUser();
@@ -123,7 +125,7 @@ public class UserController {
 
     @Operation(summary = "사용자 탈퇴", description = "자신의 계정을 삭제합니다 (회원 또는 관리자 권한 필요)")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'GUEST', 'ASSOCIATE_MEMBER')")
     @DeleteMapping
     public ResponseEntity<UserResponse> deleteUser() {
         UserContext currentUser = getCurrentUser();
@@ -134,7 +136,7 @@ public class UserController {
 
     @Operation(summary = "로그아웃", description = "사용자 로그아웃 및 토큰 무효화 (회원 권한 필요)")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'GUEST', 'ASSOCIATE_MEMBER')")
     @PostMapping("/logout")
     public ResponseEntity<UserResponse> logout(
             HttpServletRequest request, HttpServletResponse response

@@ -39,7 +39,7 @@ public class User {
                 .email(joinRequest.getEmail())
                 .username(null)
                 .encryptPassword(encryptPassword)
-                .role(UserRole.OUTSIDER)
+                .role(UserRole.GUEST)
                 .realName(joinRequest.getRealName())
                 .description(null)
                 .githubUrl(null)

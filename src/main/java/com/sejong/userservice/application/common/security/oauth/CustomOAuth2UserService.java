@@ -49,7 +49,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .nickname(oAuth2Response.getNickname())
                     .email(oAuth2Response.getEmail())
                     .encryptPassword(bCryptPasswordEncoder.encode(UUID.randomUUID().toString())) // OAuth2 사용자용 더미 비밀번호
-                    .role(UserRole.OUTSIDER)
+                    .role(UserRole.GUEST)
                     .profileImageUrl(oAuth2Response.getAvatarUrl())
                     .build();
 
