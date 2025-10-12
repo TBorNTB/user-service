@@ -29,5 +29,5 @@ public class JoinRequest {
     private String githubUrl;
     private String linkedinUrl;
     private String blogUrl;
-    private String profileImageUrl;
+
 }
