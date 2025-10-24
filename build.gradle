@@ -41,8 +41,9 @@ dependencies {
     // Security & JWT
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.3'
-    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.3' // JSON 파싱용
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3' // JSON 파싱용
+    //문제가 생겨서 runtimeOnly -> implementation 햇는데 왜 그럴까
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // OAuth2 클라이언트 지원
 
     // Validation (Spring Boot 3.x 이상은 jakarta.validation 사용)
