@@ -1,4 +1,4 @@
-package com.sejong.alarmservice.application.common.constants;
+package com.sejong.userservice.application.common.constants;
 
 public final class TopicNames {
     private TopicNames() {}
