@@ -15,19 +15,19 @@ import org.springframework.web.socket.WebSocketHandler;
 @Service
 @RequiredArgsConstructor
 public class RedisSubscriber implements MessageListener {
+
     private final ObjectMapper objectMapper;
-    private final ChatWebSocketHandler webSocketHandler;
+    private final ChatWebSocketHandler chatWebSocketHandler;
 
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            ChatMessageDto chatMessage = objectMapper.readValue(message.getBody(), ChatMessageDto.class);
-            String roomId = chatMessage.getRoomId();
-            log.info("Received message for room {}: {}", roomId, chatMessage.getContent());
-            String json = objectMapper.writeValueAsString(chatMessage);
-            // roomId에 해당하는 세션만 브로드캐스트
-            webSocketHandler.broadcast(roomId, json);
+            // 수신된 JSON 문자열 → ChatMessage 객체로 변환
+            String json = new String(message.getBody());
+            ChatMessageDto chatMessage = objectMapper.readValue(json, ChatMessageDto.class);
 
+            log.info("Received message: {}", chatMessage);
+            chatWebSocketHandler.broadcast(chatMessage.getRoomId(), json);
         } catch (Exception e) {
             log.error("RedisSubscriber error", e);
         }
