@@ -1,5 +1,7 @@
 package com.sejong.userservice.application.chat.dto;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sejong.userservice.core.chat.ChatMessage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,5 +29,14 @@ public class ChatMessageEvent {
                 .content(chatMessageDto.getContent())
                 .imageUrl(chatMessageDto.getImageUrl())
                 .build();
+    }
+
+    public static ChatMessageEvent from(String message){
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(message,ChatMessageEvent.class);
+        }catch(JsonProcessingException e){
+            throw new RuntimeException("JSON 파싱 실패");
+        }
     }
 }

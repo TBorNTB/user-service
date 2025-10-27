@@ -20,6 +20,17 @@ public class ChatMessageDto {
     private String content;
     private String imageUrl;
 
+    public static ChatMessageDto from(ChatMessageEvent event){
+        return ChatMessageDto.builder()
+                .type(event.getType())
+                .roomId(event.getRoomId())
+                .username(event.getUsername())
+                .nickname(event.getNickname())
+                .content(event.getContent())
+                .imageUrl(event.getImageUrl())
+                .build();
+    }
+
     public static ChatMessageDto from(Map<String,Object> payload){
         return ChatMessageDto.builder()
                 .type((String) payload.get("type"))

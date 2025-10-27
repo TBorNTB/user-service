@@ -1,5 +1,6 @@
 package com.sejong.userservice.core.chat;
 
+import com.sejong.userservice.application.chat.dto.ChatMessageDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,5 +21,14 @@ public class ChatMessage {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-
+    public static ChatMessage from(ChatMessageDto chatMessageDto) {
+        return ChatMessage.builder()
+                .type(chatMessageDto.getType())
+                .username(chatMessageDto.getUsername())
+                .content(chatMessageDto.getContent())
+                .imageUrl(chatMessageDto.getImageUrl())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 }
