@@ -1,7 +1,9 @@
 package com.sejong.userservice.application.chat.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sejong.userservice.application.chat.dto.BroadCastDto;
 import com.sejong.userservice.application.chat.dto.ChatMessageDto;
+import com.sejong.userservice.application.chat.publisher.ChatEventPublisher;
 import com.sejong.userservice.application.chat.publisher.RedisPublisher;
 import com.sejong.userservice.application.chat.service.ChatHandleMessageService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.Map;
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private final RedisPublisher redisPublisher;
+    private final ChatEventPublisher chatEventPublisher;
     private final ChatHandleMessageService chatHandleMessageService;
 
     //세션 연결되면 바로 실행되는 callback method
@@ -46,22 +49,26 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private void handleCreate(WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleCreate(session);
         redisPublisher.publish(broadCastDto.getChatMessageDto());
+        chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleJoin(ChatMessageDto chatMessageDto, WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleJoin(chatMessageDto, session);
         redisPublisher.publish(broadCastDto.getChatMessageDto());
+        chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleChat(ChatMessageDto chatMessageDto) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleChat(chatMessageDto);
         redisPublisher.publish(broadCastDto.getChatMessageDto());
+        chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
 
     private void handleClose(ChatMessageDto chatMessageDto, WebSocketSession session) {
-        chatHandleMessageService.handleClose(chatMessageDto, session);
-        redisPublisher.publish(chatMessageDto);
+        BroadCastDto broadCastDto = chatHandleMessageService.handleClose(chatMessageDto, session);
+        redisPublisher.publish(broadCastDto.getChatMessageDto());
+        chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     //이거는 나가기 버튼누른게 아니라 사용자가 강제로 브라우저를 종료할 때 실행되는 메서드
