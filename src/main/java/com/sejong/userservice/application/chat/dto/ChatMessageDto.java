@@ -60,4 +60,15 @@ public class ChatMessageDto {
                 .imageUrl(msg.getImageUrl())
                 .build();
     }
+
+    public static ChatMessageDto chatClose(ChatMessageDto msg) {
+        return ChatMessageDto.builder()
+                .type("CLOSE")
+                .roomId(msg.getRoomId())
+                .username(msg.getUsername())
+                .nickname(msg.getNickname())
+                .content(msg.getContent())
+                .imageUrl(msg.getImageUrl())
+                .build();
+    }
 }
