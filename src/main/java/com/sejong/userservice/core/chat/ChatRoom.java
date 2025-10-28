@@ -19,4 +19,11 @@ public class ChatRoom {
                 .roomId(roomId)
                 .build();
     }
+
+    public static ChatRoom createGroup(String newRoomId, String roomName) {
+        return ChatRoom.builder()
+                .roomId(newRoomId)
+                .roomName(roomName)
+                .build();
+    }
 }
