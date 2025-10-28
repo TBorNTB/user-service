@@ -36,4 +36,8 @@ public class ChatRoomEntity {
                 .roomName(roomName)
                 .build();
     }
+
+    public void updateRoomName(String roomName) {
+        this.roomName = roomName;
+    }
 }

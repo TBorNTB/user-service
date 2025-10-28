@@ -38,4 +38,25 @@ public class ChatRepositoryImpl implements ChatRepository {
         return savedChatRoomEntity.toDomain();
     }
 
+    @Override
+    public ChatRoom findRoomById(String roomId) {
+        ChatRoomEntity chatRoomEntity = jpaChatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("해당 roomId는 존재하지 않습니다."));
+        return chatRoomEntity.toDomain();
+    }
+
+    @Override
+    public ChatRoom addRoomMembers(ChatRoom chatRoom, List<ChatUser> chatUsers) {
+        ChatRoomEntity chatRoomEntity = jpaChatRoomRepository.findById(chatRoom.getRoomId())
+                .orElseThrow(() -> new RuntimeException("해당 roomId는 존재하지 않습니다."));
+        chatRoomEntity.updateRoomName(chatRoom.getRoomName()); //변경 감지 때문에 save따로 호출 x
+
+        List<ChatUserEntity> chatUserEntities = chatUsers.stream()
+                .map(ChatUserEntity::from)
+                .toList();
+
+        jpaChatUserRepository.saveAll(chatUserEntities);
+        return chatRoomEntity.toDomain();
+    }
+
 }

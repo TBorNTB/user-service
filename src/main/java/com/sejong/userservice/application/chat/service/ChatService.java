@@ -40,4 +40,12 @@ public class ChatService {
         ChatRoom savedRoom = chatRepository.createRoom(chatRoom, chatUsers);
         return GroupRoomResponse.of(savedRoom.getRoomId(), savedRoom.getRoomName());
     }
+
+    public GroupRoomResponse addRoomMembers(String roomId, String roomName, List<String> friendsUsername) {
+        ChatRoom chatRoom = chatRepository.findRoomById(roomId);
+        chatRoom.updateRoomName(roomName);
+        List<ChatUser> chatUsers = ChatUser.makeChatUsers(friendsUsername, roomId);
+        ChatRoom savedRoom = chatRepository.addRoomMembers(chatRoom, chatUsers);
+        return GroupRoomResponse.of(savedRoom.getRoomId(), savedRoom.getRoomName());
+    }
 }

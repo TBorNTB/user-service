@@ -8,13 +8,11 @@ import com.sejong.userservice.application.chat.service.ChatService;
 import com.sejong.userservice.application.common.security.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -30,7 +28,7 @@ public class ChatController {
         String newRoomId = UUID.randomUUID().toString();
         UserContext currentUser = getCurrentUser();
         SingleRoomResponse response = chatService.createRoom(newRoomId, request.getFriendUsername(), currentUser.getUsername());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "그룹 채팅방 만드는 api")
@@ -40,7 +38,17 @@ public class ChatController {
         UserContext currentUser = getCurrentUser();
         GroupRoomResponse response = chatService.createRooms(newRoomId, request.getRoomName()
                 , request.getFriendsUsername(), currentUser.getUsername());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "인원 추가 api")
+    @PutMapping("/rooms/{roomId}/members")
+    public ResponseEntity<GroupRoomResponse> addGroupRoomMembers(
+            @PathVariable(name = "roomId") String roomId,
+            @RequestBody GroupRoomRequest request
+    ) {
+        GroupRoomResponse response = chatService.addRoomMembers(roomId, request.getRoomName(), request.getFriendsUsername());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     private UserContext getCurrentUser() {

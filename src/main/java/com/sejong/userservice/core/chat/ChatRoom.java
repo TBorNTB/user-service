@@ -26,4 +26,8 @@ public class ChatRoom {
                 .roomName(roomName)
                 .build();
     }
+
+    public void updateRoomName(String roomName) {
+        this.roomName = roomName;
+    }
 }
