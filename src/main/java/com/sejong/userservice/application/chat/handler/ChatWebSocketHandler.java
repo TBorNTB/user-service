@@ -38,7 +38,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         ChatMessageDto msg = ChatMessageDto.from(payload);
 
         switch (msg.getType().toUpperCase()) {
-            case "CREATED" -> handleCreate(session);
             case "JOIN" -> handleJoin(msg, session);
             case "CHAT" -> handleChat(msg);
             case "CLOSE" -> handleClose(msg, session);

@@ -1,6 +1,8 @@
 package com.sejong.userservice.application.chat.service;
 
+import com.sejong.userservice.application.chat.controller.response.ChatMessageResponse;
 import com.sejong.userservice.application.chat.controller.response.GroupRoomResponse;
+import com.sejong.userservice.application.chat.controller.response.RoomResponse;
 import com.sejong.userservice.application.chat.controller.response.SingleRoomResponse;
 import com.sejong.userservice.application.chat.dto.ChatMessageDto;
 import com.sejong.userservice.application.chat.dto.ChatMessageEvent;
@@ -41,11 +43,33 @@ public class ChatService {
         return GroupRoomResponse.of(savedRoom.getRoomId(), savedRoom.getRoomName());
     }
 
+    @Transactional
     public GroupRoomResponse addRoomMembers(String roomId, String roomName, List<String> friendsUsername) {
         ChatRoom chatRoom = chatRepository.findRoomById(roomId);
         chatRoom.updateRoomName(roomName);
         List<ChatUser> chatUsers = ChatUser.makeChatUsers(friendsUsername, roomId);
         ChatRoom savedRoom = chatRepository.addRoomMembers(chatRoom, chatUsers);
         return GroupRoomResponse.of(savedRoom.getRoomId(), savedRoom.getRoomName());
+    }
+
+    @Transactional
+    public RoomResponse quitRoom(String roomId, String username) {
+        String responseRoomId = chatRepository.removeUsernameInRoom(roomId, username);
+        return RoomResponse.deleteOf(responseRoomId);
+    }
+
+    public List<GroupRoomResponse> findAllRooms(String username) {
+        List<ChatRoom> chatRooms = chatRepository.findAllRooms(username);
+        return chatRooms.stream()
+                .map(it-> GroupRoomResponse.of(it.getRoomId(), it.getRoomName()))
+                .toList();
+    }
+
+    public List<ChatMessageResponse> findAllChatMessages(String roomId) {
+        List<ChatMessage> chatMessages = chatRepository.findAllChatMessages(roomId);
+        return chatMessages.stream()
+                .map(it->{
+                    return ChatMessageResponse.of(it,"임시닉네임입니다 변경필요");
+                }).toList();
     }
 }

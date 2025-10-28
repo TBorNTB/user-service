@@ -9,4 +9,10 @@ public interface ChatRepository {
     ChatRoom findRoomById(String roomId);
 
     ChatRoom addRoomMembers(ChatRoom chatRoom, List<ChatUser> chatUsers);
+
+    String removeUsernameInRoom(String roomId, String username);
+
+    List<ChatRoom> findAllRooms(String username);
+
+    List<ChatMessage> findAllChatMessages(String roomId);
 }

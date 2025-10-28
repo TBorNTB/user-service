@@ -59,4 +59,42 @@ public class ChatRepositoryImpl implements ChatRepository {
         return chatRoomEntity.toDomain();
     }
 
+    @Override
+    public String removeUsernameInRoom(String roomId, String username) {
+        boolean exists = jpaChatRoomRepository.existsById(roomId);
+        if (!exists) {
+            throw new RuntimeException("해당 roomId의 방은 존재하지 않습니다.");
+        }
+        jpaChatUserRepository.deleteByUsername(username, roomId);// 쓰기지연
+        Integer remainPersonCount = jpaChatUserRepository.getCountUserByUsername(roomId); // 읽기쿼리 발생했기 때문에 삭제 반영 된 뒤 읽게됨
+        if (remainPersonCount == 0) {
+            jpaChatRoomRepository.deleteById(roomId);
+        }
+
+        return roomId;
+        //내가 마지막 인원이였으면 =? 해당 채팅방 자체를 삭제해야 되잖아
+    }
+
+    @Override
+    public List<ChatRoom> findAllRooms(String username) {
+        List<ChatUserEntity> chatUserEntities = jpaChatUserRepository.findAllByUsername(username);
+        List<ChatRoomEntity> chatRoomEntities = chatUserEntities.stream()
+                .map(it -> {
+                    return jpaChatRoomRepository.findById(it.getRoomId())
+                            .orElseThrow(() -> new RuntimeException("해당 roomId는 존재하지 않습니다."));
+                }).toList();
+
+        return chatRoomEntities.stream()
+                .map(ChatRoomEntity::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<ChatMessage> findAllChatMessages(String roomId) {
+        List<ChatMessageEntity> chatMessageEntities = jpaChatRepository.findAllChatMessages(roomId);
+        return chatMessageEntities.stream()
+                .map(ChatMessageEntity::toDomain)
+                .toList();
+    }
+
 }

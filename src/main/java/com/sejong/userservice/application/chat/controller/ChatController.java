@@ -2,7 +2,9 @@ package com.sejong.userservice.application.chat.controller;
 
 import com.sejong.userservice.application.chat.controller.request.GroupRoomRequest;
 import com.sejong.userservice.application.chat.controller.request.SingleRoomRequest;
+import com.sejong.userservice.application.chat.controller.response.ChatMessageResponse;
 import com.sejong.userservice.application.chat.controller.response.GroupRoomResponse;
+import com.sejong.userservice.application.chat.controller.response.RoomResponse;
 import com.sejong.userservice.application.chat.controller.response.SingleRoomResponse;
 import com.sejong.userservice.application.chat.service.ChatService;
 import com.sejong.userservice.application.common.security.UserContext;
@@ -10,10 +12,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -49,6 +50,35 @@ public class ChatController {
     ) {
         GroupRoomResponse response = chatService.addRoomMembers(roomId, request.getRoomName(), request.getFriendsUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "채팅방 나가기")
+    @DeleteMapping("/room/{roomId}")
+    public ResponseEntity<RoomResponse> quitRoom(
+            @PathVariable("roomId") String roomId
+    ) {
+        UserContext currentUser = getCurrentUser();
+        RoomResponse response = chatService.quitRoom(roomId, currentUser.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    //todo 커서기반으로 리팩터링 해야 될듯??
+    @Operation(summary = "한 유저의 방 전체조회")
+    @GetMapping("/rooms")
+    public ResponseEntity<List<GroupRoomResponse>> getAllRooms() {
+        UserContext currentUser = getCurrentUser();
+        List<GroupRoomResponse> response = chatService.findAllRooms(currentUser.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    //todo 커서기반으로 리팩터링 해야 될듯??
+    @Operation(summary="채팅기록 전체조회")
+    @GetMapping("/rooms/{roomId}/chat")
+    public ResponseEntity<List<ChatMessageResponse>> getAllChatMessages(
+            @PathVariable("roomId") String roomId
+    ){
+        List<ChatMessageResponse> response = chatService.findAllChatMessages(roomId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     private UserContext getCurrentUser() {

@@ -20,6 +20,7 @@ public class ChatMessageEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String roomId;
     private String type;
     private String username;
     private String content;
