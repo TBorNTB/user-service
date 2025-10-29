@@ -1,5 +1,8 @@
 package com.sejong.userservice.application.user;
 
+import static com.sejong.userservice.application.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
+
+import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.application.token.TokenService;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
@@ -207,5 +210,24 @@ public class UserService {
     public UserResponse getUserInfo(String username) {
         User user = userRepository.getUserInfo(username);
         return UserResponse.from(user);
+    }
+
+    @Transactional
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        String encryptedNewPassword = bCryptPasswordEncoder.encode(newPassword);
+
+        if (user.getEncryptPassword().equals(encryptedNewPassword)) {
+            throw new BaseException(SAME_WITH_PREVIOUS_PASSWORD);
+        }
+
+        user.updatePassword(encryptedNewPassword);
+        try {
+            userRepository.save(user);
+            log.info("Password reset successfully for user: {}", email);
+        } catch (Exception e) {
+            log.error("Failed to reset password for user {}: {}", email, e.getMessage());
+            throw new RuntimeException("비밀번호 재설정 중 오류가 발생했습니다.", e);
+        }
     }
 }

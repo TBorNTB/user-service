@@ -30,6 +30,10 @@ public enum ExceptionType implements ExceptionTypeIfs {
     UNSUPPORTED_EMAIL_ADDRESS(401, "이메일 주소 인코딩 오류 발생"),
     UNEXPECTED_ERROR(500, "예상치 못한 오류 발생"),
 
+    VERIFICATION_CODE_NOT_FOUND(400, "인증 코드가 만료되었거나 존재하지 않습니다."),
+    VERIFICATION_CODE_MISMATCH(400, "인증 코드가 일치하지 않습니다."),
+    SAME_WITH_PREVIOUS_PASSWORD(400, "새 비밀번호는 이전 비밀번호와 달라야 합니다."),
+
     ;
 
     private final Integer httpStatus;
