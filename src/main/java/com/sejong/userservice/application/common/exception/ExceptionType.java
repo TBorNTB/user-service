@@ -25,6 +25,11 @@ public enum ExceptionType implements ExceptionTypeIfs {
     TOKEN_MISMATCH(400, "액세스 토큰과 리프레시 토큰이 다른 사용자를 가리킵니다."),
     EXPIRED_TOKEN(401, "리프레시 토큰이 만료되었습니다. 다시 로그인해주세요."),
     INVALID_OR_REVOKED_TOKEN(401, "유효하지 않거나 무효화된 리프레시 토큰입니다. 다시 로그인해주세요."),
+
+    EMAIL_TRANSFER_ERROR(501, "메일 전송 중 오류 발생"),
+    UNSUPPORTED_EMAIL_ADDRESS(401, "이메일 주소 인코딩 오류 발생"),
+    UNEXPECTED_ERROR(500, "예상치 못한 오류 발생"),
+
     ;
 
     private final Integer httpStatus;
