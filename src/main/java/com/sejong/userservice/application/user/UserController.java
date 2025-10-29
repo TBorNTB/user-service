@@ -222,7 +222,7 @@ public class UserController {
     public ResponseEntity<String> requestVerificationCode(
             @Valid @RequestBody VerificationRequest request
     ) {
-        String code = RandomProvider.generateRandomCode(6);
+        String code = RandomProvider.generateRandomCode(8);
         request.setRandomCode(code);
         verificationService.sendVerificationCode(request);
         String response = String.format("%s로 인증코드 메일이 전송되었습니다.", request.getEmail());
