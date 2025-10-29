@@ -84,6 +84,6 @@ jobs:
               -e GOOGLE_APPLICATION_CREDENTIALS="${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}" \
               -e MAIL_HOST="${{ secrets.MAIL_HOST }}" \
               -e MAIL_PORT="${{ secrets.MAIL_PORT }}" \
-              -e MAIL_PORT="${{ secrets.MAIL_USERNAME }}" \
-              -e MAIL_PORT="${{ secrets.MAIL_PASSWORD }}" \
+              -e MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
+              -e MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
               869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
