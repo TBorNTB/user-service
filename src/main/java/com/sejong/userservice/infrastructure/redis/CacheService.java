@@ -1,6 +1,9 @@
 package com.sejong.userservice.infrastructure.redis;
 
-import com.sejong.userservice.application.user.dto.VerificationRequest;
+import static com.sejong.userservice.application.common.exception.ExceptionType.VERIFICATION_CODE_MISMATCH;
+import static com.sejong.userservice.application.common.exception.ExceptionType.VERIFICATION_CODE_NOT_FOUND;
+
+import com.sejong.userservice.application.common.exception.BaseException;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,9 +20,25 @@ public class CacheService {
         return "verify:" + email;
     }
 
-    public void save(VerificationRequest request) {
-        String email = request.getEmail();
-        String randomCode = request.getRandomCode();
-        redisTemplate.opsForValue().set(key(email), randomCode, TTL);
+    public void save(String email, String code) {
+        redisTemplate.opsForValue().set(key(email), code, TTL);
+    }
+
+    public void verify(String email, String code) {
+        String storedCode = (String) redisTemplate.opsForValue().get(key(email));
+
+        if (storedCode == null) {
+            throw new BaseException(VERIFICATION_CODE_NOT_FOUND);
+        }
+
+        if (!storedCode.equals(code)) {
+            throw new BaseException(VERIFICATION_CODE_MISMATCH);
+        }
+
+        redisTemplate.delete(key(email));
+    }
+
+    public void delete(String email) {
+        redisTemplate.delete(key(email));
     }
 }
