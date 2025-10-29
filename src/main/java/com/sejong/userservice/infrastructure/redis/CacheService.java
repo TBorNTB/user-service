@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class CacheService {
 
     private static final Duration TTL = Duration.ofMinutes(10);
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     private String key(String email) {
         return "verify:" + email;
@@ -25,7 +25,7 @@ public class CacheService {
     }
 
     public void verify(String email, String code) {
-        String storedCode = (String) redisTemplate.opsForValue().get(key(email));
+        String storedCode = redisTemplate.opsForValue().get(key(email));
 
         if (storedCode == null) {
             throw new BaseException(VERIFICATION_CODE_NOT_FOUND);
