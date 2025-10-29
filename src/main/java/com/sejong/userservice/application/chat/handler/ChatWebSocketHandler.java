@@ -18,6 +18,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Slf4j
@@ -48,7 +49,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
         switch (msg.getType().toUpperCase()) {
             case "JOIN" -> handleJoin(msg, session);
-            case "CHAT" -> handleChat(msg);
+            case "CHAT" -> handleChat(msg, session);
             case "CLOSE" -> handleClose(msg, session);
             default -> log.info("error Type");
         }
@@ -60,12 +61,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
-    private void handleChat(ChatMessageDto chatMessageDto) {
-        BroadCastDto broadCastDto = chatHandleMessageService.handleChat(chatMessageDto);
+    private void handleChat(ChatMessageDto chatMessageDto, WebSocketSession session) {
+        BroadCastDto broadCastDto = chatHandleMessageService.handleChat(chatMessageDto,session);
         redisPublisher.publish(broadCastDto.getChatMessageDto());
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
-
 
     private void handleClose(ChatMessageDto chatMessageDto, WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleClose(chatMessageDto, session);
@@ -85,4 +85,5 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         return (String) session.getAttributes().get("username");
 
     }
+
 }

@@ -1,5 +1,6 @@
 package com.sejong.userservice.application.chat.service;
 
+import com.amazonaws.waiters.WaiterBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sejong.userservice.application.chat.dto.BroadCastDto;
@@ -13,7 +14,6 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -28,6 +28,7 @@ public class ChatHandleMessageService {
     }
 
     public BroadCastDto handleClose(ChatMessageDto msg, WebSocketSession session) {
+        validateSessionInRoom(msg.getRoomId(), session);
         Set<WebSocketSession> sessions = roomSessions.get(msg.getRoomId());
         if (sessions != null) {
             sessions.remove(session);
@@ -40,7 +41,8 @@ public class ChatHandleMessageService {
     }
 
     //해당 세션이 실제로 ROOMiD에 존재하는지 안한다면 따로 처리를 해줘야 될듯??
-    public BroadCastDto handleChat(ChatMessageDto msg) {
+    public BroadCastDto handleChat(ChatMessageDto msg, WebSocketSession session) {
+        validateSessionInRoom(msg.getRoomId(), session);
         ChatMessageDto messageDto = ChatMessageDto.chatMethod(msg);
         return BroadCastDto.of(messageDto);
     }
@@ -67,5 +69,10 @@ public class ChatHandleMessageService {
                 roomSessions.remove(roomId);
             }
         });
+    }
+
+    private void validateSessionInRoom(String roomId, WebSocketSession session) {
+        Set<WebSocketSession> sessions = roomSessions.get(roomId);
+        if(!sessions.contains(session))throw new RuntimeException("해당 roomId에 세션이 존재하지 않는다.");
     }
 }
