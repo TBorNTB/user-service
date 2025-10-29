@@ -75,11 +75,11 @@ jobs:
               -e EC2_HOST_INFRA="${{secrets.EC2_HOST_INFRA}}" \
               -e EC2_HOST_INFRA_PRIVATE="${{secrets.EC2_HOST_INFRA_PRIVATE}}" \
               -e S3_SECRET_KEY="${{ secrets.S3_SECRET_KEY }}" \
-              
               -e S3_BUCKET="${{ secrets.S3_BUCKET }}" \
               -e S3_ACCESS_KEY="${{ secrets.S3_ACCESS_KEY }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e EUREKA_DEFAULTZONE="${{ secrets.EUREKA_DEFAULTZONE }}" \
+              -e GOOGLE_APPLICATION_CREDENTIALS="${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}" \
               869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
