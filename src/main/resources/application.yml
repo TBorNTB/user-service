@@ -41,7 +41,7 @@ spring:
   data:
     redis:
       host: ${EC2_HOST_INFRA_PRIVATE}
-      port: 6379
+      port: ${REDIS_PORT}
       password: 
       timeout: 3000ms
       lettuce:
