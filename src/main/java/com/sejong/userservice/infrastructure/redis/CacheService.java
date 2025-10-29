@@ -34,11 +34,5 @@ public class CacheService {
         if (!storedCode.equals(code)) {
             throw new BaseException(VERIFICATION_CODE_MISMATCH);
         }
-
-        redisTemplate.delete(key(email));
-    }
-
-    public void delete(String email) {
-        redisTemplate.delete(key(email));
     }
 }
