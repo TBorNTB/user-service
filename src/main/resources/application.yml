@@ -4,6 +4,15 @@ server:
 spring:
   application:
     name: user-service
+  kafka:
+    bootstrap-servers: ${EC2_HOST_INFRA_PRIVATE}:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      auto-offset-reset: earliest
 
   datasource:
     url: jdbc:mysql://${EC2_HOST_INFRA_PRIVATE}:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true

@@ -8,6 +8,8 @@ import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
+import com.sejong.userservice.core.alarm.Alarm;
+import com.sejong.userservice.core.alarm.AlarmRepository;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
@@ -16,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.sejong.userservice.infrastructure.alarm.kafka.publisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +34,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenService tokenService;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
@@ -47,6 +52,7 @@ public class UserService {
         try {
             User savedUser = userRepository.save(user);
             log.info("User registered successfully: {}", nickname);
+            eventPublisher.publishSignUpAlarm(savedUser);
             return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
         } catch (Exception e) {
             log.error("Failed to save user {}: {}", nickname, e.getMessage());
