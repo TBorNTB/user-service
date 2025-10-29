@@ -215,12 +215,13 @@ public class UserService {
     @Transactional
     public void resetPassword(String email, String newPassword) {
         User user = userRepository.findByEmail(email);
-        String encryptedNewPassword = bCryptPasswordEncoder.encode(newPassword);
 
-        if (user.getEncryptPassword().equals(encryptedNewPassword)) {
+        // 이전 비밀번호와 동일한지 확인 (BCrypt matches 사용)
+        if (bCryptPasswordEncoder.matches(newPassword, user.getEncryptPassword())) {
             throw new BaseException(SAME_WITH_PREVIOUS_PASSWORD);
         }
 
+        String encryptedNewPassword = bCryptPasswordEncoder.encode(newPassword);
         user.updatePassword(encryptedNewPassword);
         try {
             userRepository.save(user);
