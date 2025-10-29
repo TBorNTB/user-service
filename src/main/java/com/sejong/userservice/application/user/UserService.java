@@ -8,18 +8,15 @@ import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
-import com.sejong.userservice.core.alarm.Alarm;
-import com.sejong.userservice.core.alarm.AlarmRepository;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
+import com.sejong.userservice.infrastructure.alarm.kafka.publisher.EventPublisher;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.sejong.userservice.infrastructure.alarm.kafka.publisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -221,20 +218,12 @@ public class UserService {
     @Transactional
     public void resetPassword(String email, String newPassword) {
         User user = userRepository.findByEmail(email);
-
         // 이전 비밀번호와 동일한지 확인 (BCrypt matches 사용)
         if (bCryptPasswordEncoder.matches(newPassword, user.getEncryptPassword())) {
             throw new BaseException(SAME_WITH_PREVIOUS_PASSWORD);
         }
-
         String encryptedNewPassword = bCryptPasswordEncoder.encode(newPassword);
         user.updatePassword(encryptedNewPassword);
-        try {
-            userRepository.save(user);
-            log.info("Password reset successfully for user: {}", email);
-        } catch (Exception e) {
-            log.error("Failed to reset password for user {}: {}", email, e.getMessage());
-            throw new RuntimeException("비밀번호 재설정 중 오류가 발생했습니다.", e);
-        }
+        userRepository.save(user);
     }
 }
