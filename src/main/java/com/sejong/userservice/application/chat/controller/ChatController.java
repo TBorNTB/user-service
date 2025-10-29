@@ -75,6 +75,8 @@ public class ChatController {
 
     //todo 커서기반으로 리팩터링 해야 될듯??
     @Operation(summary = "한 유저의 방 전체조회")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER')")
     @GetMapping("/rooms")
     public ResponseEntity<List<GroupRoomResponse>> getAllRooms() {
         UserContext currentUser = getCurrentUser();
