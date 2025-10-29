@@ -82,4 +82,8 @@ jobs:
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
               -e EUREKA_DEFAULTZONE="${{ secrets.EUREKA_DEFAULTZONE }}" \
               -e GOOGLE_APPLICATION_CREDENTIALS="${{secrets.GOOGLE_APPLICATION_CREDENTIALS}}" \
+              -e MAIL_HOST="${{ secrets.MAIL_HOST }}" \
+              -e MAIL_PORT="${{ secrets.MAIL_PORT }}" \
+              -e MAIL_PORT="${{ secrets.MAIL_USERNAME }}" \
+              -e MAIL_PORT="${{ secrets.MAIL_PASSWORD }}" \
               869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
