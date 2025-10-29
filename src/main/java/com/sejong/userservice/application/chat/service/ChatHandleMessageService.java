@@ -61,16 +61,6 @@ public class ChatHandleMessageService {
         return BroadCastDto.of(responseMessage);
     }
 
-    public BroadCastDto handleCreate(WebSocketSession session) {
-        String newRoomId = UUID.randomUUID().toString();
-        roomSessions.put(newRoomId, ConcurrentHashMap.newKeySet());
-        roomSessions.get(newRoomId).add(session);
-
-        ChatMessageDto msg = ChatMessageDto.createMethod(newRoomId);
-        log.info("방생성 완료");
-        return BroadCastDto.of(msg);
-    }
-
     public void leaveRooms(WebSocketSession session) {
         roomSessions.forEach((roomId, sessions) -> {
             if (sessions.remove(session) && sessions.isEmpty()) {

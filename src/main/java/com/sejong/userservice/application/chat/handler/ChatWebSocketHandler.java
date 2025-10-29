@@ -6,6 +6,9 @@ import com.sejong.userservice.application.chat.dto.ChatMessageDto;
 import com.sejong.userservice.application.chat.publisher.ChatEventPublisher;
 import com.sejong.userservice.application.chat.publisher.RedisPublisher;
 import com.sejong.userservice.application.chat.service.ChatHandleMessageService;
+import com.sejong.userservice.application.user.UserService;
+import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.core.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,18 +27,24 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private final RedisPublisher redisPublisher;
     private final ChatEventPublisher chatEventPublisher;
     private final ChatHandleMessageService chatHandleMessageService;
-
+    private final UserService userService;
     //세션 연결되면 바로 실행되는 callback method
+    //즉 최초 한번만 실행됨.. DB 조회 후 session 에 저장
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(WebSocketSession session){
         String username = getCurrentUser(session);
+        User user = userService.getUser(username);
+        session.getAttributes().put("nickname", user.getNickname());
+        session.getAttributes().put("username",username);
         log.info("username : {}님이 세션에 연결되었습니다.", username);
     }
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         Map<String, Object> payload = chatHandleMessageService.getPayLoad(message);
-        ChatMessageDto msg = ChatMessageDto.from(payload);
+        String username = session.getAttributes().get("username").toString();
+        String nickname = session.getAttributes().get("nickname").toString();
+        ChatMessageDto msg = ChatMessageDto.from(payload, username, nickname);
 
         switch (msg.getType().toUpperCase()) {
             case "JOIN" -> handleJoin(msg, session);
@@ -43,12 +52,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             case "CLOSE" -> handleClose(msg, session);
             default -> log.info("error Type");
         }
-    }
-
-    private void handleCreate(WebSocketSession session) {
-        BroadCastDto broadCastDto = chatHandleMessageService.handleCreate(session);
-        redisPublisher.publish(broadCastDto.getChatMessageDto());
-        chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleJoin(ChatMessageDto chatMessageDto, WebSocketSession session) {

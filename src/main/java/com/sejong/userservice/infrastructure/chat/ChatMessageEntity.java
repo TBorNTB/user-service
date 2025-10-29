@@ -31,6 +31,7 @@ public class ChatMessageEntity {
     public static ChatMessageEntity from(ChatMessage chatMessage) {
         return ChatMessageEntity.builder()
                 .type(chatMessage.getType())
+                .roomId(chatMessage.getRoomId())
                 .username(chatMessage.getUsername())
                 .content(chatMessage.getContent())
                 .imageUrl(chatMessage.getImageUrl())
@@ -42,6 +43,7 @@ public class ChatMessageEntity {
     public ChatMessage toDomain() {
         return ChatMessage.builder()
                 .type(type)
+                .roomId(roomId)
                 .username(username)
                 .content(content)
                 .imageUrl(imageUrl)

@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +21,7 @@ public class ChatMessageEvent {
     private String nickname;
     private String content;
     private String imageUrl;
+    private LocalDateTime createdAt;
 
     public static ChatMessageEvent from(ChatMessageDto chatMessageDto) {
         return ChatMessageEvent.builder()
@@ -28,6 +31,7 @@ public class ChatMessageEvent {
                 .nickname(chatMessageDto.getNickname())
                 .content(chatMessageDto.getContent())
                 .imageUrl(chatMessageDto.getImageUrl())
+                .createdAt(chatMessageDto.getCreatedAt())
                 .build();
     }
 

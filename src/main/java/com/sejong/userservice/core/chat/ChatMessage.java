@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class ChatMessage {
 
     private String type;
+    private String roomId;
     private String username;
     private String content;
     private String imageUrl;
@@ -24,11 +25,12 @@ public class ChatMessage {
     public static ChatMessage from(ChatMessageDto chatMessageDto) {
         return ChatMessage.builder()
                 .type(chatMessageDto.getType())
+                .roomId(chatMessageDto.getRoomId())
                 .username(chatMessageDto.getUsername())
                 .content(chatMessageDto.getContent())
                 .imageUrl(chatMessageDto.getImageUrl())
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
+                .createdAt(chatMessageDto.getCreatedAt())
+                .updatedAt(chatMessageDto.getCreatedAt())
                 .build();
     }
 }

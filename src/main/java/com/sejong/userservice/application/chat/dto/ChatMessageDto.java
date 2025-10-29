@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
@@ -18,6 +19,7 @@ public class ChatMessageDto {
     private String nickname;
     private String content;
     private String imageUrl;
+    private LocalDateTime createdAt;
 
     public static ChatMessageDto from(ChatMessageEvent event){
         return ChatMessageDto.builder()
@@ -27,27 +29,21 @@ public class ChatMessageDto {
                 .nickname(event.getNickname())
                 .content(event.getContent())
                 .imageUrl(event.getImageUrl())
+                .createdAt(event.getCreatedAt())
                 .build();
     }
 
-    public static ChatMessageDto from(Map<String,Object> payload){
+    public static ChatMessageDto from(Map<String,Object> payload, String username, String nickname){
         return ChatMessageDto.builder()
                 .type((String) payload.get("type"))
                 .roomId((String) payload.get("roomId"))
-                .username((String) payload.get("username"))
-                .nickname((String) payload.get("nickname"))
+                .username(username)
+                .nickname(nickname)
                 .content((String) payload.get("content"))
                 .imageUrl((String) payload.get("imageUrl"))
+                .createdAt(LocalDateTime.now())
                 .build();
     }
-
-    public static ChatMessageDto createMethod(String newRoomId) {
-        return ChatMessageDto.builder()
-                .type("CREATED")
-                .roomId(newRoomId)
-                .build();
-    }
-
 
     public static ChatMessageDto joinMethod(ChatMessageDto msg) {
         return ChatMessageDto.builder()
@@ -57,6 +53,7 @@ public class ChatMessageDto {
                 .nickname(msg.getNickname())
                 .content(msg.getContent())
                 .imageUrl(msg.getImageUrl())
+                .createdAt(msg.getCreatedAt())
                 .build();
     }
 
@@ -68,6 +65,7 @@ public class ChatMessageDto {
                 .nickname(msg.getNickname())
                 .content(msg.getContent())
                 .imageUrl(msg.getImageUrl())
+                .createdAt(msg.getCreatedAt())
                 .build();
     }
 
@@ -79,6 +77,7 @@ public class ChatMessageDto {
                 .nickname(msg.getNickname())
                 .content(msg.getContent())
                 .imageUrl(msg.getImageUrl())
+                .createdAt(msg.getCreatedAt())
                 .build();
     }
 }
