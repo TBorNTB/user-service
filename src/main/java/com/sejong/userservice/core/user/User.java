@@ -96,4 +96,10 @@ public class User {
       }
       return this;
     }
+
+    public void updatePassword(String newEncryptedPassword) {
+        this.encryptPassword = newEncryptedPassword;
+        this.updatedAt = LocalDateTime.now();
+        log.info("비밀번호가 변경되었습니다. 사용자: {}", this.email);
+    }
 }

@@ -34,11 +34,23 @@ spring:
       hibernate:
         format_sql: true
 
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   # Redis 설정
   data:
     redis:
       host: ${EC2_HOST_INFRA_PRIVATE}
-      port: 6379
+      port: ${REDIS_PORT}
       password: 
       timeout: 3000ms
       lettuce:
@@ -87,6 +99,9 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_DEFAULTZONE}
 
+google:
+  credentials:
+    path: ${GOOGLE_APPLICATION_CREDENTIALS:/app/credentials.json}
 
 jwt:
   secret: ${JWT_SECRET}

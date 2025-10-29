@@ -20,6 +20,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+
   jpa:
     hibernate:
       ddl-auto: update  # ?? validate, create, create-drop
@@ -28,6 +29,18 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
   # Redis 설정
   data:
@@ -72,6 +85,9 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_DEFAULTZONE}
 
+google:
+  credentials:
+    path: ${GOOGLE_APPLICATION_CREDENTIALS:/app/credentials.json}
 
 jwt:
   secret: ${JWT_SECRET}

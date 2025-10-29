@@ -3,7 +3,7 @@ package com.sejong.userservice.core.user;
 import java.util.List;
 
 public interface UserRepository {
-    User save(User userEntity);
+    User save(User user);
 
     boolean existsByNickname(String nickname);
 

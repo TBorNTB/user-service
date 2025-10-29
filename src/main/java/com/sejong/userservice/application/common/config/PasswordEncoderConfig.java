@@ -1,4 +1,4 @@
-package com.sejong.userservice.config;
+package com.sejong.userservice.application.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
