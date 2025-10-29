@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 8080
 
 spring:
   application:
@@ -18,7 +18,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
-
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      properties:
+        partitioner.class: org.apache.kafka.clients.producer.RoundRobinPartitioner
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
   # Redis 설정
   data:
     redis:
@@ -65,7 +75,7 @@ eureka:
 
 jwt:
   secret: ${JWT_SECRET}
-  expiration-time: 3600000 # 액세스 토큰 만료 시간: 1시간 (밀리초)
+  expiration-time: 604800000 # 액세스 토큰 만료 시간: 1시간 (밀리초)
   refresh-expiration-time: 604800000 # 리프레시 토큰 만료 시간: 7일 (밀리초)
 
 aws:

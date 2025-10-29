@@ -204,6 +204,12 @@ public class UserService {
         return "유저 업데이트 성공";
     }
 
+    @Transactional(readOnly = true)
+    public User getUser(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    @Transactional(readOnly = true)
     public UserResponse getUserInfo(String username) {
         User user = userRepository.getUserInfo(username);
         return UserResponse.from(user);
