@@ -9,9 +9,12 @@ import com.sejong.userservice.application.chat.controller.response.SingleRoomRes
 import com.sejong.userservice.application.chat.service.ChatService;
 import com.sejong.userservice.application.common.security.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +27,8 @@ public class ChatController {
     private final ChatService chatService;
 
     @Operation(summary = "1대1 채팅방 만드는 api")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER')")
     @PostMapping("/room")
     public ResponseEntity<SingleRoomResponse> createSingleRoom(@RequestBody SingleRoomRequest request) {
         String newRoomId = UUID.randomUUID().toString();
@@ -33,6 +38,8 @@ public class ChatController {
     }
 
     @Operation(summary = "그룹 채팅방 만드는 api")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER')")
     @PostMapping("/rooms")
     public ResponseEntity<GroupRoomResponse> createGroupRoom(@RequestBody GroupRoomRequest request) {
         String newRoomId = UUID.randomUUID().toString();
@@ -43,6 +50,8 @@ public class ChatController {
     }
 
     @Operation(summary = "인원 추가 api")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER')")
     @PutMapping("/rooms/{roomId}/members")
     public ResponseEntity<GroupRoomResponse> addGroupRoomMembers(
             @PathVariable(name = "roomId") String roomId,
@@ -53,6 +62,8 @@ public class ChatController {
     }
 
     @Operation(summary = "채팅방 나가기")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER')")
     @DeleteMapping("/room/{roomId}")
     public ResponseEntity<RoomResponse> quitRoom(
             @PathVariable("roomId") String roomId
@@ -73,6 +84,8 @@ public class ChatController {
 
     //todo 커서기반으로 리팩터링 해야 될듯??
     @Operation(summary="채팅기록 전체조회")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER')")
     @GetMapping("/rooms/{roomId}/chat")
     public ResponseEntity<List<ChatMessageResponse>> getAllChatMessages(
             @PathVariable("roomId") String roomId
@@ -82,8 +95,7 @@ public class ChatController {
     }
 
     private UserContext getCurrentUser() {
-        return UserContext.of("임시유저네임", "ADMIN");
-//        return (UserContext) SecurityContextHolder.getContext()
-//                .getAuthentication().getPrincipal();
+        return (UserContext) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
     }
 }
