@@ -6,6 +6,7 @@ import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.LoginRequest;
 import com.sejong.userservice.application.user.dto.LoginResponse;
+import com.sejong.userservice.application.user.dto.ResetPasswordRequest;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.application.user.dto.UserUpdateRoleRequest;
@@ -227,6 +228,15 @@ public class UserController {
         verificationService.sendVerificationCode(request);
         String response = String.format("%s로 인증코드 메일이 전송되었습니다.", request.getEmail());
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    @Operation(summary = "비밀번호 변경용 인증 코드 검증", description = "이메일 인증 코드를 검증하고 비밀번호를 변경합니다.")
+    @PostMapping("/auth/reset-password")
+    public ResponseEntity<String> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        verificationService.verifyEmailCode(request);
+        userService.resetPassword(request.getEmail(), request.getNewPassword());
+        return ResponseEntity.ok("비밀번호가 성공적으로 변경되었습니다.");
     }
 
     private UserContext getCurrentUser() {
