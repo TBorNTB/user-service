@@ -85,6 +85,21 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    //메일관련
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'com.google.apis:google-api-services-gmail:v1-rev20240422-2.0.0'
+    implementation 'javax.mail:javax.mail-api:1.6.2'
+    implementation 'com.google.api-client:google-api-client:2.0.0'
+    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.34.1'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'com.google.guava:guava:33.0.0-jre'
+
+    //thymleaf 관련
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // Logback과의 통합을 위한 라이브러리
+    implementation 'io.github.dibog:cloudwatch-logback-appender:2.0.0'
 }
 
 dependencyManagement {
