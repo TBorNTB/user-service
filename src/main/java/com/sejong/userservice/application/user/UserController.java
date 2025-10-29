@@ -9,7 +9,9 @@ import com.sejong.userservice.application.user.dto.LoginResponse;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.application.user.dto.UserUpdateRoleRequest;
+import com.sejong.userservice.application.user.dto.VerificationRequest;
 import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.core.util.RandomProvider;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.Cookie;
@@ -43,6 +45,7 @@ public class UserController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final VerificationService verificationService;
 
     @Operation(summary = "헬스 체크", description = "서비스 상태를 확인합니다")
     @GetMapping("/health")
@@ -211,6 +214,18 @@ public class UserController {
         UserContext currentUser = getCurrentUser();
         String username = currentUser.getUsername();
         UserResponse response = userService.getUserInfo(username);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(summary = "이메일 인증 코드 발송", description = "비밀번호를 재설정 하기 위해 이메일로 인증코드를 발송합니다.")
+    @PostMapping("/auth/verification-code")
+    public ResponseEntity<String> requestVerificationCode(
+            @Valid @RequestBody VerificationRequest request
+    ) {
+        String code = RandomProvider.generateRandomCode(6);
+        request.setRandomCode(code);
+        verificationService.sendVerificationCode(request);
+        String response = String.format("%s로 인증코드 메일이 전송되었습니다.", request.getEmail());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
