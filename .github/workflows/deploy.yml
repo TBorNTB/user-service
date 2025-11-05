@@ -68,7 +68,7 @@ jobs:
 
             docker pull 869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
 
-            docker run -d --name ${{ secrets.IMAGE_NAME }} \
+            docker run -d --name ${{ secrets.IMAGE_NAME }} -P \
               --network ${{secrets.DOCKER_NETWORK_NAME}} \
               -e EC2_HOST_APP="${{secrets.EC2_HOST_APP}}" \
               -e EC2_HOST_APP_PRIVATE="${{secrets.EC2_HOST_APP_PRIVATE}}" \
