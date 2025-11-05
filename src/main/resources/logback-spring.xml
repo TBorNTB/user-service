@@ -24,7 +24,7 @@
       <pattern>[%thread] [%date] [%level] [%logger{36}] - %msg%n</pattern>
     </layout>
     <groupName>info_hub_app</groupName>
-    <streamName>user-service2</streamName>
+    <streamName>user-service</streamName>
     <region>ap-northeast-2</region>
   </appender>
 

@@ -78,10 +78,10 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
     // S3 의존성
-    implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1')
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    // Spring Cloud AWS BOM - AWS 관련 라이브러리들의 버전을 통합 관리
+    implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:3.1.1')
 
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
