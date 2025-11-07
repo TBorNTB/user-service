@@ -55,9 +55,12 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         with:
           debug: true
-          host: ${{ secrets.EC2_HOST_APP }}
+          host: ${{ secrets.EC2_HOST_APP_PRIVATE }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
+          proxy_host: ${{ secrets.EC2_HOST_BASTION }}    # Bastion 호스트
+          proxy_username: ${{ secrets.EC2_USERNAME }}
+          proxy_key: ${{ secrets.EC2_PRIVATE_KEY }}          # Bastion용 pem (역시 Secrets로)
           script_stop: true
           script: |
             aws ecr get-login-password --region ap-northeast-2 | \
