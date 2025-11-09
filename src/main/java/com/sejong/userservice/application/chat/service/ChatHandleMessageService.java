@@ -63,10 +63,21 @@ public class ChatHandleMessageService {
     }
 
     public void leaveRooms(WebSocketSession session) {
-        roomSessions.forEach((roomId, sessions) -> {
-            if (sessions.remove(session) && sessions.isEmpty()) {
-                roomSessions.remove(roomId);
+        roomSessions.entrySet().removeIf(entry -> {
+            Set<WebSocketSession> sessions = entry.getValue();
+            if (sessions == null) return false;
+            synchronized (sessions) {
+                // NOTE(sigmaith): 같은 roomId에 여러 스레드가 접근할 수 있다.
+                // 빈방 삭제와 거의 동시에 session 추가 메서드가 실행되면, 없어진 참조를 가질 수 있다.
+                boolean removed = sessions.remove(session);
+                boolean empty = sessions.isEmpty();
+
+                if (removed && empty) {
+                    log.info("빈 방 삭제: {}", entry.getKey());
+                    return true;
+                }
             }
+            return false;
         });
     }
 
