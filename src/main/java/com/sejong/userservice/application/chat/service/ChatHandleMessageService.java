@@ -1,20 +1,18 @@
 package com.sejong.userservice.application.chat.service;
 
-import com.amazonaws.waiters.WaiterBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sejong.userservice.application.chat.dto.BroadCastDto;
 import com.sejong.userservice.application.chat.dto.ChatMessageDto;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
@@ -49,6 +47,8 @@ public class ChatHandleMessageService {
 
     public void broadcast(String roomId, String json) throws IOException {
         Set<WebSocketSession> sessions = roomSessions.get(roomId);
+        if (sessions == null) return;
+
         for (WebSocketSession session : sessions) {
             session.sendMessage(new TextMessage(json));
         }
@@ -56,8 +56,7 @@ public class ChatHandleMessageService {
 
     public BroadCastDto handleJoin(ChatMessageDto chatMessageDto, WebSocketSession session) {
         String roomId = chatMessageDto.getRoomId();
-        Set<WebSocketSession> sessions = roomSessions.get(roomId);
-        sessions.add(session);
+        roomSessions.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet()).add(session);
 
         ChatMessageDto responseMessage = ChatMessageDto.joinMethod(chatMessageDto);
         return BroadCastDto.of(responseMessage);
@@ -73,6 +72,6 @@ public class ChatHandleMessageService {
 
     private void validateSessionInRoom(String roomId, WebSocketSession session) {
         Set<WebSocketSession> sessions = roomSessions.get(roomId);
-        if(!sessions.contains(session))throw new RuntimeException("해당 roomId에 세션이 존재하지 않는다.");
+        if(sessions == null || !sessions.contains(session))throw new RuntimeException("해당 roomId에 세션이 존재하지 않는다.");
     }
 }
