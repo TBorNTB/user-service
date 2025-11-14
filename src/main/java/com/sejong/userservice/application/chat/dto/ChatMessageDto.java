@@ -1,12 +1,11 @@
 package com.sejong.userservice.application.chat.dto;
 
+import java.time.LocalDateTime;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -20,6 +19,7 @@ public class ChatMessageDto {
     private String content;
     private String imageUrl;
     private LocalDateTime createdAt;
+    private String serverId; // 메시지를 발행한 서버 ID (중복 방지용)
 
     public static ChatMessageDto from(ChatMessageEvent event){
         return ChatMessageDto.builder()
@@ -30,6 +30,7 @@ public class ChatMessageDto {
                 .content(event.getContent())
                 .imageUrl(event.getImageUrl())
                 .createdAt(event.getCreatedAt())
+                .serverId(event.getServerId())
                 .build();
     }
 
@@ -45,7 +46,7 @@ public class ChatMessageDto {
                 .build();
     }
 
-    public static ChatMessageDto joinMethod(ChatMessageDto msg) {
+    public static ChatMessageDto joinMethod(ChatMessageDto msg, String serverId) {
         return ChatMessageDto.builder()
                 .type("JOIN")
                 .roomId(msg.getRoomId())
@@ -54,10 +55,11 @@ public class ChatMessageDto {
                 .content(msg.getContent())
                 .imageUrl(msg.getImageUrl())
                 .createdAt(msg.getCreatedAt())
+                .serverId(serverId)
                 .build();
     }
 
-    public static ChatMessageDto chatMethod(ChatMessageDto msg) {
+    public static ChatMessageDto chatMethod(ChatMessageDto msg, String serverId) {
         return ChatMessageDto.builder()
                 .type("CHAT")
                 .roomId(msg.getRoomId())
@@ -66,10 +68,11 @@ public class ChatMessageDto {
                 .content(msg.getContent())
                 .imageUrl(msg.getImageUrl())
                 .createdAt(msg.getCreatedAt())
+                .serverId(serverId)
                 .build();
     }
 
-    public static ChatMessageDto chatClose(ChatMessageDto msg) {
+    public static ChatMessageDto chatClose(ChatMessageDto msg, String serverId) {
         return ChatMessageDto.builder()
                 .type("CLOSE")
                 .roomId(msg.getRoomId())
@@ -78,6 +81,7 @@ public class ChatMessageDto {
                 .content(msg.getContent())
                 .imageUrl(msg.getImageUrl())
                 .createdAt(msg.getCreatedAt())
+                .serverId(serverId)
                 .build();
     }
 }

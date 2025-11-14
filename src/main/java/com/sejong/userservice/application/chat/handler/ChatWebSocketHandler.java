@@ -51,16 +51,25 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private void handleJoin(ChatMessageDto chatMessageDto, WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleJoin(chatMessageDto, session);
+        // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
+        chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());
+        // Kafka에 발행 (영구 저장 + 다른 서버 전파용)
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleChat(ChatMessageDto chatMessageDto, WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleChat(chatMessageDto,session);
+        // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
+        chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());
+        // Kafka에 발행 (영구 저장 + 다른 서버 전파용)
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleClose(ChatMessageDto chatMessageDto, WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleClose(chatMessageDto, session);
+        // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
+        chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());
+        // Kafka에 발행 (영구 저장 + 다른 서버 전파용)
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 

@@ -20,6 +20,7 @@ public class ChatMessageEvent {
     private String content;
     private String imageUrl;
     private LocalDateTime createdAt;
+    private String serverId;
 
     public static ChatMessageEvent from(ChatMessageDto chatMessageDto) {
         return ChatMessageEvent.builder()
@@ -30,6 +31,7 @@ public class ChatMessageEvent {
                 .content(chatMessageDto.getContent())
                 .imageUrl(chatMessageDto.getImageUrl())
                 .createdAt(chatMessageDto.getCreatedAt())
+                .serverId(chatMessageDto.getServerId())
                 .build();
     }
 
