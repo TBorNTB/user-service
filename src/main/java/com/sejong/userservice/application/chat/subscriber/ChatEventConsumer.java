@@ -1,5 +1,6 @@
 package com.sejong.userservice.application.chat.subscriber;
 
+import com.sejong.userservice.application.chat.config.ServerIdProvider;
 import com.sejong.userservice.application.chat.dto.ChatMessageDto;
 import com.sejong.userservice.application.chat.dto.ChatMessageEvent;
 import com.sejong.userservice.application.chat.publisher.RedisPublisher;
@@ -14,6 +15,7 @@ public class ChatEventConsumer {
 
     private final ChatService chatService;
     private final RedisPublisher redisPublisher;
+    private final ServerIdProvider serverIdProvider;
 
     @KafkaListener(
             topics = "chat-message",
@@ -23,6 +25,9 @@ public class ChatEventConsumer {
         ChatMessageEvent event = ChatMessageEvent.from(message);
         ChatMessageDto chatMessageDto = ChatMessageDto.from(event);
         chatService.save(chatMessageDto);
-        redisPublisher.publish(chatMessageDto);
+        // 본인 서버가 아니면 거르면 됨.
+        if (!serverIdProvider.getServerId().equals(chatMessageDto.getServerId())) {
+            redisPublisher.publish(chatMessageDto);
+        }
     }
 }
