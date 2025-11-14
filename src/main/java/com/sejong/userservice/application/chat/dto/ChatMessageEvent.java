@@ -2,13 +2,11 @@ package com.sejong.userservice.application.chat.dto;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sejong.userservice.core.chat.ChatMessage;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -38,9 +36,10 @@ public class ChatMessageEvent {
     public static ChatMessageEvent from(String message){
         try{
             ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.findAndRegisterModules(); // JavaTimeModule 자동 등록
             return objectMapper.readValue(message,ChatMessageEvent.class);
         }catch(JsonProcessingException e){
-            throw new RuntimeException("JSON 파싱 실패");
+            throw new RuntimeException("JSON 파싱 실패", e);
         }
     }
 }

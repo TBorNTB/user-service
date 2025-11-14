@@ -1,14 +1,12 @@
 package com.sejong.userservice.application.chat.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sejong.userservice.application.chat.dto.BroadCastDto;
 import com.sejong.userservice.application.chat.dto.ChatMessageDto;
 import com.sejong.userservice.application.chat.publisher.ChatEventPublisher;
-import com.sejong.userservice.application.chat.publisher.RedisPublisher;
 import com.sejong.userservice.application.chat.service.ChatHandleMessageService;
 import com.sejong.userservice.application.user.UserService;
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.UserRepository;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -17,15 +15,11 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.util.Map;
-import java.util.Set;
-
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-    private final RedisPublisher redisPublisher;
     private final ChatEventPublisher chatEventPublisher;
     private final ChatHandleMessageService chatHandleMessageService;
     private final UserService userService;
@@ -57,19 +51,16 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private void handleJoin(ChatMessageDto chatMessageDto, WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleJoin(chatMessageDto, session);
-        redisPublisher.publish(broadCastDto.getChatMessageDto());
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleChat(ChatMessageDto chatMessageDto, WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleChat(chatMessageDto,session);
-        redisPublisher.publish(broadCastDto.getChatMessageDto());
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleClose(ChatMessageDto chatMessageDto, WebSocketSession session) {
         BroadCastDto broadCastDto = chatHandleMessageService.handleClose(chatMessageDto, session);
-        redisPublisher.publish(broadCastDto.getChatMessageDto());
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
@@ -83,7 +74,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
     private String getCurrentUser(WebSocketSession session) {
         return (String) session.getAttributes().get("username");
-
     }
 
 }
