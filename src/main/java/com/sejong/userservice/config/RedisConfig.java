@@ -1,6 +1,6 @@
 package com.sejong.userservice.config;
 
-import com.sejong.userservice.application.chat.subscriber.RedisSubscriber;
+import com.sejong.userservice.chat.subscriber.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

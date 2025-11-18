@@ -25,6 +25,9 @@ public enum ExceptionType implements ExceptionTypeIfs {
     TOKEN_MISMATCH(400, "액세스 토큰과 리프레시 토큰이 다른 사용자를 가리킵니다."),
     EXPIRED_TOKEN(401, "리프레시 토큰이 만료되었습니다. 다시 로그인해주세요."),
     INVALID_OR_REVOKED_TOKEN(401, "유효하지 않거나 무효화된 리프레시 토큰입니다. 다시 로그인해주세요."),
+
+    ROOM_ID_NOT_FOUND(400, "존재하지 않는 채팅룸 Id 입니다."),
+    DM_ROOM_WITH_OTHER_PERSON(400, "자기 자신과의 DM 룸을 생성할 수 없습니다."),
     ;
 
     private final Integer httpStatus;
