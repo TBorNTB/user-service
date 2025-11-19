@@ -26,6 +26,15 @@ public enum ExceptionType implements ExceptionTypeIfs {
     EXPIRED_TOKEN(401, "리프레시 토큰이 만료되었습니다. 다시 로그인해주세요."),
     INVALID_OR_REVOKED_TOKEN(401, "유효하지 않거나 무효화된 리프레시 토큰입니다. 다시 로그인해주세요."),
 
+    EMAIL_TRANSFER_ERROR(501, "메일 전송 중 오류 발생"),
+    UNSUPPORTED_EMAIL_ADDRESS(401, "이메일 주소 인코딩 오류 발생"),
+    UNEXPECTED_ERROR(500, "예상치 못한 오류 발생"),
+
+    VERIFICATION_CODE_NOT_FOUND(400, "인증 코드가 만료되었거나 존재하지 않습니다."),
+    VERIFICATION_CODE_MISMATCH(400, "인증 코드가 일치하지 않습니다."),
+    SAME_WITH_PREVIOUS_PASSWORD(400, "새 비밀번호는 이전 비밀번호와 달라야 합니다."),
+
+
     ROOM_ID_NOT_FOUND(400, "존재하지 않는 채팅룸 Id 입니다."),
     DM_ROOM_WITH_OTHER_PERSON(400, "자기 자신과의 DM 룸을 생성할 수 없습니다."),
     ;

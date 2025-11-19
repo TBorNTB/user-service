@@ -1,5 +1,8 @@
 package com.sejong.userservice.application.user;
 
+import static com.sejong.userservice.application.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
+
+import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.application.token.TokenService;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
@@ -8,6 +11,7 @@ import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
+import com.sejong.userservice.infrastructure.alarm.kafka.publisher.EventPublisher;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +31,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenService tokenService;
+    private final EventPublisher eventPublisher;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
@@ -44,6 +49,7 @@ public class UserService {
         try {
             User savedUser = userRepository.save(user);
             log.info("User registered successfully: {}", nickname);
+            eventPublisher.publishSignUpAlarm(savedUser);
             return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
         } catch (Exception e) {
             log.error("Failed to save user {}: {}", nickname, e.getMessage());
@@ -213,5 +219,17 @@ public class UserService {
     public UserResponse getUserInfo(String username) {
         User user = userRepository.getUserInfo(username);
         return UserResponse.from(user);
+    }
+
+    @Transactional
+    public void resetPassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email);
+        // 이전 비밀번호와 동일한지 확인 (BCrypt matches 사용)
+        if (bCryptPasswordEncoder.matches(newPassword, user.getEncryptPassword())) {
+            throw new BaseException(SAME_WITH_PREVIOUS_PASSWORD);
+        }
+        String encryptedNewPassword = bCryptPasswordEncoder.encode(newPassword);
+        user.updatePassword(encryptedNewPassword);
+        userRepository.save(user);
     }
 }

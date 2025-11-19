@@ -6,9 +6,11 @@ import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.LoginRequest;
 import com.sejong.userservice.application.user.dto.LoginResponse;
+import com.sejong.userservice.application.user.dto.ResetPasswordRequest;
 import com.sejong.userservice.application.user.dto.UserResponse;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.application.user.dto.UserUpdateRoleRequest;
+import com.sejong.userservice.application.user.dto.VerificationRequest;
 import com.sejong.userservice.core.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -43,6 +46,7 @@ public class UserController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final VerificationService verificationService;
 
     @Operation(summary = "헬스 체크", description = "서비스 상태를 확인합니다")
     @GetMapping("/health")
@@ -212,6 +216,28 @@ public class UserController {
         String username = currentUser.getUsername();
         UserResponse response = userService.getUserInfo(username);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(summary = "이메일 인증 코드 발송", description = "비밀번호를 재설정 하기 위해 이메일로 인증코드를 발송합니다.")
+    @PostMapping("/auth/verification-code")
+    public ResponseEntity<Map<String, String>> requestVerificationCode(
+            @Valid @RequestBody VerificationRequest request
+    ) {
+        verificationService.sendVerificationCode(request);
+        Map<String, String> response = Map.of("message", "인증코드 메일이 전송되었습니다.");
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(summary = "비밀번호 변경용 인증 코드 검증", description = "이메일 인증 코드를 검증하고 비밀번호를 변경합니다.")
+    @PostMapping("/auth/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request
+    ) {
+        verificationService.verifyEmailCode(request);
+        userService.resetPassword(request.getEmail(), request.getNewPassword());
+        Map<String, String> response = Map.of("message", "비밀번호가 성공적으로 변경되었습니다.");
+        return ResponseEntity.ok(response);
     }
 
     private UserContext getCurrentUser() {
