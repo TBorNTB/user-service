@@ -34,6 +34,9 @@ public enum ExceptionType implements ExceptionTypeIfs {
     VERIFICATION_CODE_MISMATCH(400, "인증 코드가 일치하지 않습니다."),
     SAME_WITH_PREVIOUS_PASSWORD(400, "새 비밀번호는 이전 비밀번호와 달라야 합니다."),
 
+
+    ROOM_ID_NOT_FOUND(400, "존재하지 않는 채팅룸 Id 입니다."),
+    DM_ROOM_WITH_OTHER_PERSON(400, "자기 자신과의 DM 룸을 생성할 수 없습니다."),
     ;
 
     private final Integer httpStatus;

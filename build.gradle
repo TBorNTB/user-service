@@ -86,6 +86,9 @@ dependencies {
     // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    //websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
     //메일관련
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'com.google.apis:google-api-services-gmail:v1-rev20240422-2.0.0'
