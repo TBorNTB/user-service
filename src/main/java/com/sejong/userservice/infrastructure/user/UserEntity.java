@@ -35,7 +35,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Column(unique = true) 고유해지니까 괜찮겠지?
+    @Column(unique = true)
     private String username;
 
     private Integer generation;
