@@ -23,7 +23,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Table(name = "alarms")
-public class AlarmEntity {
+public class Alarm {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,10 +48,10 @@ public class AlarmEntity {
 
     private LocalDateTime createdAt;
 
-    public static AlarmEntity from(AlarmDto alarmDto, String actorNickname) {
+    public static Alarm from(AlarmDto alarmDto, String actorNickname) {
         String message = buildMessage(alarmDto.getAlarmType(), alarmDto.getDomainType(), actorNickname);
 
-        return AlarmEntity.builder()
+        return Alarm.builder()
                 .alarmType(alarmDto.getAlarmType())
                 .domainType(alarmDto.getDomainType())
                 .domainId(alarmDto.getDomainId())

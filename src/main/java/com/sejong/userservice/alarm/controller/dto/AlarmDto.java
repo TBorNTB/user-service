@@ -1,6 +1,6 @@
 package com.sejong.userservice.alarm.controller.dto;
 
-import com.sejong.userservice.alarm.domain.AlarmEntity;
+import com.sejong.userservice.alarm.domain.Alarm;
 import com.sejong.userservice.alarm.domain.AlarmType;
 import com.sejong.userservice.alarm.domain.DomainType;
 import com.sejong.userservice.alarm.kafka.event.DomainAlarmEvent;
@@ -38,16 +38,16 @@ public class AlarmDto {
                 .build();
     }
 
-    public static AlarmDto from(AlarmEntity alarmEntity) {
+    public static AlarmDto from(Alarm alarm) {
         return AlarmDto.builder()
-                .alarmType(alarmEntity.getAlarmType())
-                .domainType(alarmEntity.getDomainType())
-                .domainId(alarmEntity.getDomainId())
-                .actorUsername(alarmEntity.getActorUsername())
-                .ownerUsername(alarmEntity.getOwnerUsername())
-                .message(alarmEntity.getMessage())
-                .seen(alarmEntity.isSeen())
-                .createdAt(alarmEntity.getCreatedAt())
+                .alarmType(alarm.getAlarmType())
+                .domainType(alarm.getDomainType())
+                .domainId(alarm.getDomainId())
+                .actorUsername(alarm.getActorUsername())
+                .ownerUsername(alarm.getOwnerUsername())
+                .message(alarm.getMessage())
+                .seen(alarm.isSeen())
+                .createdAt(alarm.getCreatedAt())
                 .build();
     }
 }
