@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AlarmDto {
 
+    private Long id;
     private AlarmType alarmType;
     private DomainType domainType;
     private Long domainId;
@@ -27,6 +28,7 @@ public class AlarmDto {
 
     public static AlarmDto from(DomainAlarmEvent event) {
         return AlarmDto.builder()
+                .id(null)
                 .alarmType(event.getAlarmType())
                 .domainType(event.getDomainType())
                 .domainId(event.getDomainId())
@@ -40,6 +42,7 @@ public class AlarmDto {
 
     public static AlarmDto from(Alarm alarm) {
         return AlarmDto.builder()
+                .id(alarm.getId())
                 .alarmType(alarm.getAlarmType())
                 .domainType(alarm.getDomainType())
                 .domainId(alarm.getDomainId())
