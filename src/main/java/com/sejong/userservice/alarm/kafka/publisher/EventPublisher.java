@@ -1,10 +1,10 @@
-package com.sejong.userservice.infrastructure.alarm.kafka.publisher;
+package com.sejong.userservice.alarm.kafka.publisher;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sejong.userservice.core.alarm.AlarmType;
+import com.sejong.userservice.alarm.domain.AlarmType;
+import com.sejong.userservice.alarm.kafka.event.DomainAlarmEvent;
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.infrastructure.alarm.kafka.event.DomainAlarmEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
