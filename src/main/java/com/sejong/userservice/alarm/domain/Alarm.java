@@ -64,19 +64,12 @@ public class Alarm {
     }
 
     private static String buildMessage(AlarmType alarmType, DomainType domainType, String actorNickname) {
-        String domainKorean = switch (domainType) {
-            case PROJECT -> "프로젝트";
-            case NEWS -> "뉴스";
-            case ARCHIVE -> "아카이브";
-            case GLOBAL -> "";
-        };
-
         return switch (alarmType) {
-            case COMMENT_ADDED -> String.format("%s님이 %s에 댓글을 남겼습니다.", actorNickname, domainKorean);
+            case COMMENT_ADDED -> String.format("%s님이 %s에 댓글을 남겼습니다.", actorNickname, domainType.getName());
 
-            case COMMENT_REPLY_ADDED -> String.format("%s님이 %s에 댓글 응답을 남겼습니다.", actorNickname, domainKorean);
+            case COMMENT_REPLY_ADDED -> String.format("%s님이 %s에 댓글 응답을 남겼습니다.", actorNickname, domainType.getName());
 
-            case POST_LIKED -> String.format("%s님이 %s를 좋아합니다.", actorNickname, domainKorean);
+            case POST_LIKED -> String.format("%s님이 %s를 좋아합니다.", actorNickname, domainType.getName());
 
             case SIGNUP -> String.format("🎉 %s님이 새로 가입했습니다!", actorNickname);
 
