@@ -4,9 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum DomainType {
-    PROJECT("프로젝트"),
+
     NEWS("뉴스"),
-    ARCHIVE("아카이브"),
+    PROJECT("프로젝트"),
+    DOCUMENT("다큐먼트"),
+    ARTICLE("아티클"),
     GLOBAL(""),
     ;
 
