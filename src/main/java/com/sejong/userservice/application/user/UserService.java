@@ -2,7 +2,8 @@ package com.sejong.userservice.application.user;
 
 import static com.sejong.userservice.application.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 
-import com.sejong.userservice.alarm.kafka.publisher.EventPublisher;
+import com.sejong.userservice.alarm.controller.dto.AlarmDto;
+import com.sejong.userservice.alarm.service.AlarmService;
 import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.application.token.TokenService;
 import com.sejong.userservice.application.user.dto.JoinRequest;
@@ -31,7 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenService tokenService;
-    private final EventPublisher eventPublisher;
+    private final AlarmService alarmService;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
@@ -49,7 +50,8 @@ public class UserService {
         try {
             User savedUser = userRepository.save(user);
             log.info("User registered successfully: {}", nickname);
-            eventPublisher.publishSignUpAlarm(savedUser);
+            alarmService.save(AlarmDto.from(savedUser));
+            log.info("SignUp alarm is made successfully: {}", nickname);
             return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
         } catch (Exception e) {
             log.error("Failed to save user {}: {}", nickname, e.getMessage());

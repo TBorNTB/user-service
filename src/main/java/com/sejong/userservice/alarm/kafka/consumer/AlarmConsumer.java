@@ -22,7 +22,6 @@ public class AlarmConsumer {
             groupId = GroupNames.ALARM
     )
     public void consume(String message) {
-
         DomainAlarmEvent event = DomainAlarmEvent.fromJson(message);
         AlarmDto alarmDto = AlarmDto.from(event);
         alarmService.save(alarmDto);
