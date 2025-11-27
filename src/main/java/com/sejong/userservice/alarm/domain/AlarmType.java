@@ -1,4 +1,4 @@
-package com.sejong.userservice.core.alarm;
+package com.sejong.userservice.alarm.domain;
 
 public enum AlarmType {
     COMMENT_ADDED,

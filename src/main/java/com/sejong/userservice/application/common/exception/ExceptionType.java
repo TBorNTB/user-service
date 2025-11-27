@@ -37,6 +37,10 @@ public enum ExceptionType implements ExceptionTypeIfs {
 
     ROOM_ID_NOT_FOUND(400, "존재하지 않는 채팅룸 Id 입니다."),
     DM_ROOM_WITH_OTHER_PERSON(400, "자기 자신과의 DM 룸을 생성할 수 없습니다."),
+
+    ALARM_NOT_FOUND(404, "알람을 찾을 수 없습니다."),
+    ALARM_ACCESS_DENIED(403, "본인의 알람만 읽음 처리할 수 있습니다."),
+
     ;
 
     private final Integer httpStatus;

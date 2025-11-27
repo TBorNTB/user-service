@@ -106,4 +106,6 @@ public class ChatController {
         return (UserContext) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
     }
+
+    // todo: 채팅방 삭제 기능 (chatroom 삭제시, chatroomuser 우선 삭제 필수)
 }

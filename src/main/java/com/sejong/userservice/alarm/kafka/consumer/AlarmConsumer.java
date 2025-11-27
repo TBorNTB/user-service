@@ -1,10 +1,10 @@
-package com.sejong.userservice.infrastructure.alarm.kafka.consumer;
+package com.sejong.userservice.alarm.kafka.consumer;
 
-import com.sejong.userservice.application.alarm.AlarmService;
-import com.sejong.userservice.application.alarm.dto.AlarmDto;
+import com.sejong.userservice.alarm.controller.dto.AlarmDto;
+import com.sejong.userservice.alarm.kafka.event.DomainAlarmEvent;
+import com.sejong.userservice.alarm.service.AlarmService;
 import com.sejong.userservice.application.common.constants.GroupNames;
 import com.sejong.userservice.application.common.constants.TopicNames;
-import com.sejong.userservice.infrastructure.alarm.kafka.event.DomainAlarmEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -22,7 +22,6 @@ public class AlarmConsumer {
             groupId = GroupNames.ALARM
     )
     public void consume(String message) {
-
         DomainAlarmEvent event = DomainAlarmEvent.fromJson(message);
         AlarmDto alarmDto = AlarmDto.from(event);
         alarmService.save(alarmDto);
