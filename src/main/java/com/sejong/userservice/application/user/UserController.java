@@ -96,7 +96,7 @@ public class UserController {
     }
 
     @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")
-    @GetMapping
+    @GetMapping("/page")
     public ResponseEntity<UserPageNationResponse> getAllUsersPagenation(
             @RequestParam(name = "size") int size,
             @RequestParam(name = "page") int page
