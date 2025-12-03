@@ -4,21 +4,22 @@ import static com.sejong.userservice.application.common.exception.ExceptionType.
 
 import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.application.token.TokenService;
-import com.sejong.userservice.application.user.dto.JoinRequest;
-import com.sejong.userservice.application.user.dto.JoinResponse;
-import com.sejong.userservice.application.user.dto.UserResponse;
-import com.sejong.userservice.application.user.dto.UserUpdateRequest;
+import com.sejong.userservice.application.user.dto.*;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
 import com.sejong.userservice.infrastructure.alarm.kafka.publisher.EventPublisher;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,12 +58,20 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAllUsers();
 
         return users.stream()
                 .map(UserResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public UserPageNationResponse getAllUsers(Pageable pageable) {
+        Page<User> userPage = userRepository.findAllUsers(pageable);
+
+        return UserPageNationResponse.from(userPage);
     }
 
     @Transactional
@@ -191,18 +200,19 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Map<String, String> getAllUsernames(List<String> usernames) {
-       List<User> users = userRepository.findByUsernameIn(usernames);
+        List<User> users = userRepository.findByUsernameIn(usernames);
 
-       return users.stream()
-               .collect(Collectors.toMap(
-                       User::getUsername,
-                       User::getNickname
-               ));
+        return users.stream()
+                .collect(Collectors.toMap(
+                        User::getUsername,
+                        User::getNickname
+                ));
     }
+
 
     @Transactional
     public String updateUserRole(Long id, String newUserRole, String userRole) {
-        if(!userRole.equalsIgnoreCase("ADMIN")){
+        if (!userRole.equalsIgnoreCase("ADMIN")) {
             throw new RuntimeException("어드민 전용 api입니다");
         }
 
@@ -232,4 +242,6 @@ public class UserService {
         user.updatePassword(encryptedNewPassword);
         userRepository.save(user);
     }
+
+
 }

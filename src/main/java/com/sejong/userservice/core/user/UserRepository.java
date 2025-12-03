@@ -1,5 +1,8 @@
 package com.sejong.userservice.core.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 public interface UserRepository {
@@ -10,6 +13,7 @@ public interface UserRepository {
     User findByUsername(String username);
 
     List<User> findAllUsers();
+    Page<User> findAllUsers(Pageable pageable);
 
     void deleteByUsername(String username);
 
@@ -26,4 +30,5 @@ public interface UserRepository {
     void updateUserRole(Long id, String userRole);
 
     User getUserInfo(String username);
+
 }

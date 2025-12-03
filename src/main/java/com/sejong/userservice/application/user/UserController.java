@@ -2,15 +2,7 @@ package com.sejong.userservice.application.user;
 
 import com.sejong.userservice.application.common.security.UserContext;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
-import com.sejong.userservice.application.user.dto.JoinRequest;
-import com.sejong.userservice.application.user.dto.JoinResponse;
-import com.sejong.userservice.application.user.dto.LoginRequest;
-import com.sejong.userservice.application.user.dto.LoginResponse;
-import com.sejong.userservice.application.user.dto.ResetPasswordRequest;
-import com.sejong.userservice.application.user.dto.UserResponse;
-import com.sejong.userservice.application.user.dto.UserUpdateRequest;
-import com.sejong.userservice.application.user.dto.UserUpdateRoleRequest;
-import com.sejong.userservice.application.user.dto.VerificationRequest;
+import com.sejong.userservice.application.user.dto.*;
 import com.sejong.userservice.core.user.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,24 +10,22 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -103,6 +93,17 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         List<UserResponse> users = userService.getAllUsers();
         return new ResponseEntity<>(users, HttpStatus.OK);
+    }
+
+    @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")
+    @GetMapping
+    public ResponseEntity<UserPageNationResponse> getAllUsersPagenation(
+            @RequestParam(name = "size") int size,
+            @RequestParam(name = "page") int page
+    ) {
+        Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
+        UserPageNationResponse response = userService.getAllUsers(pageable);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "등급명 수정 어드민 전용 api")
@@ -187,7 +188,7 @@ public class UserController {
     @PatchMapping("/{username}/confirm")
     public ResponseEntity<UserResponse> confirmMember(
             @PathVariable("username") String grantedUsername,
-            @RequestBody Integer generation ) {
+            @RequestBody Integer generation) {
         UserContext currentUser = getCurrentUser();
 
         log.info("정식회원 권한 부여 {}: {}가 {}에게 정식 회원 권한을 부여합니다. ", LocalDateTime.now(), currentUser.getUsername(),
