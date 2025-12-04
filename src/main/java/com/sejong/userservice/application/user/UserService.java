@@ -243,5 +243,9 @@ public class UserService {
         userRepository.save(user);
     }
 
-
+    @Transactional(readOnly = true)
+    public Long getUserCount() {
+        Long count = userRepository.findUsersCount();
+        return count;
+    }
 }

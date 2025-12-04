@@ -127,4 +127,11 @@ public class UserRepositoryImpl implements UserRepository {
 
         return userEntity.toDomain();
     }
+
+    @Override
+    public Long findUsersCount() {
+       Long count =  jpaUserRepository.findUserCount();
+
+       return count;
+    }
 }

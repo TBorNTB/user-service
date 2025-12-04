@@ -31,4 +31,5 @@ public interface UserRepository {
 
     User getUserInfo(String username);
 
+    Long findUsersCount();
 }
