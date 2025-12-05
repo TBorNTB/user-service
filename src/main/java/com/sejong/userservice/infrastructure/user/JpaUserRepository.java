@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.sejong.userservice.core.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByNickname(String nickname);
@@ -22,4 +23,7 @@ public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByUsername(String username);
 
     List<UserEntity> findByUsernameIn(List<String> usernames);
+
+    @Query("select count(ue) from UserEntity ue")
+    Long findUserCount();
 }

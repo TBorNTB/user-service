@@ -50,5 +50,11 @@ public class InternalController {
         return new ResponseEntity<>(usernamesMap, HttpStatus.OK);
     }
 
-
+    @Operation(summary = "User count 조회")
+    @GetMapping("/users/meta/count")
+    ResponseEntity<Long> getUserCount(){
+        Long count = userService.getUserCount();
+        return ResponseEntity.status(200)
+                .body(count);
+    }
 }

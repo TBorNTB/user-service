@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +46,20 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public List<User> findAllUsers() {
         return jpaUserRepository.findAll().stream().map(UserEntity::toDomain).toList();
+    }
+
+    @Override
+    public Page<User> findAllUsers(Pageable pageable) {
+        Page<UserEntity> pageUserEntities = jpaUserRepository.findAll(pageable);
+        List<User> users = pageUserEntities.stream()
+                .map(UserEntity::toDomain)
+                .toList();
+
+        return new PageImpl<>(
+                users,
+                pageable,
+                pageUserEntities.getTotalElements()
+        );
     }
 
     @Override
@@ -109,5 +126,12 @@ public class UserRepositoryImpl implements UserRepository {
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
         return userEntity.toDomain();
+    }
+
+    @Override
+    public Long findUsersCount() {
+       Long count =  jpaUserRepository.findUserCount();
+
+       return count;
     }
 }
