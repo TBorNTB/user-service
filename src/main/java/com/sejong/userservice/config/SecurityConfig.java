@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.common.config;
+package com.sejong.userservice.config;
 
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.common.security.jwt.JwtExceptionFilter;

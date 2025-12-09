@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.common.config;
+package com.sejong.userservice.config;
 
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;

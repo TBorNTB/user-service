@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.common.config;
+package com.sejong.userservice.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
