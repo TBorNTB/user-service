@@ -1,6 +1,6 @@
 package com.sejong.userservice.domain.chat.controller;
 
-import com.sejong.userservice.application.common.security.UserContext;
+import com.sejong.userservice.common.security.UserContext;
 import com.sejong.userservice.domain.chat.controller.request.GroupRoomRequest;
 import com.sejong.userservice.domain.chat.controller.request.SingleRoomRequest;
 import com.sejong.userservice.domain.chat.controller.response.ChatMessageResponse;

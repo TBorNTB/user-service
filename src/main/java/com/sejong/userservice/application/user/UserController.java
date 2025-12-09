@@ -1,7 +1,7 @@
 package com.sejong.userservice.application.user;
 
-import com.sejong.userservice.application.common.security.UserContext;
-import com.sejong.userservice.application.common.security.jwt.JWTUtil;
+import com.sejong.userservice.common.security.UserContext;
+import com.sejong.userservice.common.security.jwt.JWTUtil;
 import com.sejong.userservice.application.user.dto.*;
 import com.sejong.userservice.core.user.User;
 import io.swagger.v3.oas.annotations.Operation;

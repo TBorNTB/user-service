@@ -1,6 +1,6 @@
 package com.sejong.userservice.application.rolechange;
 
-import com.sejong.userservice.application.common.security.UserContext;
+import com.sejong.userservice.common.security.UserContext;
 import com.sejong.userservice.application.rolechange.dto.RoleChangeManageRequest;
 import com.sejong.userservice.application.rolechange.dto.RoleChangeRequest;
 import com.sejong.userservice.core.user.RoleChange;

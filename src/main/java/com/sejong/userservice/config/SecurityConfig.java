@@ -1,10 +1,10 @@
 package com.sejong.userservice.config;
 
-import com.sejong.userservice.application.common.security.jwt.JWTUtil;
-import com.sejong.userservice.application.common.security.jwt.JwtExceptionFilter;
-import com.sejong.userservice.application.common.security.jwt.JwtFilter;
-import com.sejong.userservice.application.common.security.oauth.CustomOAuth2UserService;
-import com.sejong.userservice.application.common.security.oauth.CustomSuccessHandler;
+import com.sejong.userservice.common.security.jwt.JWTUtil;
+import com.sejong.userservice.common.security.jwt.JwtExceptionFilter;
+import com.sejong.userservice.common.security.jwt.JwtFilter;
+import com.sejong.userservice.common.security.oauth.CustomOAuth2UserService;
+import com.sejong.userservice.common.security.oauth.CustomSuccessHandler;
 import com.sejong.userservice.domain.token.TokenBlacklistRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

@@ -1,10 +1,10 @@
 package com.sejong.userservice.domain.chat.service;
 
-import static com.sejong.userservice.application.common.exception.ExceptionType.DM_ROOM_WITH_OTHER_PERSON;
-import static com.sejong.userservice.application.common.exception.ExceptionType.NOT_FOUND_USER;
-import static com.sejong.userservice.application.common.exception.ExceptionType.ROOM_ID_NOT_FOUND;
+import static com.sejong.userservice.common.exception.ExceptionType.DM_ROOM_WITH_OTHER_PERSON;
+import static com.sejong.userservice.common.exception.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.common.exception.ExceptionType.ROOM_ID_NOT_FOUND;
 
-import com.sejong.userservice.application.common.exception.BaseException;
+import com.sejong.userservice.common.exception.BaseException;
 import com.sejong.userservice.domain.chat.constant.ChatRoomUserRole;
 import com.sejong.userservice.domain.chat.controller.response.ChatMessageResponse;
 import com.sejong.userservice.domain.chat.controller.response.GroupRoomResponse;

@@ -1,8 +1,8 @@
 package com.sejong.userservice.application.user;
 
-import static com.sejong.userservice.application.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
+import static com.sejong.userservice.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 
-import com.sejong.userservice.application.common.exception.BaseException;
+import com.sejong.userservice.common.exception.BaseException;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserPageNationResponse;

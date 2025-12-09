@@ -1,6 +1,6 @@
 package com.sejong.userservice.domain.chat.interceptor;
 
-import com.sejong.userservice.application.common.security.jwt.JWTUtil;
+import com.sejong.userservice.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import org.springframework.http.server.ServerHttpRequest;

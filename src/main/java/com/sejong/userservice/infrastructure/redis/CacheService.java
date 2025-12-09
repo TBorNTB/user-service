@@ -1,9 +1,9 @@
 package com.sejong.userservice.infrastructure.redis;
 
-import static com.sejong.userservice.application.common.exception.ExceptionType.VERIFICATION_CODE_MISMATCH;
-import static com.sejong.userservice.application.common.exception.ExceptionType.VERIFICATION_CODE_NOT_FOUND;
+import static com.sejong.userservice.common.exception.ExceptionType.VERIFICATION_CODE_MISMATCH;
+import static com.sejong.userservice.common.exception.ExceptionType.VERIFICATION_CODE_NOT_FOUND;
 
-import com.sejong.userservice.application.common.exception.BaseException;
+import com.sejong.userservice.common.exception.BaseException;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

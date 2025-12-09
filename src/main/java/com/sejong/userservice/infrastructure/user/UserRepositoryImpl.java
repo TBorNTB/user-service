@@ -1,8 +1,8 @@
 package com.sejong.userservice.infrastructure.user;
 
-import static com.sejong.userservice.application.common.exception.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.common.exception.ExceptionType.NOT_FOUND_USER;
 
-import com.sejong.userservice.application.common.exception.BaseException;
+import com.sejong.userservice.common.exception.BaseException;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 

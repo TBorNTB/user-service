@@ -1,0 +1,10 @@
+package com.sejong.userservice.common.security.oauth.dto;
+
+public interface OAuth2Response {
+    String getProvider();
+    String getProviderId();
+    String getNickname();
+    String getEmail();
+    String getName();
+    String getAvatarUrl();
+}
