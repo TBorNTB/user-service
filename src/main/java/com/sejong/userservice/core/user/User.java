@@ -2,6 +2,7 @@ package com.sejong.userservice.core.user;
 
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.UserUpdateRequest;
+import com.sejong.userservice.domain.rolechange.domain.UserRole;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

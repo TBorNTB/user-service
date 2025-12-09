@@ -1,10 +1,10 @@
-package com.sejong.userservice.application.rolechange;
+package com.sejong.userservice.domain.rolechange;
 
 import com.sejong.userservice.common.security.UserContext;
-import com.sejong.userservice.application.rolechange.dto.RoleChangeManageRequest;
-import com.sejong.userservice.application.rolechange.dto.RoleChangeRequest;
-import com.sejong.userservice.core.user.RoleChange;
-import com.sejong.userservice.core.user.UserRole;
+import com.sejong.userservice.domain.rolechange.domain.UserRole;
+import com.sejong.userservice.domain.rolechange.dto.request.RoleChangeManageRequest;
+import com.sejong.userservice.domain.rolechange.dto.request.RoleChangeRequest;
+import com.sejong.userservice.domain.rolechange.dto.response.RoleChangeResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.Arrays;
@@ -32,8 +32,8 @@ public class UserRoleController {
 
     @GetMapping("/all")
     @Operation(summary = "유저 role 갱신 로그 Pending 조회")
-    public ResponseEntity<List<RoleChange>> getAllUserRolesPending() {
-        List<RoleChange> roleChanges = userRoleService.findAll();
+    public ResponseEntity<List<RoleChangeResponse>> getAllUserRolesPending() {
+        List<RoleChangeResponse> roleChanges = userRoleService.findAll();
         return ResponseEntity.ok(roleChanges);
     }
 
@@ -43,7 +43,7 @@ public class UserRoleController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER', 'GUEST')")
     public ResponseEntity<String> addRoleChange(@RequestBody RoleChangeRequest roleChangeRequest) {
         UserContext currentUser = getCurrentUser();
-        String message = userRoleService.addRoleChange(currentUser.getUsername(), roleChangeRequest.getRequestRole());
+        String message = userRoleService.addRoleChange(currentUser.getUsername(), roleChangeRequest);
         return ResponseEntity.ok(message);
     }
 

@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.rolechange.dto;
+package com.sejong.userservice.domain.rolechange.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoleChangeRequest {
-    private String requestRole;
+public class RoleChangeManageRequest {
+    private boolean isAccepted;
 }

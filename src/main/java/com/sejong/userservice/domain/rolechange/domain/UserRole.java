@@ -1,4 +1,4 @@
-package com.sejong.userservice.core.user;
+package com.sejong.userservice.domain.rolechange.domain;
 
 public enum UserRole {
     ADMIN, // 관리자

@@ -1,13 +1,13 @@
 package com.sejong.userservice.common.security.oauth;
 
+import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.common.security.oauth.dto.GithubResponse;
 import com.sejong.userservice.common.security.oauth.dto.OAuth2Response;
 import com.sejong.userservice.common.security.oauth.dto.UserDTO;
-import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
-import com.sejong.userservice.core.user.UserRole;
+import com.sejong.userservice.domain.rolechange.domain.UserRole;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

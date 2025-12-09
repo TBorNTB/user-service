@@ -1,4 +1,4 @@
-package com.sejong.userservice.core.util;
+package com.sejong.userservice.common;
 
 import java.security.SecureRandom;
 import org.springframework.stereotype.Component;
