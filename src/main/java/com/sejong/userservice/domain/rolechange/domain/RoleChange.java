@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Data
-public class RoleChangeEntity {
+public class RoleChange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,8 +43,8 @@ public class RoleChangeEntity {
     private LocalDateTime requestedAt;
     private LocalDateTime processedAt;
 
-    public static RoleChangeEntity from(User user, UserRole requestedRole, RequestStatus requestStatus) {
-        return RoleChangeEntity.builder()
+    public static RoleChange from(User user, UserRole requestedRole, RequestStatus requestStatus) {
+        return RoleChange.builder()
                 .id(null)
                 .realName(user.getRealName())
                 .role(user.getRole())
