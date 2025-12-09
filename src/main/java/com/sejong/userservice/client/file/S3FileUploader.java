@@ -1,4 +1,4 @@
-package com.sejong.userservice.infrastructure.file;
+package com.sejong.userservice.client.file;
 
 import com.sejong.userservice.application.file.FileUploader;
 import com.sejong.userservice.application.file.dto.PreSignedUrl;

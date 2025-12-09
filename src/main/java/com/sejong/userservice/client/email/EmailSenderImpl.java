@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.email;
+package com.sejong.userservice.client.email;
 
 import static com.sejong.userservice.application.common.exception.ExceptionType.EMAIL_TRANSFER_ERROR;
 import static com.sejong.userservice.application.common.exception.ExceptionType.UNEXPECTED_ERROR;

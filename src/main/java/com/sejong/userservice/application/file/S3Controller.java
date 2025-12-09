@@ -1,7 +1,7 @@
 package com.sejong.userservice.application.file;
 
 import com.sejong.userservice.application.file.dto.FileUploadRequest;
-import com.sejong.userservice.infrastructure.file.S3FileUploader;
+import com.sejong.userservice.client.file.S3FileUploader;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
