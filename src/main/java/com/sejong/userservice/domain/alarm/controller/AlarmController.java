@@ -3,7 +3,7 @@ package com.sejong.userservice.domain.alarm.controller;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.domain.AlarmType;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
-import com.sejong.userservice.common.security.UserContext;
+import com.sejong.userservice.support.common.security.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;

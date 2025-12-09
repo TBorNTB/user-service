@@ -3,7 +3,7 @@ package com.sejong.userservice.domain.chat.subscriber;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sejong.userservice.domain.chat.dto.ChatMessageDto;
 import com.sejong.userservice.domain.chat.service.ChatHandleMessageService;
-import com.sejong.userservice.config.ServerIdProvider;
+import com.sejong.userservice.support.config.ServerIdProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;

@@ -1,10 +1,10 @@
 package com.sejong.userservice.domain.rolechange;
 
-import com.sejong.userservice.common.security.UserContext;
 import com.sejong.userservice.domain.rolechange.domain.UserRole;
 import com.sejong.userservice.domain.rolechange.dto.request.Approval;
 import com.sejong.userservice.domain.rolechange.dto.request.RoleChangeRequest;
 import com.sejong.userservice.domain.rolechange.dto.response.RoleChangeResponse;
+import com.sejong.userservice.support.common.security.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.Arrays;

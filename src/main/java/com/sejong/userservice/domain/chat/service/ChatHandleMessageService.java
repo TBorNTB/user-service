@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sejong.userservice.domain.chat.dto.BroadCastDto;
 import com.sejong.userservice.domain.chat.dto.ChatMessageDto;
-import com.sejong.userservice.config.ServerIdProvider;
+import com.sejong.userservice.support.config.ServerIdProvider;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;

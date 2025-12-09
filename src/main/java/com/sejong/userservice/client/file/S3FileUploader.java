@@ -1,7 +1,7 @@
 package com.sejong.userservice.client.file;
 
 import com.sejong.userservice.client.file.dto.PreSignedUrl;
-import com.sejong.userservice.common.Filepath;
+import com.sejong.userservice.support.common.Filepath;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;

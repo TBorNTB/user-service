@@ -1,14 +1,14 @@
 package com.sejong.userservice.domain.alarm.service;
 
+import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.domain.Alarm;
 import com.sejong.userservice.domain.alarm.domain.AlarmType;
 import com.sejong.userservice.domain.alarm.repository.AlarmRepository;
-import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.UserRepository;
+import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.exception.ExceptionType;
 import java.util.List;
-import com.sejong.userservice.common.exception.BaseException;
-import com.sejong.userservice.common.exception.ExceptionType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

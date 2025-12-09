@@ -1,11 +1,11 @@
 package com.sejong.userservice.infrastructure.user;
 
-import static com.sejong.userservice.common.exception.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
 
-import com.sejong.userservice.common.exception.BaseException;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.domain.rolechange.domain.UserRole;
+import com.sejong.userservice.support.common.exception.BaseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

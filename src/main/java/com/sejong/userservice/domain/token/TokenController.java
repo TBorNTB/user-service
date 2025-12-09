@@ -1,10 +1,10 @@
 package com.sejong.userservice.domain.token;
 
-import static com.sejong.userservice.common.exception.ExceptionType.REFRESH_TOKEN_NOT_FOUND;
+import static com.sejong.userservice.support.common.exception.ExceptionType.REFRESH_TOKEN_NOT_FOUND;
 
-import com.sejong.userservice.common.exception.BaseException;
-import com.sejong.userservice.common.security.jwt.JWTUtil;
 import com.sejong.userservice.domain.token.dto.TokenReissueResponse;
+import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;

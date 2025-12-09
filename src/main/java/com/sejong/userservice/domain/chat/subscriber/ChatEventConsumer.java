@@ -4,7 +4,7 @@ import com.sejong.userservice.domain.chat.dto.ChatMessageDto;
 import com.sejong.userservice.domain.chat.dto.ChatMessageEvent;
 import com.sejong.userservice.domain.chat.publisher.RedisPublisher;
 import com.sejong.userservice.domain.chat.service.ChatService;
-import com.sejong.userservice.config.ServerIdProvider;
+import com.sejong.userservice.support.config.ServerIdProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
