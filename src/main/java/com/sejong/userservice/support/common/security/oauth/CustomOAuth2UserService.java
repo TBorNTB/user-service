@@ -1,9 +1,9 @@
 package com.sejong.userservice.support.common.security.oauth;
 
-import com.sejong.userservice.domain.user.User;
-import com.sejong.userservice.domain.user.UserRepository;
 import com.sejong.userservice.domain.role.domain.UserRole;
-import com.sejong.userservice.domain.user.dto.UserUpdateRequest;
+import com.sejong.userservice.domain.user.UserRepository;
+import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
 import com.sejong.userservice.support.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.support.common.security.oauth.dto.GithubResponse;
 import com.sejong.userservice.support.common.security.oauth.dto.OAuth2Response;

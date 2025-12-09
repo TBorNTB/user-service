@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.user.dto;
+package com.sejong.userservice.domain.user.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

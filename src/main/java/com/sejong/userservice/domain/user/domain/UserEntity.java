@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.user;
+package com.sejong.userservice.domain.user.domain;
 
 import com.sejong.userservice.domain.role.domain.UserRole;
 import jakarta.persistence.Column;

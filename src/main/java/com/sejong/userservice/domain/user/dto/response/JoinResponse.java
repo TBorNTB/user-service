@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.user.dto;
+package com.sejong.userservice.domain.user.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

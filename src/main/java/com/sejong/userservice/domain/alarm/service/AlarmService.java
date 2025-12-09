@@ -1,11 +1,11 @@
 package com.sejong.userservice.domain.alarm.service;
 
-import com.sejong.userservice.domain.user.User;
-import com.sejong.userservice.domain.user.UserRepository;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.domain.Alarm;
 import com.sejong.userservice.domain.alarm.domain.AlarmType;
 import com.sejong.userservice.domain.alarm.repository.AlarmRepository;
+import com.sejong.userservice.domain.user.UserRepository;
+import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.support.common.exception.BaseException;
 import com.sejong.userservice.support.common.exception.ExceptionType;
 import java.util.List;

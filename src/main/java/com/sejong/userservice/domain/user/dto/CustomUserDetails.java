@@ -1,6 +1,6 @@
 package com.sejong.userservice.domain.user.dto;
 
-import com.sejong.userservice.domain.user.User;
+import com.sejong.userservice.domain.user.domain.User;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;

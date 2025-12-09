@@ -17,7 +17,7 @@ import com.sejong.userservice.domain.chat.repository.ChatMessageRepository;
 import com.sejong.userservice.domain.chat.repository.ChatRoomRepository;
 import com.sejong.userservice.domain.chat.repository.ChatRoomUserRepository;
 import com.sejong.userservice.domain.user.JpaUserRepository;
-import com.sejong.userservice.domain.user.UserEntity;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import com.sejong.userservice.support.common.exception.BaseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

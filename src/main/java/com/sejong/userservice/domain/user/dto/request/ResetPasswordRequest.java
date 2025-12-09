@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.user.dto;
+package com.sejong.userservice.domain.user.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -9,10 +9,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VerificationRequest {
+public class ResetPasswordRequest {
 
     @Email
     @NotEmpty
     private String email;
 
+    @NotEmpty
+    private String randomCode;
+
+    @NotEmpty
+    private String newPassword;
 }

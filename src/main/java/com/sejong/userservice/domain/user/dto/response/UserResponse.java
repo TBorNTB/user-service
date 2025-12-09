@@ -1,6 +1,6 @@
-package com.sejong.userservice.domain.user.dto;
+package com.sejong.userservice.domain.user.dto.response;
 
-import com.sejong.userservice.domain.user.User;
+import com.sejong.userservice.domain.user.domain.User;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

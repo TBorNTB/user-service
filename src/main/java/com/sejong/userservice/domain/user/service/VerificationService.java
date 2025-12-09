@@ -1,8 +1,8 @@
 package com.sejong.userservice.domain.user.service;
 
 import com.sejong.userservice.client.email.EmailSender;
-import com.sejong.userservice.domain.user.dto.ResetPasswordRequest;
-import com.sejong.userservice.domain.user.dto.VerificationRequest;
+import com.sejong.userservice.domain.user.dto.request.ResetPasswordRequest;
+import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
 import com.sejong.userservice.infrastructure.redis.CacheService;
 import com.sejong.userservice.support.common.RandomProvider;
 import lombok.RequiredArgsConstructor;

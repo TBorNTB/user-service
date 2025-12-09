@@ -3,6 +3,8 @@ package com.sejong.userservice.domain.user;
 import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
 
 import com.sejong.userservice.domain.role.domain.UserRole;
+import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import com.sejong.userservice.support.common.exception.BaseException;
 import java.util.List;
 import java.util.Optional;

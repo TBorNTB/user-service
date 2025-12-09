@@ -1,5 +1,6 @@
 package com.sejong.userservice.domain.user;
 
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

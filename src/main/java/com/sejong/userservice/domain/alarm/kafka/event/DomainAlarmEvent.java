@@ -8,7 +8,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.sejong.userservice.domain.alarm.domain.AlarmType;
 import com.sejong.userservice.domain.alarm.domain.DomainType;
-import com.sejong.userservice.domain.user.User;
+import com.sejong.userservice.domain.user.domain.User;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import lombok.AllArgsConstructor;

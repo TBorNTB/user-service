@@ -1,15 +1,16 @@
 package com.sejong.userservice.domain.user;
 
-import com.sejong.userservice.domain.user.dto.JoinRequest;
-import com.sejong.userservice.domain.user.dto.JoinResponse;
-import com.sejong.userservice.domain.user.dto.LoginRequest;
-import com.sejong.userservice.domain.user.dto.LoginResponse;
-import com.sejong.userservice.domain.user.dto.ResetPasswordRequest;
-import com.sejong.userservice.domain.user.dto.UserPageNationResponse;
-import com.sejong.userservice.domain.user.dto.UserResponse;
-import com.sejong.userservice.domain.user.dto.UserUpdateRequest;
-import com.sejong.userservice.domain.user.dto.UserUpdateRoleRequest;
-import com.sejong.userservice.domain.user.dto.VerificationRequest;
+import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.dto.request.JoinRequest;
+import com.sejong.userservice.domain.user.dto.request.LoginRequest;
+import com.sejong.userservice.domain.user.dto.request.ResetPasswordRequest;
+import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
+import com.sejong.userservice.domain.user.dto.request.UserUpdateRoleRequest;
+import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
+import com.sejong.userservice.domain.user.dto.response.JoinResponse;
+import com.sejong.userservice.domain.user.dto.response.LoginResponse;
+import com.sejong.userservice.domain.user.dto.response.UserPageNationResponse;
+import com.sejong.userservice.domain.user.dto.response.UserResponse;
 import com.sejong.userservice.domain.user.service.UserService;
 import com.sejong.userservice.domain.user.service.VerificationService;
 import com.sejong.userservice.support.common.security.UserContext;
