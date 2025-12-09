@@ -1,9 +1,9 @@
-package com.sejong.userservice.domain.rolechange;
+package com.sejong.userservice.domain.role;
 
-import com.sejong.userservice.domain.rolechange.domain.UserRole;
-import com.sejong.userservice.domain.rolechange.dto.request.Approval;
-import com.sejong.userservice.domain.rolechange.dto.request.RoleChangeRequest;
-import com.sejong.userservice.domain.rolechange.dto.response.RoleChangeResponse;
+import com.sejong.userservice.domain.role.domain.UserRole;
+import com.sejong.userservice.domain.role.dto.request.Approval;
+import com.sejong.userservice.domain.role.dto.request.RoleChangeRequest;
+import com.sejong.userservice.domain.role.dto.response.RoleChangeResponse;
 import com.sejong.userservice.support.common.security.UserContext;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

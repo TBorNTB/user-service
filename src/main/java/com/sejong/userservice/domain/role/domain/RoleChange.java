@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.rolechange.domain;
+package com.sejong.userservice.domain.role.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

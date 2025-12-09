@@ -1,6 +1,6 @@
 package com.sejong.userservice.application.user.dto;
 
-import com.sejong.userservice.domain.rolechange.domain.UserRole;
+import com.sejong.userservice.domain.role.domain.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.sejong.userservice.core.user;
 
-import com.sejong.userservice.domain.rolechange.domain.UserRole;
+import com.sejong.userservice.domain.role.domain.UserRole;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

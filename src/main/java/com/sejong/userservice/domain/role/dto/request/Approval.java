@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.rolechange.dto.request;
+package com.sejong.userservice.domain.role.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

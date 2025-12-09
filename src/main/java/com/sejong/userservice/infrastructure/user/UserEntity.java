@@ -1,7 +1,7 @@
 package com.sejong.userservice.infrastructure.user;
 
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.domain.rolechange.domain.UserRole;
+import com.sejong.userservice.domain.role.domain.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;

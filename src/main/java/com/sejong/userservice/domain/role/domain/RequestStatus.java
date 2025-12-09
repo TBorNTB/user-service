@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.rolechange.domain;
+package com.sejong.userservice.domain.role.domain;
 
 public enum RequestStatus {
     PENDING,

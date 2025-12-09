@@ -1,9 +1,9 @@
-package com.sejong.userservice.domain.rolechange.dto.response;
+package com.sejong.userservice.domain.role.dto.response;
 
 import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.domain.rolechange.domain.RequestStatus;
-import com.sejong.userservice.domain.rolechange.domain.RoleChange;
-import com.sejong.userservice.domain.rolechange.domain.UserRole;
+import com.sejong.userservice.domain.role.domain.RequestStatus;
+import com.sejong.userservice.domain.role.domain.RoleChange;
+import com.sejong.userservice.domain.role.domain.UserRole;
 import java.time.LocalDateTime;
 
 public record CreateRoleChange(
