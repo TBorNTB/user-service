@@ -2,7 +2,7 @@ package com.sejong.userservice.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.sejong.userservice.chat.subscriber.RedisSubscriber;
+import com.sejong.userservice.domain.chat.subscriber.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -2,8 +2,8 @@ package com.sejong.userservice.application.user;
 
 import static com.sejong.userservice.application.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 
-import com.sejong.userservice.alarm.controller.dto.AlarmDto;
-import com.sejong.userservice.alarm.service.AlarmService;
+import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
+import com.sejong.userservice.domain.alarm.service.AlarmService;
 import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.application.token.TokenService;
 import com.sejong.userservice.application.user.dto.JoinRequest;

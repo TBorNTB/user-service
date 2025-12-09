@@ -1,7 +1,7 @@
 package com.sejong.userservice.config;
 
-import com.sejong.userservice.chat.handler.ChatWebSocketHandler;
-import com.sejong.userservice.chat.interceptor.CustomWebSocketInterceptor;
+import com.sejong.userservice.domain.chat.handler.ChatWebSocketHandler;
+import com.sejong.userservice.domain.chat.interceptor.CustomWebSocketInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
