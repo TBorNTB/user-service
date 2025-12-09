@@ -31,7 +31,9 @@ public class RoleController {
     private final UserRoleService userRoleService;
 
     @GetMapping("/all")
-    @Operation(summary = "유저 role 갱신 로그 Pending 조회")
+    @Operation(summary = "Pending 상태의 유저 role 변경 요청 조회")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<List<RoleChangeResponse>> getAllUserRolesPending() {
         List<RoleChangeResponse> roleChanges = userRoleService.findAll();
         return ResponseEntity.ok(roleChanges);
@@ -48,7 +50,7 @@ public class RoleController {
     }
 
     @PatchMapping("/manage/{roleChangeId}")
-    @Operation(summary = "유저 role 승인 및 거절 api")
+    @Operation(summary = "유저 role 변경 승인 및 거절 api")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<String> manageRoleChange(
@@ -60,7 +62,7 @@ public class RoleController {
         return ResponseEntity.ok(message);
     }
 
-    @Operation(summary = "전체 유저 Role 조회", description = "모든 userRole을 조회합니다")
+    @Operation(summary = "전체 UserRole 조회", description = "모든 UserRole 조회")
     @GetMapping("")
     public ResponseEntity<List<String>> getAllUserRoles() {
         List<String> roles = Arrays.stream(UserRole.values())
