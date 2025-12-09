@@ -2,22 +2,21 @@ package com.sejong.userservice.domain.user.service;
 
 import static com.sejong.userservice.support.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 
-import com.sejong.userservice.domain.user.User;
-import com.sejong.userservice.domain.user.UserRepository;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
 import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.domain.token.TokenService;
+import com.sejong.userservice.domain.user.JpaUserRepository;
+import com.sejong.userservice.domain.user.User;
+import com.sejong.userservice.domain.user.UserRepository;
 import com.sejong.userservice.domain.user.dto.JoinRequest;
 import com.sejong.userservice.domain.user.dto.JoinResponse;
 import com.sejong.userservice.domain.user.dto.UserPageNationResponse;
 import com.sejong.userservice.domain.user.dto.UserResponse;
 import com.sejong.userservice.domain.user.dto.UserUpdateRequest;
 import com.sejong.userservice.support.common.exception.BaseException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JpaUserRepository jpaUserRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenService tokenService;
     private final AlarmService alarmService;
@@ -60,15 +60,6 @@ public class UserService {
             log.error("Failed to save user {}: {}", nickname, e.getMessage());
             throw new RuntimeException("회원가입 중 데이터베이스 오류가 발생했습니다.", e);
         }
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userRepository.findAllUsers();
-
-        return users.stream()
-                .map(UserResponse::from)
-                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -119,50 +110,6 @@ public class UserService {
         }
     }
 
-    @Transactional
-    public UserResponse grantAdminRole(String targetUsername) {
-        User userToGrantAdmin = userRepository.findByUsername(targetUsername);
-
-        if (userToGrantAdmin.getRole() == UserRole.ADMIN) {
-            log.info("User {} already has ADMIN role. No change made.", targetUsername);
-            return UserResponse.from(userToGrantAdmin);
-        }
-
-        userToGrantAdmin.getRole(UserRole.ADMIN);
-
-        try {
-            User updatedUser = userRepository.save(userToGrantAdmin);
-            log.info("Admin role granted successfully to user: {}", targetUsername);
-            return UserResponse.from(updatedUser);
-        } catch (Exception e) {
-            log.error("Failed to grant admin role to user {}: {}", targetUsername, e.getMessage());
-            throw new RuntimeException("관리자 권한 부여 중 오류가 발생했습니다.", e);
-        }
-    }
-
-    @Transactional
-    public UserResponse confirmMember(String targetUsername, Integer generation) {
-        User userToApprove = userRepository.findByUsername(targetUsername);
-
-        if (userToApprove.getRole() != UserRole.GUEST) {
-            log.warn("User {} is not in UNCONFIRMED_MEMBER state. Current role: {}", targetUsername,
-                    userToApprove.getRole());
-            throw new IllegalStateException(
-                    "사용자 " + targetUsername + "은(는) 승인 대기 상태가 아닙니다. (현재 권한: " + userToApprove.getRole().name() + ")");
-        }
-
-        userToApprove.approveAs(UserRole.ASSOCIATE_MEMBER, generation);
-
-        try {
-            User updatedUser = userRepository.save(userToApprove);
-            log.info("User {} membership approved successfully. New role: {}", targetUsername, updatedUser.getRole());
-            return UserResponse.from(updatedUser);
-        } catch (Exception e) {
-            log.error("Failed to approve membership for user {}: {}", targetUsername, e.getMessage());
-            throw new RuntimeException("사용자 회원 승인 중 오류가 발생했습니다.", e);
-        }
-    }
-
     @Transactional(readOnly = true)
     public boolean exists(String username) {
         return userRepository.existsByUsername(username);
@@ -171,25 +118,6 @@ public class UserService {
     @Transactional(readOnly = true)
     public boolean exists(String username, List<String> collaboratorUsernames) {
         return userRepository.existsByUsernames(username, collaboratorUsernames);
-    }
-
-    @Transactional(readOnly = true)
-    public boolean existAll(List<String> userIds) {
-        Set<String> usernames = new HashSet<>(userIds);
-        if (usernames.isEmpty()) {
-            log.warn("사용자 ID 목록이 비어 있습니다.");
-            return false;
-        }
-        if (usernames.size() != userIds.size()) {
-            log.warn("사용자 ID 목록에 중복된 값이 있습니다.: {}", userIds);
-            return false;
-        }
-        List<User> users = userRepository.findAllByUsernameIn(userIds);
-        if (users.size() != userIds.size()) {
-            log.warn("Some users not found for IDs: {}", userIds);
-            return false;
-        }
-        return true;
     }
 
     @Transactional(readOnly = true)
@@ -204,7 +132,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Map<String, String> getAllUsernames(List<String> usernames) {
-        List<User> users = userRepository.findByUsernameIn(usernames);
+        List<User> users = userRepository.findUsernamesIn(usernames);
 
         return users.stream()
                 .collect(Collectors.toMap(
@@ -231,7 +159,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse getUserInfo(String username) {
-        User user = userRepository.getUserInfo(username);
+        User user = userRepository.findByUsername(username);
         return UserResponse.from(user);
     }
 
@@ -249,7 +177,6 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Long getUserCount() {
-        Long count = userRepository.findUsersCount();
-        return count;
+        return userRepository.findUsersCount();
     }
 }

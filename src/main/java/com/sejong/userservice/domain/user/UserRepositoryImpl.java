@@ -41,11 +41,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> findAllUsers() {
-        return jpaUserRepository.findAll().stream().map(UserEntity::toDomain).toList();
-    }
-
-    @Override
     public Page<User> findAllUsers(Pageable pageable) {
         Page<UserEntity> pageUserEntities = jpaUserRepository.findAll(pageable);
         List<User> users = pageUserEntities.stream()
@@ -63,14 +58,6 @@ public class UserRepositoryImpl implements UserRepository {
     @Transactional
     public void deleteByUsername(String username) {
         jpaUserRepository.deleteByUsername(username);
-    }
-
-    @Override
-    public List<User> findAllByUsernameIn(List<String> usernames) {
-        return usernames.stream().map((username) -> jpaUserRepository.findByUsername(username)
-                        .orElseThrow(() -> new BaseException(NOT_FOUND_USER)))
-                .map(UserEntity::toDomain)
-                .toList();
     }
 
     @Override
@@ -93,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> findByUsernameIn(List<String> usernames) {
+    public List<User> findUsernamesIn(List<String> usernames) {
         List<UserEntity> userEntityList = jpaUserRepository.findByUsernameIn(usernames);
 
         return userEntityList.stream()
@@ -115,14 +102,6 @@ public class UserRepositoryImpl implements UserRepository {
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
         userEntity.updateUserRole(userRole);
-    }
-
-    @Override
-    public User getUserInfo(String username) {
-        UserEntity userEntity = jpaUserRepository.findByUsername(username)
-                .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-
-        return userEntity.toDomain();
     }
 
     @Override

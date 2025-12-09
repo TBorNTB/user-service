@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,15 +27,6 @@ public class InternalController {
     public ResponseEntity<Boolean> exists(@PathVariable("username") String username) {
         boolean exists = userService.exists(username);
         return new ResponseEntity<>(exists, HttpStatus.OK);
-    }
-
-    @Operation(summary = "다중 사용자 존재 여부 확인", description = "여러 사용자들이 모두 존재하는지 확인합니다 (내부 API)")
-    @GetMapping("/exists")
-    public ResponseEntity<Boolean> existAll(@RequestBody List<String> nicknames) {
-
-        boolean existAll = userService.existAll(nicknames);
-
-        return new ResponseEntity<>(existAll, HttpStatus.OK);
     }
 
     @Operation(summary = "방장 및 협력자 존재 여부 확인", description = "방장 및 협력자의 존재 여부 확인 (내부 API)")

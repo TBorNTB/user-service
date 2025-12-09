@@ -20,8 +20,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -104,16 +102,9 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "전체 사용자 조회", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")
-    @GetMapping
-    public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<UserResponse> users = userService.getAllUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
     @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")
     @GetMapping("/page")
-    public ResponseEntity<UserPageNationResponse> getAllUsersPagenation(
+    public ResponseEntity<UserPageNationResponse> getAllUsersPagination(
             @RequestParam(name = "size") int size,
             @RequestParam(name = "page") int page
     ) {
@@ -122,8 +113,10 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Operation(summary = "등급명 수정 어드민 전용 api")
+    @Operation(summary = "회원 role 수정 (어드민 전용 api)")
     @PatchMapping("role-update/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<String> updateUserRole(
             @PathVariable("id") Long id,
             @RequestBody UserUpdateRoleRequest userUpdateRoleRequest
@@ -180,38 +173,6 @@ public class UserController {
         expiredCookie.setPath("/");
         response.addCookie(expiredCookie);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @Operation(summary = "관리자 권한 부여", description = "특정 사용자에게 관리자 권한을 부여합니다 (관리자 권한 필요)")
-    @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{grantedUsername}/admin")
-    public ResponseEntity<UserResponse> grantAdminRole(
-            @PathVariable("grantedUsername") String grantedUsername) {
-        UserContext currentUser = getCurrentUser();
-
-        log.info("관리자 권한 부여 {}: {}가 {}에게 관리자 권한을 부여합니다. ", LocalDateTime.now(), currentUser.getUsername(),
-                grantedUsername);
-        UserResponse userResponse = userService.
-                grantAdminRole(grantedUsername);
-
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
-    }
-
-    @Operation(summary = "정식 회원 승인", description = "특정 사용자를 정식 회원으로 승인합니다 (관리자 권한 필요)")
-    @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasRole('ADMIN')")
-    @PatchMapping("/{username}/confirm")
-    public ResponseEntity<UserResponse> confirmMember(
-            @PathVariable("username") String grantedUsername,
-            @RequestBody Integer generation) {
-        UserContext currentUser = getCurrentUser();
-
-        log.info("정식회원 권한 부여 {}: {}가 {}에게 정식 회원 권한을 부여합니다. ", LocalDateTime.now(), currentUser.getUsername(),
-                grantedUsername);
-        UserResponse userResponse = userService.confirmMember(grantedUsername, generation);
-
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
     @Operation(summary = "자신의 역할 조회", description = "자신의 역할 조회")

@@ -12,24 +12,19 @@ public interface UserRepository {
 
     User findByUsername(String username);
 
-    List<User> findAllUsers();
-    Page<User> findAllUsers(Pageable pageable);
-
-    void deleteByUsername(String username);
-
-    List<User> findAllByUsernameIn(List<String> userIds);
-
     User findByEmail(String email);
 
-    boolean existsByUsernames(String username, List<String> collaboratorUsernames);
-
-    List<User> findByUsernameIn(List<String> usernames);
-
-    boolean existsByUsername(String username);
+    Page<User> findAllUsers(Pageable pageable);
 
     void updateUserRole(Long id, UserRole userRole);
 
-    User getUserInfo(String username);
+    void deleteByUsername(String username);
+
+    List<User> findUsernamesIn(List<String> usernames);
+
+    boolean existsByUsername(String username);
+
+    boolean existsByUsernames(String username, List<String> collaboratorUsernames);
 
     Long findUsersCount();
 }
