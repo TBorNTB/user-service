@@ -1,6 +1,7 @@
 package com.sejong.userservice.domain.rolechange;
 
 import static com.sejong.userservice.common.exception.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.common.exception.ExceptionType.ROLE_CHANGE_NOT_FOUND;
 
 import com.sejong.userservice.common.exception.BaseException;
 import com.sejong.userservice.core.user.User;
@@ -21,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserRoleService {
 
-    private final JpaUserRoleRepository userRoleRepository;
+    private final UserRoleRepository userRoleRepository;
     private final UserRepository userRepository;
     private final JpaUserRepository jpaUserRepository;
 
@@ -38,25 +39,22 @@ public class UserRoleService {
         User user = userRepository.findByUsername(username);
         RoleChange roleChange = new CreateRoleChange(request.getRequestRole())
             .toRoleChangeEntity(user);
-        RoleChange savedRoleChange = userRoleRepository.save(roleChange);
+        userRoleRepository.save(roleChange);
         return "저장성공";
     }
 
     @Transactional
     public String manageRoleChange(boolean isAccepted, Long roleChangeId, String adminUsername) {
-
+        RoleChange roleChange = userRoleRepository.findById(roleChangeId)
+            .orElseThrow(() -> new BaseException(ROLE_CHANGE_NOT_FOUND));
         if (isAccepted) {
-            RoleChange roleChange = userRoleRepository.findById(roleChangeId)
-                .orElseThrow(() -> new RuntimeException("해당 roleChange는 존재하지 않습니다."));
             roleChange.updateAccept(adminUsername);
             UserEntity user = jpaUserRepository.findByEmail(roleChange.getEmail()).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
             user.updateUserRole(roleChange.getRequestedRole());
             return "승인 성공";
-        } else {
-            RoleChange roleChange = userRoleRepository.findById(roleChangeId)
-                .orElseThrow(() -> new RuntimeException("해당 roleChange는 존재하지 않습니다."));
-            roleChange.updateReject(adminUsername);
-            return "승인 거절";
         }
+
+        roleChange.updateReject(adminUsername);
+        return "승인 거절";
     }
 }
