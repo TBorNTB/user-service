@@ -2,10 +2,7 @@ package com.sejong.userservice.application.user;
 
 import static com.sejong.userservice.application.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 
-import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
-import com.sejong.userservice.domain.alarm.service.AlarmService;
 import com.sejong.userservice.application.common.exception.BaseException;
-import com.sejong.userservice.application.token.TokenService;
 import com.sejong.userservice.application.user.dto.JoinRequest;
 import com.sejong.userservice.application.user.dto.JoinResponse;
 import com.sejong.userservice.application.user.dto.UserPageNationResponse;
@@ -14,6 +11,9 @@ import com.sejong.userservice.application.user.dto.UserUpdateRequest;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.core.user.UserRole;
+import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
+import com.sejong.userservice.domain.alarm.service.AlarmService;
+import com.sejong.userservice.domain.token.TokenService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;

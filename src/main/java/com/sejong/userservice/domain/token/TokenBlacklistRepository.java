@@ -1,4 +1,4 @@
-package com.sejong.userservice.core.token;
+package com.sejong.userservice.domain.token;
 
 import java.time.Duration;
 

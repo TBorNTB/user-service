@@ -1,8 +1,7 @@
-package com.sejong.userservice.application.token.dto;
-
-import lombok.Getter;
+package com.sejong.userservice.domain.token.dto;
 
 import jakarta.servlet.http.Cookie;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter

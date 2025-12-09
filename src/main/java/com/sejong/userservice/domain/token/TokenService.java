@@ -1,13 +1,12 @@
-package com.sejong.userservice.application.token;
+package com.sejong.userservice.domain.token;
 
 import static com.sejong.userservice.application.common.exception.ExceptionType.INVALID_OR_REVOKED_TOKEN;
 
 import com.sejong.userservice.application.common.exception.BaseException;
 import com.sejong.userservice.application.common.security.jwt.JWTUtil;
-import com.sejong.userservice.application.token.dto.TokenReissueResponse;
-import com.sejong.userservice.core.token.TokenBlacklistRepository;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
+import com.sejong.userservice.domain.token.dto.TokenReissueResponse;
 import jakarta.servlet.http.Cookie;
 import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;

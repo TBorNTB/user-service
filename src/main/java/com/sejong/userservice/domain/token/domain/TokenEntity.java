@@ -1,6 +1,5 @@
-package com.sejong.userservice.infrastructure.token;
+package com.sejong.userservice.domain.token.domain;
 
-import com.sejong.userservice.core.token.TokenType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

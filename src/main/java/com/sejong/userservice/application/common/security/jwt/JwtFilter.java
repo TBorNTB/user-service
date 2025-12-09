@@ -3,7 +3,7 @@ package com.sejong.userservice.application.common.security.jwt;
 import com.sejong.userservice.application.common.security.UserContext;
 import com.sejong.userservice.application.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.application.common.security.oauth.dto.UserDTO;
-import com.sejong.userservice.core.token.TokenBlacklistRepository;
+import com.sejong.userservice.domain.token.TokenBlacklistRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

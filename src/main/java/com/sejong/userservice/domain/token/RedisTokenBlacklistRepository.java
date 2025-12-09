@@ -1,6 +1,5 @@
-package com.sejong.userservice.infrastructure.token;
+package com.sejong.userservice.domain.token;
 
-import com.sejong.userservice.core.token.TokenBlacklistRepository;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +24,6 @@ public class RedisTokenBlacklistRepository implements TokenBlacklistRepository {
     @Override
     public boolean isBlacklisted(String jti) {
         String key = BLACKLIST_PREFIX + jti;
-        return Boolean.TRUE.equals(redisTemplate.hasKey(key));
+        return redisTemplate.hasKey(key);
     }
 }
