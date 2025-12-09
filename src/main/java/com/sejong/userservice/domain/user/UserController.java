@@ -1,6 +1,5 @@
 package com.sejong.userservice.domain.user;
 
-import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.dto.request.JoinRequest;
 import com.sejong.userservice.domain.user.dto.request.LoginRequest;
 import com.sejong.userservice.domain.user.dto.request.ResetPasswordRequest;
@@ -31,7 +30,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -50,7 +48,6 @@ public class UserController {
 
     private final UserService userService;
     private final JWTUtil jwtUtil;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final VerificationService verificationService;
 
     @Operation(summary = "헬스 체크", description = "서비스 상태를 확인합니다")
@@ -69,38 +66,8 @@ public class UserController {
     @Operation(summary = "사용자 로그인", description = "이메일과 패스워드로 로그인하여 JWT 토큰을 발급받습니다")
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        try {
-            // 사용자 정보 조회
-            User user = userService.findByEmail(loginRequest.getEmail());
-            if (user == null) {
-                return ResponseEntity.status(401).body(new LoginResponse("로그인 실패: 사용자를 찾을 수 없습니다.", null));
-            }
-
-            // 비밀번호 검증
-            if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getEncryptPassword())) {
-                return ResponseEntity.status(401).body(new LoginResponse("로그인 실패: 잘못된 비밀번호입니다.", null));
-            }
-
-            String username = user.getUsername();
-            String role = user.getRole().name();
-
-            String accessToken = jwtUtil.createAccessToken(username, role);
-            String refreshToken = jwtUtil.createRefreshToken(username);
-
-            log.info("로그인 성공: 사용자 {}", username);
-
-            // Access Token을 쿠키에 저장 (API Gateway에서 읽기 위해)
-            Cookie accessTokenCookie = jwtUtil.createAccessTokenCookie(accessToken);
-            response.addCookie(accessTokenCookie);
-
-            // Refresh Token을 HttpOnly 쿠키로 설정
-            Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
-            response.addCookie(refreshTokenCookie);
-
-            return ResponseEntity.ok(new LoginResponse("로그인 성공", null));
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body(new LoginResponse("로그인 실패: " + e.getMessage(), null));
-        }
+        LoginResponse loginResponse = userService.login(loginRequest, response);
+        return ResponseEntity.ok(loginResponse);
     }
 
     @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")

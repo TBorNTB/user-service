@@ -1,6 +1,6 @@
 package com.sejong.userservice.domain.user.dto.response;
 
-import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,7 +28,7 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static UserResponse from(User user) {
+    public static UserResponse from(UserEntity user) {
         if (user == null) {
             return null;
         }

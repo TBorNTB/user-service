@@ -8,16 +8,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class User {
-
-    private static final Logger log = LoggerFactory.getLogger(User.class);
     private Long id;
     private String nickname;
     private Integer generation;
@@ -79,28 +75,8 @@ public class User {
         return this;
     }
 
-    public User approveAs(UserRole newRole, Integer generation) {
-        if (this.role != newRole) {
-            log.info("권한 변경 발생. " + this.nickname + "의 권한 : " + this.role + " > " + newRole);
-            this.role = newRole;
-            this.generation = generation;
-            this.updatedAt = LocalDateTime.now();
-        }
-        return this;
-    }
-
-    public User getRole(UserRole newRole) {
-      if (this.role != newRole) {
-        log.info("권한 변경 발생. " + this.nickname + "의 권한 : " + this.role + " > " + newRole);
-        this.role = newRole;
-        this.updatedAt = LocalDateTime.now();
-      }
-      return this;
-    }
-
     public void updatePassword(String newEncryptedPassword) {
         this.encryptPassword = newEncryptedPassword;
         this.updatedAt = LocalDateTime.now();
-        log.info("비밀번호가 변경되었습니다. 사용자: {}", this.email);
     }
 }

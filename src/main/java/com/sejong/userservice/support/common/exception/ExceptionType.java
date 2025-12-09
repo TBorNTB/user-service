@@ -19,6 +19,7 @@ public enum ExceptionType implements ExceptionTypeIfs {
     DUPLICATED_USER_REQUEST(400,"중복된 사용자 닉네임"),
     NOT_FOUND_USER(400,"사용자를 찾을 수 없습니다."),
     USER_NOT_FOUND_BY_REFRESH_TOKEN(401, "제공된 리프레시 토큰에 해당하는 사용자를 찾을 수 없습니다."),
+    WRONG_PASSWORD(401, "잘못된 비밀번호입니다."),
 
     ACCESS_TOKEN_NOT_EXPIRED(400, "액세스 토큰이 아직 유효합니다"),
     REFRESH_TOKEN_NOT_FOUND(401, "쿠키에 리프레시 토큰이 없습니다."),

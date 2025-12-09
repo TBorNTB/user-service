@@ -1,6 +1,8 @@
 package com.sejong.userservice.domain.user.service;
 
+import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
 import static com.sejong.userservice.support.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
+import static com.sejong.userservice.support.common.exception.ExceptionType.WRONG_PASSWORD;
 
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
@@ -9,12 +11,18 @@ import com.sejong.userservice.domain.token.TokenService;
 import com.sejong.userservice.domain.user.JpaUserRepository;
 import com.sejong.userservice.domain.user.UserRepository;
 import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import com.sejong.userservice.domain.user.dto.request.JoinRequest;
+import com.sejong.userservice.domain.user.dto.request.LoginRequest;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
+import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserPageNationResponse;
 import com.sejong.userservice.domain.user.dto.response.UserResponse;
 import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.security.jwt.JWTUtil;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,30 +44,16 @@ public class UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenService tokenService;
     private final AlarmService alarmService;
+    private final JWTUtil jwtUtil;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
-        String nickname = joinRequest.getNickname();
+        UserEntity user = UserEntity.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
 
-        // todo: email로 변경
-        if (userRepository.existsByNickname(nickname)) {
-            log.warn("Attempted to register with existing nickname: {}", nickname);
-            // todo: BaseException
-            throw new RuntimeException("이미 사용 중인 사용자 닉네임입니다: " + nickname);
-        }
 
-        User user = User.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
-
-        try {
-            User savedUser = userRepository.save(user);
-            log.info("User registered successfully: {}", nickname);
-            alarmService.save(AlarmDto.from(savedUser));
-            log.info("SignUp alarm is made successfully: {}", nickname);
-            return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
-        } catch (Exception e) {
-            log.error("Failed to save user {}: {}", nickname, e.getMessage());
-            throw new RuntimeException("회원가입 중 데이터베이스 오류가 발생했습니다.", e);
-        }
+        UserEntity savedUser = jpaUserRepository.save(user);
+        alarmService.save(AlarmDto.from(savedUser));
+        return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
     }
 
     @Transactional(readOnly = true)
@@ -71,43 +65,23 @@ public class UserService {
 
     @Transactional
     public UserResponse updateUser(String username, UserUpdateRequest updateRequest) {
-        User existingUser = userRepository.findByUsername(username);
-        existingUser.updateProfile(
-                updateRequest
-        );
-
-        try {
-            User updatedUser = userRepository.save(existingUser);
-            log.info("User {} updated successfully.", username);
-            return UserResponse.from(updatedUser);
-        } catch (Exception e) {
-            log.error("Failed to update user {}: {}", username, e.getMessage());
-            throw new RuntimeException("사용자 정보 업데이트 중 오류가 발생했습니다.", e);
-        }
+        UserEntity user = jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+        user.updateProfile(updateRequest);
+        return UserResponse.from(user);
     }
 
     @Transactional
     public UserResponse deleteUser(String username) {
-        try {
-            User user = userRepository.findByUsername(username);
-            UserResponse userResponse = UserResponse.from(user);
-            userRepository.deleteByUsername(username);
-            // 토큰 처리는 TokenService에서 관리
-            log.info("User {} deleted successfully.", username);
-            return userResponse;
-        } catch (Exception e) {
-            log.error("Failed to delete user {}: {}", username, e.getMessage());
-            throw new RuntimeException("사용자 삭제 중 오류가 발생했습니다.", e);
-        }
+        UserEntity user = jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+        UserResponse userResponse = UserResponse.from(user);
+        userRepository.deleteByUsername(username);
+        log.info("User {} deleted successfully.", username);
+        return userResponse;
     }
 
     @Transactional
     public void logout(String accessToken, String refreshToken) {
-        try {
-            tokenService.blacklist(accessToken, refreshToken);
-        } catch (Exception e) {
-            throw new RuntimeException("로그아웃 처리 중 오류가 발생했습니다.", e);
-        }
+        tokenService.blacklist(accessToken, refreshToken);
     }
 
     @Transactional(readOnly = true)
@@ -121,13 +95,27 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findByEmail(String email) {
-        try {
-            return userRepository.findByEmail(email);
-        } catch (Exception e) {
-            log.error("Error finding user by email {}: {}", email, e.getMessage());
-            return null;
+    public LoginResponse login(LoginRequest loginRequest, HttpServletResponse response) {
+        UserEntity user = jpaUserRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+
+        // 비밀번호 검증
+        if (!bCryptPasswordEncoder.matches(loginRequest.getPassword(), user.getEncryptPassword())) {
+            throw new BaseException(WRONG_PASSWORD);
         }
+
+        String username = user.getUsername();
+        String accessToken = jwtUtil.createAccessToken(username, user.getRole().name());
+        String refreshToken = jwtUtil.createRefreshToken(username);
+
+        // Access Token을 쿠키에 저장 (API Gateway에서 읽기 위해)
+        Cookie accessTokenCookie = jwtUtil.createAccessTokenCookie(accessToken);
+        response.addCookie(accessTokenCookie);
+
+        // Refresh Token을 HttpOnly 쿠키로 설정
+        Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
+        response.addCookie(refreshTokenCookie);
+
+        return new LoginResponse("로그인 성공", accessToken, refreshToken);
     }
 
     @Transactional(readOnly = true)
@@ -159,7 +147,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponse getUserInfo(String username) {
-        User user = userRepository.findByUsername(username);
+        UserEntity user = jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         return UserResponse.from(user);
     }
 

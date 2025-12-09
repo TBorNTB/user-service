@@ -9,8 +9,6 @@ import org.springframework.data.domain.Pageable;
 public interface UserRepository {
     User save(User user);
 
-    boolean existsByNickname(String nickname);
-
     User findByUsername(String username);
 
     User findByEmail(String email);

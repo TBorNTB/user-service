@@ -4,7 +4,7 @@ import com.sejong.userservice.domain.alarm.domain.Alarm;
 import com.sejong.userservice.domain.alarm.domain.AlarmType;
 import com.sejong.userservice.domain.alarm.domain.DomainType;
 import com.sejong.userservice.domain.alarm.kafka.event.DomainAlarmEvent;
-import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,7 +27,7 @@ public class AlarmDto {
     private Boolean seen;
     private LocalDateTime createdAt;
 
-    public static AlarmDto from (User user) {
+    public static AlarmDto from (UserEntity user) {
         return AlarmDto.builder()
                 .id(null)
                 .alarmType(AlarmType.SIGNUP)
