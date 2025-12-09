@@ -1,7 +1,7 @@
 package com.sejong.userservice.domain.chat.domain;
 
 import com.sejong.userservice.domain.chat.constant.ChatRoomUserRole;
-import com.sejong.userservice.infrastructure.user.UserEntity;
+import com.sejong.userservice.domain.user.UserEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

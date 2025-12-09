@@ -1,4 +1,4 @@
-package com.sejong.userservice.core.user;
+package com.sejong.userservice.domain.user;
 
 import com.sejong.userservice.domain.role.domain.UserRole;
 import java.util.List;

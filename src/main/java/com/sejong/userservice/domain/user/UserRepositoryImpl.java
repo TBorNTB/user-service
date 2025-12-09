@@ -1,9 +1,7 @@
-package com.sejong.userservice.infrastructure.user;
+package com.sejong.userservice.domain.user;
 
 import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
 
-import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.support.common.exception.BaseException;
 import java.util.List;

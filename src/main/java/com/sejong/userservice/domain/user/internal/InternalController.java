@@ -1,6 +1,6 @@
 package com.sejong.userservice.domain.user.internal;
 
-import com.sejong.userservice.application.user.UserService;
+import com.sejong.userservice.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;

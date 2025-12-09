@@ -4,7 +4,7 @@ import com.sejong.userservice.domain.alarm.domain.Alarm;
 import com.sejong.userservice.domain.alarm.domain.AlarmType;
 import com.sejong.userservice.domain.alarm.domain.DomainType;
 import com.sejong.userservice.domain.alarm.kafka.event.DomainAlarmEvent;
-import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.domain.user.User;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

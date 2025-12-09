@@ -1,6 +1,6 @@
 package com.sejong.userservice.domain.role.dto.response;
 
-import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.domain.user.User;
 import com.sejong.userservice.domain.role.domain.RequestStatus;
 import com.sejong.userservice.domain.role.domain.RoleChange;
 import com.sejong.userservice.domain.role.domain.UserRole;

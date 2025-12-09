@@ -1,10 +1,13 @@
-package com.sejong.userservice.application.user.dto;
+package com.sejong.userservice.domain.user.dto;
 
-import com.sejong.userservice.core.user.User;
-import lombok.*;
-import org.springframework.data.domain.Page;
-
+import com.sejong.userservice.domain.user.User;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.data.domain.Page;
 
 @Getter
 @AllArgsConstructor
@@ -12,10 +15,10 @@ import java.util.List;
 @Setter
 @Builder
 public class UserPageNationResponse {
-    private List<UserResponse> userResponses;
     int size;
     int page;
     Long totalElements;
+    private List<UserResponse> userResponses;
 
     public static UserPageNationResponse from(Page<User> userPage) {
         List<User> content = userPage.getContent();

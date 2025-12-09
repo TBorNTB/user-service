@@ -1,7 +1,7 @@
 package com.sejong.userservice.domain.alarm.service;
 
-import com.sejong.userservice.core.user.User;
-import com.sejong.userservice.core.user.UserRepository;
+import com.sejong.userservice.domain.user.User;
+import com.sejong.userservice.domain.user.UserRepository;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.domain.Alarm;
 import com.sejong.userservice.domain.alarm.domain.AlarmType;

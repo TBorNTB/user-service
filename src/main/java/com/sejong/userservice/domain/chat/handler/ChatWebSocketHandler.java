@@ -1,11 +1,11 @@
 package com.sejong.userservice.domain.chat.handler;
 
-import com.sejong.userservice.application.user.UserService;
+import com.sejong.userservice.domain.user.User;
 import com.sejong.userservice.domain.chat.dto.BroadCastDto;
 import com.sejong.userservice.domain.chat.dto.ChatMessageDto;
 import com.sejong.userservice.domain.chat.publisher.ChatEventPublisher;
 import com.sejong.userservice.domain.chat.service.ChatHandleMessageService;
-import com.sejong.userservice.core.user.User;
+import com.sejong.userservice.domain.user.service.UserService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
