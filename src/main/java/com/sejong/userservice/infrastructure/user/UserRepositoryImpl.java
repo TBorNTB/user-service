@@ -5,10 +5,9 @@ import static com.sejong.userservice.common.exception.ExceptionType.NOT_FOUND_US
 import com.sejong.userservice.common.exception.BaseException;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
-
+import com.sejong.userservice.domain.rolechange.domain.UserRole;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -113,7 +112,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void updateUserRole(Long id, String userRole) {
+    public void updateUserRole(Long id, UserRole userRole) {
         UserEntity userEntity = jpaUserRepository.findById(id)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 

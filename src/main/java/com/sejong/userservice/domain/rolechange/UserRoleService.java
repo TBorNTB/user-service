@@ -1,5 +1,8 @@
 package com.sejong.userservice.domain.rolechange;
 
+import static com.sejong.userservice.common.exception.ExceptionType.NOT_FOUND_USER;
+
+import com.sejong.userservice.common.exception.BaseException;
 import com.sejong.userservice.core.user.User;
 import com.sejong.userservice.core.user.UserRepository;
 import com.sejong.userservice.domain.rolechange.domain.RequestStatus;
@@ -7,6 +10,8 @@ import com.sejong.userservice.domain.rolechange.domain.RoleChange;
 import com.sejong.userservice.domain.rolechange.dto.request.RoleChangeRequest;
 import com.sejong.userservice.domain.rolechange.dto.response.CreateRoleChange;
 import com.sejong.userservice.domain.rolechange.dto.response.RoleChangeResponse;
+import com.sejong.userservice.infrastructure.user.JpaUserRepository;
+import com.sejong.userservice.infrastructure.user.UserEntity;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +23,7 @@ public class UserRoleService {
 
     private final JpaUserRoleRepository userRoleRepository;
     private final UserRepository userRepository;
+    private final JpaUserRepository jpaUserRepository;
 
     @Transactional(readOnly = true)
     public List<RoleChangeResponse> findAll() {
@@ -43,6 +49,8 @@ public class UserRoleService {
             RoleChange roleChange = userRoleRepository.findById(roleChangeId)
                 .orElseThrow(() -> new RuntimeException("해당 roleChange는 존재하지 않습니다."));
             roleChange.updateAccept(adminUsername);
+            UserEntity user = jpaUserRepository.findByEmail(roleChange.getEmail()).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+            user.updateUserRole(roleChange.getRequestedRole());
             return "승인 성공";
         } else {
             RoleChange roleChange = userRoleRepository.findById(roleChangeId)

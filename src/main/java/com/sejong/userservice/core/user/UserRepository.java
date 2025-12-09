@@ -1,9 +1,9 @@
 package com.sejong.userservice.core.user;
 
+import com.sejong.userservice.domain.rolechange.domain.UserRole;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 public interface UserRepository {
     User save(User user);
@@ -27,7 +27,7 @@ public interface UserRepository {
 
     boolean existsByUsername(String username);
 
-    void updateUserRole(Long id, String userRole);
+    void updateUserRole(Long id, UserRole userRole);
 
     User getUserInfo(String username);
 

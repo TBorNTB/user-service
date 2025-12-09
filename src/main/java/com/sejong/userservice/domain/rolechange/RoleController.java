@@ -2,7 +2,7 @@ package com.sejong.userservice.domain.rolechange;
 
 import com.sejong.userservice.common.security.UserContext;
 import com.sejong.userservice.domain.rolechange.domain.UserRole;
-import com.sejong.userservice.domain.rolechange.dto.request.RoleChangeManageRequest;
+import com.sejong.userservice.domain.rolechange.dto.request.Approval;
 import com.sejong.userservice.domain.rolechange.dto.request.RoleChangeRequest;
 import com.sejong.userservice.domain.rolechange.dto.response.RoleChangeResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/users/role")
 @RequiredArgsConstructor
-public class UserRoleController {
+public class RoleController {
 
     private final UserRoleService userRoleService;
 
@@ -53,10 +53,10 @@ public class UserRoleController {
     @PreAuthorize("hasAnyRole('ADMIN')")
     public ResponseEntity<String> manageRoleChange(
             @PathVariable(name = "roleChangeId") Long roleChangeId,
-            @RequestBody RoleChangeManageRequest request
+            @RequestBody Approval request
     ) {
         UserContext currentUser = getCurrentUser();
-        String message = userRoleService.manageRoleChange(request.isAccepted(), roleChangeId, currentUser.getUsername());
+        String message = userRoleService.manageRoleChange(request.isApproved(), roleChangeId, currentUser.getUsername());
         return ResponseEntity.ok(message);
     }
 

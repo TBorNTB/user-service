@@ -215,7 +215,7 @@ public class UserService {
 
 
     @Transactional
-    public String updateUserRole(Long id, String newUserRole, String userRole) {
+    public String updateUserRole(Long id, UserRole newUserRole, String userRole) {
         if (!userRole.equalsIgnoreCase("ADMIN")) {
             throw new RuntimeException("어드민 전용 api입니다");
         }

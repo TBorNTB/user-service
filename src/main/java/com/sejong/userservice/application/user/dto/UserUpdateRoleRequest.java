@@ -1,5 +1,6 @@
 package com.sejong.userservice.application.user.dto;
 
+import com.sejong.userservice.domain.rolechange.domain.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class UserUpdateRoleRequest {
-    private String userRole;
+    private UserRole userRole;
 }

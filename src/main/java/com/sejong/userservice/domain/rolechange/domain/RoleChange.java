@@ -1,6 +1,5 @@
 package com.sejong.userservice.domain.rolechange.domain;
 
-import com.sejong.userservice.core.user.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -30,7 +29,7 @@ public class RoleChange {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole previousRole;
 
     @Enumerated(EnumType.STRING)
     private UserRole requestedRole;
@@ -42,20 +41,6 @@ public class RoleChange {
 
     private LocalDateTime requestedAt;
     private LocalDateTime processedAt;
-
-    public static RoleChange from(User user, UserRole requestedRole, RequestStatus requestStatus) {
-        return RoleChange.builder()
-                .id(null)
-                .realName(user.getRealName())
-                .role(user.getRole())
-                .requestedRole(requestedRole)
-                .email(user.getEmail())
-                .requestedAt(LocalDateTime.now())
-                .processedAt(LocalDateTime.now())
-                .requestStatus(requestStatus)
-                .processedBy(null)
-                .build();
-    }
 
     public void updateAccept(String adminUsername) {
        this.processedBy = adminUsername;

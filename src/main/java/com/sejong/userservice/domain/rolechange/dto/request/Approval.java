@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RoleChangeManageRequest {
-    private boolean isAccepted;
+public class Approval {
+    private boolean isApproved;
 }
