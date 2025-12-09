@@ -1,7 +1,6 @@
 package com.sejong.userservice.client.file;
 
-import com.sejong.userservice.application.file.FileUploader;
-import com.sejong.userservice.application.file.dto.PreSignedUrl;
+import com.sejong.userservice.client.file.dto.PreSignedUrl;
 import com.sejong.userservice.common.Filepath;
 import java.time.Duration;
 import java.util.UUID;

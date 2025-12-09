@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.file.dto;
+package com.sejong.userservice.client.file.dto;
 
 public record FileUploadRequest(
         String fileName,

@@ -1,6 +1,6 @@
-package com.sejong.userservice.application.file;
+package com.sejong.userservice.client.file;
 
-import com.sejong.userservice.application.file.dto.PreSignedUrl;
+import com.sejong.userservice.client.file.dto.PreSignedUrl;
 import com.sejong.userservice.common.Filepath;
 
 public interface FileUploader {

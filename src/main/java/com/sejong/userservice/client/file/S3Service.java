@@ -1,4 +1,4 @@
-package com.sejong.userservice.application.file;
+package com.sejong.userservice.client.file;
 
 import java.time.Duration;
 import java.util.UUID;
