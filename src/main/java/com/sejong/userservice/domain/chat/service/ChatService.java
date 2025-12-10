@@ -16,8 +16,8 @@ import com.sejong.userservice.domain.chat.dto.ChatMessageDto;
 import com.sejong.userservice.domain.chat.repository.ChatMessageRepository;
 import com.sejong.userservice.domain.chat.repository.ChatRoomRepository;
 import com.sejong.userservice.domain.chat.repository.ChatRoomUserRepository;
-import com.sejong.userservice.domain.user.JpaUserRepository;
-import com.sejong.userservice.domain.user.domain.UserEntity;
+import com.sejong.userservice.domain.user.UserRepository;
+import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.support.common.exception.BaseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ChatService {
 
-    private final JpaUserRepository jpaUserRepository; // TODO(sigmaith): refactoring 필요
+    private final UserRepository userRepository; // TODO(sigmaith): refactoring 필요
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
@@ -44,10 +44,10 @@ public class ChatService {
 
     @Transactional
     public SingleRoomResponse createDMRoom(String newRoomId, String friendUsername, String myUsername) {
-        UserEntity friend = jpaUserRepository.findByUsername(friendUsername)
+        User friend = userRepository.findByUsername(friendUsername)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
-        UserEntity owner = jpaUserRepository.findByUsername(myUsername)
+        User owner = userRepository.findByUsername(myUsername)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
         if (friend.equals(owner)) throw new BaseException(DM_ROOM_WITH_OTHER_PERSON);
@@ -74,14 +74,14 @@ public class ChatService {
         ChatRoom savedRoom = chatRoomRepository.save(chatRoom);
 
         // 2. 단방향 관계: 방장(myUsername)을 OWNER로 추가
-        UserEntity owner = jpaUserRepository.findByUsername(myUsername)
+        User owner = userRepository.findByUsername(myUsername)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         ChatRoomUser ownerJoin = ChatRoomUser.join(savedRoom, owner, ChatRoomUserRole.OWNER);
         chatRoomUserRepository.save(ownerJoin);
 
         // 3. 나머지 멤버들을 MEMBER로 추가
-        List<UserEntity> friends = jpaUserRepository.findByUsernameIn(friendsUsername);
-        for (UserEntity friend : friends) {
+        List<User> friends = userRepository.findByUsernameIn(friendsUsername);
+        for (User friend : friends) {
             ChatRoomUser memberJoin = ChatRoomUser.join(savedRoom, friend, ChatRoomUserRole.MEMBER);
             chatRoomUserRepository.save(memberJoin);
         }
@@ -95,8 +95,8 @@ public class ChatService {
                 .orElseThrow(() -> new BaseException(ROOM_ID_NOT_FOUND));
 
         // 단방향 관계: 새 멤버들을 ChatRoomUser로 직접 추가
-        List<UserEntity> users = jpaUserRepository.findByUsernameIn(friendsUsername);
-        for (UserEntity user : users) {
+        List<User> users = userRepository.findByUsernameIn(friendsUsername);
+        for (User user : users) {
             if (!chatRoomUserRepository.existsByUsernameAndRoomId(user.getUsername(), chatRoom.getRoomId())) {
                 ChatRoomUser memberJoin = ChatRoomUser.join(chatRoom, user, ChatRoomUserRole.MEMBER);
                 chatRoomUserRepository.save(memberJoin);
@@ -111,7 +111,7 @@ public class ChatService {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new BaseException(ROOM_ID_NOT_FOUND));
 
-        UserEntity user = jpaUserRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
         chatRoomUserRepository.deleteByUsernameAndRoomId(user.getUsername(), chatRoom.getRoomId());
@@ -136,7 +136,7 @@ public class ChatService {
         List<ChatMessage> chatMessages = chatMessageRepository.findAllChatMessages(roomId);
         return chatMessages.stream()
                 .map(it -> {
-                    UserEntity user = jpaUserRepository.findByUsername(it.getUsername())
+                    User user = userRepository.findByUsername(it.getUsername())
                             .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
                     return ChatMessageResponse.of(it, user.getNickname());
                 }).toList();

@@ -1,7 +1,7 @@
 package com.sejong.userservice.domain.chat.domain;
 
 import com.sejong.userservice.domain.chat.constant.ChatRoomUserRole;
-import com.sejong.userservice.domain.user.domain.UserEntity;
+import com.sejong.userservice.domain.user.domain.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -39,14 +39,14 @@ public class ChatRoomUser {
     // 어떤 유저인지
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
+    private User user;
 
     // 방에서의 역할 (일반 참여자 / 방장 등)
     @Column(length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
     private ChatRoomUserRole role;
 
-    public static ChatRoomUser join(ChatRoom room, UserEntity user, ChatRoomUserRole role) {
+    public static ChatRoomUser join(ChatRoom room, User user, ChatRoomUserRole role) {
         ChatRoomUser cru = ChatRoomUser.builder()
                 .chatRoom(room)
                 .user(user)

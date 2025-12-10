@@ -3,8 +3,8 @@ package com.sejong.userservice.support.common.security.oauth;
 import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
 
 import com.sejong.userservice.domain.role.domain.UserRole;
-import com.sejong.userservice.domain.user.JpaUserRepository;
-import com.sejong.userservice.domain.user.domain.UserEntity;
+import com.sejong.userservice.domain.user.UserRepository;
+import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
 import com.sejong.userservice.support.common.exception.BaseException;
 import com.sejong.userservice.support.common.security.oauth.dto.CustomOAuth2User;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Service;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final JpaUserRepository jpaUserRepository;
+    private final UserRepository userRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -43,11 +43,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return null;
         }
         String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
-        UserEntity existData = jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+        User existData = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
         if (existData == null) {
 
-            UserEntity user = UserEntity.builder()
+            User user = User.builder()
                     .username(username)
                     .nickname(oAuth2Response.getNickname())
                     .email(oAuth2Response.getEmail())
@@ -56,7 +56,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .profileImageUrl(oAuth2Response.getAvatarUrl())
                     .build();
 
-            jpaUserRepository.save(user);
+            userRepository.save(user);
 
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(username);
@@ -71,7 +71,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             updateRequest.setRealName(oAuth2Response.getName());
             
             existData.updateProfile(updateRequest);
-            jpaUserRepository.save(existData);
+            userRepository.save(existData);
 
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(existData.getUsername());

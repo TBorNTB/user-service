@@ -1,24 +1,24 @@
 package com.sejong.userservice.domain.user;
 
-import com.sejong.userservice.domain.user.domain.UserEntity;
+import com.sejong.userservice.domain.user.domain.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface JpaUserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByNickname(String nickname);
 
-    Optional<UserEntity> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-    Optional<UserEntity> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
     void deleteByUsername(String username);
 
     boolean existsByUsername(String username);
 
-    List<UserEntity> findByUsernameIn(List<String> usernames);
+    List<User> findByUsernameIn(List<String> usernames);
 
-    @Query("select count(ue) from UserEntity ue")
+    @Query("select count(u) from User u")
     Long findUserCount();
 }

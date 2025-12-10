@@ -8,8 +8,8 @@ import com.sejong.userservice.domain.role.domain.RoleChange;
 import com.sejong.userservice.domain.role.dto.request.RoleChangeRequest;
 import com.sejong.userservice.domain.role.dto.response.CreateRoleChange;
 import com.sejong.userservice.domain.role.dto.response.RoleChangeResponse;
-import com.sejong.userservice.domain.user.JpaUserRepository;
-import com.sejong.userservice.domain.user.domain.UserEntity;
+import com.sejong.userservice.domain.user.UserRepository;
+import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.support.common.exception.BaseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserRoleService {
 
     private final UserRoleRepository userRoleRepository;
-    private final JpaUserRepository jpaUserRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public List<RoleChangeResponse> findAll() {
@@ -33,7 +33,7 @@ public class UserRoleService {
 
     @Transactional
     public String addRoleChange(String username, RoleChangeRequest request) {
-        UserEntity user = jpaUserRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         RoleChange roleChange = new CreateRoleChange(request.getRequestRole()).toRoleChangeEntity(user);
         userRoleRepository.save(roleChange);
@@ -46,7 +46,7 @@ public class UserRoleService {
                 .orElseThrow(() -> new BaseException(ROLE_CHANGE_NOT_FOUND));
         if (isAccepted) {
             roleChange.updateAccept(adminUsername);
-            UserEntity user = jpaUserRepository.findByEmail(roleChange.getEmail())
+            User user = userRepository.findByEmail(roleChange.getEmail())
                     .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
             user.updateUserRole(roleChange.getRequestedRole());
             return "승인 성공";

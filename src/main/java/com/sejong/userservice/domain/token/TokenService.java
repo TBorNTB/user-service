@@ -4,8 +4,8 @@ import static com.sejong.userservice.support.common.exception.ExceptionType.INVA
 import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
 
 import com.sejong.userservice.domain.token.dto.TokenReissueResponse;
-import com.sejong.userservice.domain.user.JpaUserRepository;
-import com.sejong.userservice.domain.user.domain.UserEntity;
+import com.sejong.userservice.domain.user.UserRepository;
+import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.support.common.exception.BaseException;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class TokenService {
 
     private final JWTUtil jwtUtil;
-    private final JpaUserRepository userRepository;
+    private final UserRepository userRepository;
     private final TokenBlacklistRepository tokenBlacklistRepository;
 
     @Transactional
@@ -29,7 +29,7 @@ public class TokenService {
         validateTokensForReissue(accessToken, refreshToken);
 
         String username = jwtUtil.getUsername(refreshToken);
-        UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
         blacklistOldTokens(accessToken, refreshToken);
 
