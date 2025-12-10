@@ -1,0 +1,32 @@
+package com.sejong.userservice.support.common.pagination;
+
+
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+@Getter
+@AllArgsConstructor
+public class PageReq {
+
+    @Min(value = 0, message = "페이지 번호는 0 이상이어야 합니다.")
+    private final int page;
+
+    @Min(value = 1, message = "페이지 크기는 최소 1이어야 합니다.")
+    @Max(value = 100, message = "페이지 크기는 최대 100이어야 합니다.")
+    private final int size;
+
+    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "정렬 기준은 알파벳, 숫자, 또는 언더스코어(_)만 포함할 수 있습니다.")
+    private final String sortBy;
+
+    private final SortDirection sortDirection;
+
+    public Pageable toPageable() {
+        Sort.Direction direction = Sort.Direction.valueOf(sortDirection.name());
+        return org.springframework.data.domain.PageRequest.of(page, size, direction, sortBy);
+    }
+}

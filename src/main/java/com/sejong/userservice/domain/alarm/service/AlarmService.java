@@ -1,11 +1,13 @@
 package com.sejong.userservice.domain.alarm.service;
 
+import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
+
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.domain.Alarm;
 import com.sejong.userservice.domain.alarm.domain.AlarmType;
 import com.sejong.userservice.domain.alarm.repository.AlarmRepository;
-import com.sejong.userservice.domain.user.UserRepository;
-import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.JpaUserRepository;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import com.sejong.userservice.support.common.exception.BaseException;
 import com.sejong.userservice.support.common.exception.ExceptionType;
 import java.util.List;
@@ -18,11 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AlarmService {
 
     private final AlarmRepository alarmRepository;
-    private final UserRepository userRepository;
+    private final JpaUserRepository userRepository;
 
     @Transactional
     public void save(AlarmDto alarmDto){
-        User actorUser = userRepository.findByUsername(alarmDto.getActorUsername());
+        UserEntity actorUser = userRepository.findByUsername(alarmDto.getActorUsername()).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         Alarm alarm = Alarm.from(alarmDto, actorUser.getNickname());
         alarmRepository.save(alarm);
     }

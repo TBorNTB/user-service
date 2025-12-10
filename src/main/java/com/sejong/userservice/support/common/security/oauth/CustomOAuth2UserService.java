@@ -1,9 +1,12 @@
 package com.sejong.userservice.support.common.security.oauth;
 
+import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
+
 import com.sejong.userservice.domain.role.domain.UserRole;
-import com.sejong.userservice.domain.user.UserRepository;
-import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.JpaUserRepository;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
+import com.sejong.userservice.support.common.exception.BaseException;
 import com.sejong.userservice.support.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.support.common.security.oauth.dto.GithubResponse;
 import com.sejong.userservice.support.common.security.oauth.dto.OAuth2Response;
@@ -21,8 +24,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final JpaUserRepository jpaUserRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -40,11 +43,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return null;
         }
         String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
-        User existData = userRepository.findByUsername(username);
+        UserEntity existData = jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
         if (existData == null) {
 
-            User user = User.builder()
+            UserEntity user = UserEntity.builder()
                     .username(username)
                     .nickname(oAuth2Response.getNickname())
                     .email(oAuth2Response.getEmail())
@@ -53,7 +56,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .profileImageUrl(oAuth2Response.getAvatarUrl())
                     .build();
 
-            userRepository.save(user);
+            jpaUserRepository.save(user);
 
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(username);
@@ -68,7 +71,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             updateRequest.setRealName(oAuth2Response.getName());
             
             existData.updateProfile(updateRequest);
-            userRepository.save(existData);
+            jpaUserRepository.save(existData);
 
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(existData.getUsername());

@@ -4,7 +4,7 @@ import com.sejong.userservice.domain.chat.dto.BroadCastDto;
 import com.sejong.userservice.domain.chat.dto.ChatMessageDto;
 import com.sejong.userservice.domain.chat.publisher.ChatEventPublisher;
 import com.sejong.userservice.domain.chat.service.ChatHandleMessageService;
-import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import com.sejong.userservice.domain.user.service.UserService;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session){
         String username = getCurrentUser(session);
-        User user = userService.getUser(username);
+        UserEntity user = userService.getUser(username);
         session.getAttributes().put("nickname", user.getNickname());
         session.getAttributes().put("username",username);
         log.info("username : {}님이 세션에 연결되었습니다.", username);

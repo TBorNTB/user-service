@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResponse {
+public class UserRes {
     private Long id;
     private String nickname;
     private String role;
@@ -28,11 +28,11 @@ public class UserResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static UserResponse from(UserEntity user) {
+    public static UserRes from(UserEntity user) {
         if (user == null) {
             return null;
         }
-        return UserResponse.builder()
+        return UserRes.builder()
                 .id(user.getId())
                 .nickname(user.getNickname())
                 .role(user.getRole().name())

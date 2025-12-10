@@ -1,4 +1,4 @@
-package com.sejong.userservice.support.common.pagination.enums;
+package com.sejong.userservice.support.common.pagination;
 
 
 import java.util.Arrays;

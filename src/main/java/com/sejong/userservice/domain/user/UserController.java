@@ -8,10 +8,11 @@ import com.sejong.userservice.domain.user.dto.request.UserUpdateRoleRequest;
 import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
-import com.sejong.userservice.domain.user.dto.response.UserPageNationResponse;
-import com.sejong.userservice.domain.user.dto.response.UserResponse;
+import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.service.UserService;
 import com.sejong.userservice.domain.user.service.VerificationService;
+import com.sejong.userservice.support.common.pagination.PageReq;
+import com.sejong.userservice.support.common.pagination.PageRes;
 import com.sejong.userservice.support.common.security.UserContext;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,24 +21,23 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -72,13 +72,9 @@ public class UserController {
 
     @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")
     @GetMapping("/page")
-    public ResponseEntity<UserPageNationResponse> getAllUsersPagination(
-            @RequestParam(name = "size") int size,
-            @RequestParam(name = "page") int page
-    ) {
-        Pageable pageable = PageRequest.of(page,size, Sort.by("createdAt").descending());
-        UserPageNationResponse response = userService.getAllUsers(pageable);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public PageRes<List<UserRes>> getAllUsersPagination(@ModelAttribute @Valid PageReq pageReq) {
+        Page<UserRes> allUsers = userService.getAllUsers(pageReq.toPageable());
+        return PageRes.ok(allUsers);
     }
 
     @Operation(summary = "회원 role 수정 (어드민 전용 api)")
@@ -99,9 +95,9 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER', 'GUEST')")
     @PatchMapping
-    public ResponseEntity<UserResponse> updateUser(@RequestBody UserUpdateRequest updateRequest) {
+    public ResponseEntity<UserRes> updateUser(@RequestBody UserUpdateRequest updateRequest) {
         UserContext currentUser = getCurrentUser();
-        UserResponse updatedUser = userService.updateUser(currentUser.getUsername(), updateRequest);
+        UserRes updatedUser = userService.updateUser(currentUser.getUsername(), updateRequest);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
@@ -109,18 +105,18 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'GUEST', 'ASSOCIATE_MEMBER')")
     @DeleteMapping
-    public ResponseEntity<UserResponse> deleteUser() {
+    public ResponseEntity<UserRes> deleteUser() {
         UserContext currentUser = getCurrentUser();
-        UserResponse userResponse = userService.
+        UserRes userRes = userService.
                 deleteUser(currentUser.getUsername());
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        return new ResponseEntity<>(userRes, HttpStatus.OK);
     }
 
     @Operation(summary = "로그아웃", description = "사용자 로그아웃 및 토큰 무효화 (회원 권한 필요)")
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'GUEST', 'ASSOCIATE_MEMBER')")
     @PostMapping("/logout")
-    public ResponseEntity<UserResponse> logout(
+    public ResponseEntity<UserRes> logout(
             HttpServletRequest request, HttpServletResponse response
     ) {
         UserContext currentUser = getCurrentUser();
@@ -157,10 +153,10 @@ public class UserController {
     @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
     @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getUserProfile() {
+    public ResponseEntity<UserRes> getUserProfile() {
         UserContext currentUser = getCurrentUser();
         String username = currentUser.getUsername();
-        UserResponse response = userService.getUserInfo(username);
+        UserRes response = userService.getUserInfo(username);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

@@ -1,7 +1,6 @@
 package com.sejong.userservice.support.common.pagination;
 
 
-import com.sejong.userservice.support.common.pagination.enums.SortDirection;
 import lombok.Getter;
 
 @Getter

@@ -9,16 +9,13 @@ import com.sejong.userservice.domain.alarm.service.AlarmService;
 import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.domain.token.TokenService;
 import com.sejong.userservice.domain.user.JpaUserRepository;
-import com.sejong.userservice.domain.user.UserRepository;
-import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.domain.UserEntity;
 import com.sejong.userservice.domain.user.dto.request.JoinRequest;
 import com.sejong.userservice.domain.user.dto.request.LoginRequest;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
-import com.sejong.userservice.domain.user.dto.response.UserPageNationResponse;
-import com.sejong.userservice.domain.user.dto.response.UserResponse;
+import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.support.common.exception.BaseException;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
@@ -39,7 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
     private final JpaUserRepository jpaUserRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final TokenService tokenService;
@@ -49,34 +45,31 @@ public class UserService {
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
         UserEntity user = UserEntity.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
-
-
         UserEntity savedUser = jpaUserRepository.save(user);
+        savedUser.updateUsername();
         alarmService.save(AlarmDto.from(savedUser));
         return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
     }
 
     @Transactional(readOnly = true)
-    public UserPageNationResponse getAllUsers(Pageable pageable) {
-        Page<User> userPage = userRepository.findAllUsers(pageable);
-
-        return UserPageNationResponse.from(userPage);
+    public Page<UserRes> getAllUsers(Pageable pageable) {
+        return jpaUserRepository.findAll(pageable).map(UserRes::from);
     }
 
     @Transactional
-    public UserResponse updateUser(String username, UserUpdateRequest updateRequest) {
+    public UserRes updateUser(String username, UserUpdateRequest updateRequest) {
         UserEntity user = jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         user.updateProfile(updateRequest);
-        return UserResponse.from(user);
+        return UserRes.from(user);
     }
 
     @Transactional
-    public UserResponse deleteUser(String username) {
+    public UserRes deleteUser(String username) {
         UserEntity user = jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-        UserResponse userResponse = UserResponse.from(user);
-        userRepository.deleteByUsername(username);
+        UserRes userRes = UserRes.from(user);
+        jpaUserRepository.deleteByUsername(username);
         log.info("User {} deleted successfully.", username);
-        return userResponse;
+        return userRes;
     }
 
     @Transactional
@@ -86,12 +79,15 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public boolean exists(String username) {
-        return userRepository.existsByUsername(username);
+        return jpaUserRepository.existsByUsername(username);
     }
 
     @Transactional(readOnly = true)
     public boolean exists(String username, List<String> collaboratorUsernames) {
-        return userRepository.existsByUsernames(username, collaboratorUsernames);
+        collaboratorUsernames.add(username);
+        List<UserEntity> users = jpaUserRepository.findByUsernameIn(collaboratorUsernames);
+        if (users.size() == collaboratorUsernames.size()) return true;
+        return false;
     }
 
     @Transactional(readOnly = true)
@@ -120,12 +116,12 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Map<String, String> getAllUsernames(List<String> usernames) {
-        List<User> users = userRepository.findUsernamesIn(usernames);
+        List<UserEntity> users = jpaUserRepository.findByUsernameIn(usernames);
 
         return users.stream()
                 .collect(Collectors.toMap(
-                        User::getUsername,
-                        User::getNickname
+                        UserEntity::getUsername,
+                        UserEntity::getNickname
                 ));
     }
 
@@ -136,35 +132,37 @@ public class UserService {
             throw new RuntimeException("어드민 전용 api입니다");
         }
 
-        userRepository.updateUserRole(id, newUserRole);
+        UserEntity userEntity = jpaUserRepository.findById(id).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+        userEntity.updateUserRole(newUserRole);
+
         return "유저 업데이트 성공";
     }
 
     @Transactional(readOnly = true)
-    public User getUser(String username) {
-        return userRepository.findByUsername(username);
+    public UserEntity getUser(String username) {
+        return jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
     }
 
     @Transactional(readOnly = true)
-    public UserResponse getUserInfo(String username) {
+    public UserRes getUserInfo(String username) {
         UserEntity user = jpaUserRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-        return UserResponse.from(user);
+        return UserRes.from(user);
     }
 
     @Transactional
     public void resetPassword(String email, String newPassword) {
-        User user = userRepository.findByEmail(email);
+        UserEntity user = jpaUserRepository.findByEmail(email).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         // 이전 비밀번호와 동일한지 확인 (BCrypt matches 사용)
         if (bCryptPasswordEncoder.matches(newPassword, user.getEncryptPassword())) {
             throw new BaseException(SAME_WITH_PREVIOUS_PASSWORD);
         }
         String encryptedNewPassword = bCryptPasswordEncoder.encode(newPassword);
         user.updatePassword(encryptedNewPassword);
-        userRepository.save(user);
+        jpaUserRepository.save(user);
     }
 
     @Transactional(readOnly = true)
     public Long getUserCount() {
-        return userRepository.findUsersCount();
+        return jpaUserRepository.findUserCount();
     }
 }

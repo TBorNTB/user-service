@@ -1,38 +1,35 @@
 package com.sejong.userservice.domain.token;
 
 import static com.sejong.userservice.support.common.exception.ExceptionType.INVALID_OR_REVOKED_TOKEN;
+import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
 
 import com.sejong.userservice.domain.token.dto.TokenReissueResponse;
-import com.sejong.userservice.domain.user.UserRepository;
-import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.domain.user.JpaUserRepository;
+import com.sejong.userservice.domain.user.domain.UserEntity;
 import com.sejong.userservice.support.common.exception.BaseException;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import java.time.Duration;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class TokenService {
 
     private final JWTUtil jwtUtil;
-    private final UserRepository userRepository;
+    private final JpaUserRepository userRepository;
     private final TokenBlacklistRepository tokenBlacklistRepository;
-
-    public TokenService(JWTUtil jwtUtil, UserRepository userRepository, TokenBlacklistRepository tokenBlacklistRepository) {
-        this.jwtUtil = jwtUtil;
-        this.userRepository = userRepository;
-        this.tokenBlacklistRepository = tokenBlacklistRepository;
-    }
 
     @Transactional
     public TokenReissueResponse reissueTokens(String accessToken, String refreshToken) {
         validateTokensForReissue(accessToken, refreshToken);
 
         String username = jwtUtil.getUsername(refreshToken);
-        User user = userRepository.findByUsername(username);
+        UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
 
         blacklistOldTokens(accessToken, refreshToken);
 
