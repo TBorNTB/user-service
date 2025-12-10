@@ -22,7 +22,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TokenEntity {
+public class Token {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,9 +47,9 @@ public class TokenEntity {
     @Column(nullable = false)
     private TokenType tokenType; // (ACCESS, REFRESH)
 
-    public static TokenEntity issue(String token, String username, LocalDateTime expiryDate, String jti,
-                                    TokenType tokenType) {
-        return TokenEntity.builder()
+    public static Token issue(String token, String username, LocalDateTime expiryDate, String jti,
+                              TokenType tokenType) {
+        return Token.builder()
                 .token(token)
                 .username(username)
                 .expiryDate(expiryDate)
