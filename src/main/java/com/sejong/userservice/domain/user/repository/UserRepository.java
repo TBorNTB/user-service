@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.user;
+package com.sejong.userservice.domain.user.repository;
 
 import com.sejong.userservice.domain.user.domain.User;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.sejong.userservice.infrastructure.redis;
+package com.sejong.userservice.domain.user.repository;
 
 import static com.sejong.userservice.support.common.exception.ExceptionType.VERIFICATION_CODE_MISMATCH;
 import static com.sejong.userservice.support.common.exception.ExceptionType.VERIFICATION_CODE_NOT_FOUND;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class CacheService {
+public class VerificationCacheService {
 
     private static final Duration TTL = Duration.ofMinutes(10);
     private final RedisTemplate<String, String> redisTemplate;

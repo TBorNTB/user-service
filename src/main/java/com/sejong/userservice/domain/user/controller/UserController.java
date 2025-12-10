@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.user;
+package com.sejong.userservice.domain.user.controller;
 
 import com.sejong.userservice.domain.user.dto.request.JoinRequest;
 import com.sejong.userservice.domain.user.dto.request.LoginRequest;
