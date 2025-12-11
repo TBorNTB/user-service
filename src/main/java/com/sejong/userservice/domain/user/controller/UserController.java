@@ -141,7 +141,7 @@ public class UserController {
 
     @Operation(summary = "자신의 역할 조회", description = "자신의 역할 조회")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'GUEST', 'ASSOCIATE_MEMBER')")
     @GetMapping("/role/one")
     public ResponseEntity<String> getUserRole() {
         UserContext currentUser = getCurrentUser();
@@ -151,7 +151,7 @@ public class UserController {
 
     @Operation(summary = "자신의 프로파일 조회", description = "자신의 프로파일 조회")
     @SecurityRequirement(name = "bearerAuth")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'OUTSIDER', 'ASSOCIATE_MEMBER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'GUEST', 'ASSOCIATE_MEMBER')")
     @GetMapping("/profile")
     public ResponseEntity<UserRes> getUserProfile() {
         UserContext currentUser = getCurrentUser();
