@@ -1,5 +1,6 @@
 package com.sejong.userservice.domain.user.internal;
 
+import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,11 +38,11 @@ public class InternalController {
         return new ResponseEntity<>(exists, HttpStatus.OK);
     }
 
-    @Operation(summary ="usernames을 받아서 실제 nicknames를 반환", description = "usernames을 받아서 실제 nicknames를 반환")
-    @GetMapping("/all")
-    public ResponseEntity<Map<String,String>> getAllUsernames(@RequestParam("usernames") List<String> usernames){
-        Map<String,String> usernamesMap = userService.getAllUsernames(usernames);
-        return new ResponseEntity<>(usernamesMap, HttpStatus.OK);
+    @Operation(summary ="usernames을 받아서 실제 nickNames/realNames 를 반환", description = "username을 받아서 실제 nickname, realname 반환")
+    @GetMapping("/un-info")
+    public ResponseEntity<Map<String, UserNameInfo>> getUserNameInfos(@RequestParam("usernames") List<String> usernames){
+        Map<String, UserNameInfo> userNameInfos = userService.getUserNameInfos(usernames);
+        return new ResponseEntity<>(userNameInfos, HttpStatus.OK);
     }
 
     @Operation(summary = "User count 조회")

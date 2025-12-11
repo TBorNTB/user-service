@@ -14,6 +14,7 @@ import com.sejong.userservice.domain.user.dto.request.LoginRequest;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
+import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.BaseException;
@@ -115,13 +116,13 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, String> getAllUsernames(List<String> usernames) {
+    public Map<String, UserNameInfo> getUserNameInfos(List<String> usernames) {
         List<User> users = userRepository.findByUsernameIn(usernames);
 
         return users.stream()
                 .collect(Collectors.toMap(
                         User::getUsername,
-                        User::getNickname
+                        user -> new UserNameInfo(user.getNickname(), user.getRealName())
                 ));
     }
 
