@@ -1,0 +1,4 @@
+package com.sejong.userservice.domain.user.dto.response;
+
+public record UserNameInfo(String nickname, String realName) {
+}
