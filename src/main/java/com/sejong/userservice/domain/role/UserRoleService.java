@@ -1,7 +1,7 @@
 package com.sejong.userservice.domain.role;
 
-import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
-import static com.sejong.userservice.support.common.exception.ExceptionType.ROLE_CHANGE_NOT_FOUND;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.ROLE_CHANGE_NOT_FOUND;
 
 import com.sejong.userservice.domain.role.domain.RequestStatus;
 import com.sejong.userservice.domain.role.domain.RoleChange;
@@ -10,7 +10,7 @@ import com.sejong.userservice.domain.role.dto.response.CreateRoleChange;
 import com.sejong.userservice.domain.role.dto.response.RoleChangeResponse;
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.repository.UserRepository;
-import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

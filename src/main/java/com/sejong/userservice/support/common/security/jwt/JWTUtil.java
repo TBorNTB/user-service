@@ -1,9 +1,9 @@
 package com.sejong.userservice.support.common.security.jwt;
 
-import static com.sejong.userservice.support.common.exception.ExceptionType.EXPIRED_TOKEN;
-import static com.sejong.userservice.support.common.exception.ExceptionType.TOKEN_MISMATCH;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.EXPIRED_TOKEN;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.TOKEN_MISMATCH;
 
-import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.Jwts.SIG;

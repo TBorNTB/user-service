@@ -1,4 +1,4 @@
-package com.sejong.userservice.support.common.exception;
+package com.sejong.userservice.support.common.exception.type;
 
 import lombok.AllArgsConstructor;
 
@@ -12,7 +12,7 @@ public enum ExceptionType implements ExceptionTypeIfs {
     NULL_POINT(500,"Null Pointer"),
     MULTI_REQUEST(405,"하루 한번만 요청 가능합니다"),
     BAD_SORT_REQUEST(400,"정렬 방향은 ASC/DESC 만 가능합니다."),
-    External_Server_Error(500,"서킷 브레이커가 작동했습니다."),
+    EXTERNAL_SERVER_ERROR(500,"통신 문제 - 잠시 서비스 이용이 불가합니다."),
 
 
     EMPTY_USER_REQUEST(400,"사용자 닉네임 목록이 비어 있습니다."),
@@ -43,6 +43,12 @@ public enum ExceptionType implements ExceptionTypeIfs {
     ALARM_ACCESS_DENIED(403, "본인의 알람만 읽음 처리할 수 있습니다."),
 
     ROLE_CHANGE_NOT_FOUND(400,"존재하지 않는 권한 변경 요청입니다."),
+
+    NOT_FOUND_POST_TYPE_POST_ID(400, "존재하지 않는 포스트 타입, 포스트 id"),
+
+    NOT_FOUND_COMMENT(400, "존재하지 않는 코멘트 id"),
+    DEPTH_LIMIT_EXCEEDED(400, "댓글의 깊이가 제한됩니다."),
+    WRITER_INVALID(400, "댓글 작성자만 수정 가능합니다."),
     ;
 
     private final Integer httpStatus;

@@ -14,7 +14,7 @@ import org.springframework.data.domain.Sort;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PageReq {
+public class OffsetPageReq {
 
     @Min(value = 0, message = "페이지 번호는 0 이상이어야 합니다.")
     private int page = 0;

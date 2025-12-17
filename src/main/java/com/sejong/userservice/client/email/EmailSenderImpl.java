@@ -1,10 +1,10 @@
 package com.sejong.userservice.client.email;
 
-import static com.sejong.userservice.support.common.exception.ExceptionType.EMAIL_TRANSFER_ERROR;
-import static com.sejong.userservice.support.common.exception.ExceptionType.UNEXPECTED_ERROR;
-import static com.sejong.userservice.support.common.exception.ExceptionType.UNSUPPORTED_EMAIL_ADDRESS;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.EMAIL_TRANSFER_ERROR;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.UNEXPECTED_ERROR;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.UNSUPPORTED_EMAIL_ADDRESS;
 
-import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.util.EmailContentBuilder;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 @Getter
 @AllArgsConstructor
 @Builder
-public class PageRes<T> {
+public class OffsetPageRes<T> {
 
     private String message;
     private int size;
@@ -17,7 +17,7 @@ public class PageRes<T> {
     private int totalPage;
     private T data;
 
-    public static <T> PageRes<List<T>> ok(Page<T> page) {
-        return new PageRes<>("조회 성공", page.getSize(), page.getNumber(), page.getTotalPages(), page.getContent());
+    public static <T> OffsetPageRes<List<T>> ok(Page<T> page) {
+        return new OffsetPageRes<>("조회 성공", page.getSize(), page.getNumber(), page.getTotalPages(), page.getContent());
     }
 }

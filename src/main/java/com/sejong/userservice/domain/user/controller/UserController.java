@@ -11,8 +11,8 @@ import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.service.UserService;
 import com.sejong.userservice.domain.user.service.VerificationService;
-import com.sejong.userservice.support.common.pagination.PageReq;
-import com.sejong.userservice.support.common.pagination.PageRes;
+import com.sejong.userservice.support.common.pagination.OffsetPageReq;
+import com.sejong.userservice.support.common.pagination.OffsetPageRes;
 import com.sejong.userservice.support.common.security.UserContext;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,9 +72,9 @@ public class UserController {
 
     @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")
     @GetMapping("/page")
-    public PageRes<List<UserRes>> getAllUsersPagination(@ModelAttribute @Valid PageReq pageReq) {
-        Page<UserRes> allUsers = userService.getAllUsers(pageReq.toPageable());
-        return PageRes.ok(allUsers);
+    public OffsetPageRes<List<UserRes>> getAllUsersPagination(@ModelAttribute @Valid OffsetPageReq offsetPageReq) {
+        Page<UserRes> allUsers = userService.getAllUsers(offsetPageReq.toPageable());
+        return OffsetPageRes.ok(allUsers);
     }
 
     @Operation(summary = "회원 role 수정 (어드민 전용 api)")
