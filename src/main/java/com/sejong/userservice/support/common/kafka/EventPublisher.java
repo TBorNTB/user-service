@@ -2,8 +2,8 @@ package com.sejong.userservice.support.common.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sejong.metaservice.domain.comment.domain.Comment;
-import com.sejong.metaservice.domain.like.domain.Like;
+import com.sejong.userservice.domain.comment.domain.Comment;
+import com.sejong.userservice.domain.like.domain.Like;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

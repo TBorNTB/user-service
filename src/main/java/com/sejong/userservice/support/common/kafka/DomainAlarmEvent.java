@@ -1,8 +1,8 @@
 package com.sejong.userservice.support.common.kafka;
 
-import com.sejong.metaservice.domain.comment.domain.Comment;
-import com.sejong.metaservice.domain.like.domain.Like;
-import com.sejong.metaservice.support.common.enums.PostType;
+import com.sejong.userservice.domain.comment.domain.Comment;
+import com.sejong.userservice.domain.like.domain.Like;
+import com.sejong.userservice.support.common.constants.PostType;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

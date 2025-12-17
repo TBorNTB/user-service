@@ -1,11 +1,11 @@
 package com.sejong.userservice.support.common.internal;
 
-import static com.sejong.metaservice.support.common.exception.ExceptionType.BAD_REQUEST;
-import static com.sejong.metaservice.support.common.exception.ExceptionType.EXTERNAL_SERVER_ERROR;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.BAD_REQUEST;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.EXTERNAL_SERVER_ERROR;
 
-import com.sejong.metaservice.client.ArchiveClient;
-import com.sejong.metaservice.support.common.exception.BaseException;
-import com.sejong.metaservice.support.common.internal.response.PostLikeCheckResponse;
+import com.sejong.userservice.client.ArchiveClient;
+import com.sejong.userservice.support.common.exception.type.BaseException;
+import com.sejong.userservice.support.common.internal.response.PostLikeCheckResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -5,6 +5,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableFeignClients(basePackages = "com.sejong.metaservice.client")
+@EnableFeignClients(basePackages = "com.sejong.userservice.client")
 public class FeignClientConfig {
 }

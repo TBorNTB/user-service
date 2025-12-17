@@ -1,6 +1,6 @@
 package com.sejong.userservice.support.common.redis;
 
-import com.sejong.metaservice.support.common.enums.PostType;
+import com.sejong.userservice.support.common.constants.PostType;
 
 public class RedisKeyUtil {
     public static String likeCountKey(PostType postType, Long postId) {

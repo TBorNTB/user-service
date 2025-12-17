@@ -50,12 +50,6 @@ public class UserController {
     private final JWTUtil jwtUtil;
     private final VerificationService verificationService;
 
-    @Operation(summary = "헬스 체크", description = "서비스 상태를 확인합니다")
-    @GetMapping("/health")
-    public String healthCheck() {
-        return "OK";
-    }
-
     @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다")
     @PostMapping
     public ResponseEntity<JoinResponse> joinProcess(@Valid @RequestBody JoinRequest joinRequest) {

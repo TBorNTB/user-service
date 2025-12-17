@@ -57,8 +57,11 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
 //    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp'
 
-    // Feign Client
+    // OpenFeign Client
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+    // Resilience4j Core 모듈
+    implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
 
     // Monitoring
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
@@ -66,6 +69,9 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    //spring-batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 
     // Configuration metadata (IDE 지원용)
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'

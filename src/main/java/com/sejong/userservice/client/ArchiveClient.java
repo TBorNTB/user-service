@@ -1,6 +1,6 @@
 package com.sejong.userservice.client;
 
-import com.sejong.metaservice.support.common.internal.response.PostLikeCheckResponse;
+import com.sejong.userservice.support.common.internal.response.PostLikeCheckResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
