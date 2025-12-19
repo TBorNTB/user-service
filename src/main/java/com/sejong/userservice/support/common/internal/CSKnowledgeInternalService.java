@@ -3,7 +3,7 @@ package com.sejong.userservice.support.common.internal;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.BAD_REQUEST;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.EXTERNAL_SERVER_ERROR;
 
-import com.sejong.userservice.client.ArchiveClient;
+import com.sejong.userservice.client.ProjectClient;
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.internal.response.PostLikeCheckResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -17,11 +17,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class CSKnowledgeInternalService {
 
-    private final ArchiveClient archiveClient;
+    private final ProjectClient projectClient;
 
     @CircuitBreaker(name = "myFeignClient", fallbackMethod = "validateExistsFallback")
     public String validateExists(Long postId) {
-        ResponseEntity<PostLikeCheckResponse> response = archiveClient.checkCSKnowledge(postId);
+        ResponseEntity<PostLikeCheckResponse> response = projectClient.checkCSKnowledge(postId);
         log.info("response: {}",response.getBody());
         if (!response.getBody().isStored()) {
             log.info("Article 검증 실패");
@@ -39,7 +39,7 @@ public class CSKnowledgeInternalService {
 
     @CircuitBreaker(name = "myFeignClient", fallbackMethod = "getCsCountFallback")
     public Long getCsCount() {
-        ResponseEntity<Long> response = archiveClient.getCsCount();
+        ResponseEntity<Long> response = projectClient.getCsCount();
         return response.getBody();
     }
 

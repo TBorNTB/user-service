@@ -16,4 +16,16 @@ public interface ProjectClient {
 
     @GetMapping("/category/count")
     ResponseEntity<Long> getCategoryCount();
+
+    @GetMapping("/archive/check/news/{newsId}")
+    ResponseEntity<PostLikeCheckResponse> checkNews(@PathVariable("newsId") Long newsId);
+
+    @GetMapping("/archive/check/cs/{csKnowledgeId}")
+    ResponseEntity<PostLikeCheckResponse> checkCSKnowledge(@PathVariable("csKnowledgeId") Long csKnowledgeId);
+
+    @GetMapping("/archive/news/count")
+    ResponseEntity<Long> getNewsCount();
+
+    @GetMapping("/archive/cs/count")
+    ResponseEntity<Long> getCsCount();
 }
