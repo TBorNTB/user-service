@@ -1,5 +1,6 @@
 package com.sejong.userservice.domain.comment.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.exception.type.ExceptionType;
@@ -44,6 +45,7 @@ public class Comment {
     @Column(columnDefinition = "VARCHAR(50)")
     private PostType postType;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private Comment parent;
