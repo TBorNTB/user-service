@@ -15,20 +15,9 @@ public class RedisService {
         return redisTemplate.hasKey(key);
     }
 
-    public void deleteKey(String key) {
-        redisTemplate.delete(key);
-    }
-
-    public void markAsViewed(String ipKey, Duration ttl) {
-        redisTemplate.opsForValue().set(ipKey, "viewed", ttl);
-    }
-
     public Long getCount(String key) {
-        if (!redisTemplate.hasKey(key)) {
-            redisTemplate.opsForValue().set(key, "0");
-        }
         String count = redisTemplate.opsForValue().get(key);
-        return Long.parseLong(count);
+        return count != null ? Long.parseLong(count) : null;
     }
 
     public void setCount(String key, Long count) {
@@ -36,31 +25,18 @@ public class RedisService {
     }
 
     public Long increment(String key) {
-        if (!redisTemplate.hasKey(key)) {
-            redisTemplate.opsForValue().set(key, "0");
-        }
         return redisTemplate.opsForValue().increment(key);
     }
 
     public Long decrement(String key) {
-        if (!redisTemplate.hasKey(key)) {
-            redisTemplate.opsForValue().set(key, "0");
-        }
         return redisTemplate.opsForValue().decrement(key);
     }
 
-    public void clearAllLikeKeys(String pattern) {
-        try (org.springframework.data.redis.core.Cursor<String> cursor = redisTemplate.scan(
-                org.springframework.data.redis.core.ScanOptions.scanOptions()
-                    .match(pattern)
-                    .count(100)
-                    .build())) {
-                    
-            while (cursor.hasNext()) {
-                redisTemplate.delete(cursor.next());
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("키 삭제 실패", e);
-        }
+    public Boolean setIfAbsent(String key, Long count) {
+        return redisTemplate.opsForValue().setIfAbsent(key, String.valueOf(count));
+    }
+
+    public Boolean setIfAbsent(String key, String value, Duration ttl) {
+        return redisTemplate.opsForValue().setIfAbsent(key, value, ttl);
     }
 }

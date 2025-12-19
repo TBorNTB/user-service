@@ -44,22 +44,19 @@ public class ViewService {
         String ipKey = RedisKeyUtil.viewIpKey(postType, postId, clientIp);
         String viewCountKey = RedisKeyUtil.viewCountKey(postType, postId);
 
-        // cache miss (mysql -> redis)
-        if (!redisService.hasKey(viewCountKey)) {
+        // cache miss일 때만 DB 조회 (SETNX)
+        if (redisService.hasKey(viewCountKey)) {
             View view = getOrCreateViewEntity(postType, postId);
-            redisService.setCount(viewCountKey, view.getViewCount());
+            redisService.setIfAbsent(viewCountKey, view.getViewCount());
         }
 
-        // ip already viewed
-        if (redisService.hasKey(ipKey)) {
-            long currentViewCount = redisService.getCount(viewCountKey);
-            return new ViewCountResponse(currentViewCount);
+        // SETNX = SET if Not eXists
+        boolean isFirstView = redisService.setIfAbsent(ipKey, "check", VIEW_TTL);
+        if (!isFirstView) {
+            return new ViewCountResponse(redisService.getCount(viewCountKey));
         }
 
-        // register this ip
-        redisService.markAsViewed(ipKey, VIEW_TTL);
-        Long newViewCount = redisService.increment(viewCountKey);
-        return new ViewCountResponse(newViewCount);
+        return new ViewCountResponse(redisService.increment(viewCountKey));
     }
 
 
@@ -69,7 +66,7 @@ public class ViewService {
         // cache miss (mysql -> redis)
         if (!redisService.hasKey(viewCountKey)) {
             View view = getOrCreateViewEntity(postType, postId);
-            redisService.setCount(viewCountKey, view.getViewCount());
+            redisService.setIfAbsent(viewCountKey, view.getViewCount());
         }
 
         Long viewCount = redisService.getCount(viewCountKey);
