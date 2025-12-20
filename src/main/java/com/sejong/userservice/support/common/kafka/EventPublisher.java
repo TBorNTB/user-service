@@ -3,7 +3,6 @@ package com.sejong.userservice.support.common.kafka;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sejong.userservice.domain.comment.domain.Comment;
-import com.sejong.userservice.domain.like.domain.Like;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -19,17 +18,15 @@ public class EventPublisher {
     private final String alarmTopic = "alarm";
 
     // listener: elastic-service
-    public void publishLike(Like like, Long postCount){
-        log.info("발행 시작 좋아요 postLike :{}, postCount : {}", like, postCount);
-        PostLikeEvent event = PostLikeEvent.of(like.getPostType(), like.getPostId(), postCount);
-        String key = "post:" + like.getPostId();
+    public void publishLike(PostLikeEvent event){
+        log.info("발행 시작 좋아요 like event :{}", event);
+        String key = "post:" + event.getPostId();
         kafkaTemplate.send(topic,key, toJsonString(event));
     }
 
-    public void publishLikedAlarm(Like like, String ownerUsername){
-        log.info("알람 이벤트 발행 시작 postLike :{}, ownerUsername : {}", like, ownerUsername);
-        DomainAlarmEvent event = DomainAlarmEvent.from(like, AlarmType.POST_LIKED ,ownerUsername);
-        String key = "alarm-like:" + like.getPostId();
+    public void publishLikedAlarm(DomainAlarmEvent event){
+        log.info("알람 이벤트 발행 시작 event :{}", event);
+        String key = "alarm-like:" + event.getDomainId();
         kafkaTemplate.send(alarmTopic,key, toJsonString(event));
     }
 

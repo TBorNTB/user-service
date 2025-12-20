@@ -38,6 +38,7 @@ public class ViewService {
         postInternalFacade.checkPostExistenceAndOwner(postId, postType);
     }
 
+    @Transactional
     public ViewCountResponse increaseViewCount(Long postId, PostType postType, String clientIp) {
         checkPostExistence(postId, postType);
         
