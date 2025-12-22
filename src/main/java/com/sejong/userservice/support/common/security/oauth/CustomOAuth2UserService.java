@@ -1,12 +1,12 @@
 package com.sejong.userservice.support.common.security.oauth;
 
-import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
 
 import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
 import com.sejong.userservice.domain.user.repository.UserRepository;
-import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.support.common.security.oauth.dto.GithubResponse;
 import com.sejong.userservice.support.common.security.oauth.dto.OAuth2Response;

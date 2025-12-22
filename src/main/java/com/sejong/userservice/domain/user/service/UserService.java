@@ -1,8 +1,8 @@
 package com.sejong.userservice.domain.user.service;
 
-import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
-import static com.sejong.userservice.support.common.exception.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
-import static com.sejong.userservice.support.common.exception.ExceptionType.WRONG_PASSWORD;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.WRONG_PASSWORD;
 
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
@@ -17,7 +17,7 @@ import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.repository.UserRepository;
-import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,6 +1,6 @@
 package com.sejong.userservice.domain.alarm.service;
 
-import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
 
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.domain.Alarm;
@@ -8,8 +8,8 @@ import com.sejong.userservice.domain.alarm.domain.AlarmType;
 import com.sejong.userservice.domain.alarm.repository.AlarmRepository;
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.repository.UserRepository;
-import com.sejong.userservice.support.common.exception.BaseException;
-import com.sejong.userservice.support.common.exception.ExceptionType;
+import com.sejong.userservice.support.common.exception.type.BaseException;
+import com.sejong.userservice.support.common.exception.type.ExceptionType;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

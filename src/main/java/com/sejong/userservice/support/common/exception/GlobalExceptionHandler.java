@@ -1,5 +1,7 @@
 package com.sejong.userservice.support.common.exception;
 
+import com.sejong.userservice.support.common.exception.type.BaseException;
+import com.sejong.userservice.support.common.exception.type.ExceptionType;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;

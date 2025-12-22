@@ -1,12 +1,12 @@
 package com.sejong.userservice.domain.token;
 
-import static com.sejong.userservice.support.common.exception.ExceptionType.INVALID_OR_REVOKED_TOKEN;
-import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.INVALID_OR_REVOKED_TOKEN;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
 
 import com.sejong.userservice.domain.token.dto.TokenReissueResponse;
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.repository.UserRepository;
-import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import java.time.Duration;

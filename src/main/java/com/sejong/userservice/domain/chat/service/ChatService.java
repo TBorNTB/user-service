@@ -1,8 +1,8 @@
 package com.sejong.userservice.domain.chat.service;
 
-import static com.sejong.userservice.support.common.exception.ExceptionType.DM_ROOM_WITH_OTHER_PERSON;
-import static com.sejong.userservice.support.common.exception.ExceptionType.NOT_FOUND_USER;
-import static com.sejong.userservice.support.common.exception.ExceptionType.ROOM_ID_NOT_FOUND;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.DM_ROOM_WITH_OTHER_PERSON;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.ROOM_ID_NOT_FOUND;
 
 import com.sejong.userservice.domain.chat.constant.ChatRoomUserRole;
 import com.sejong.userservice.domain.chat.controller.response.ChatMessageResponse;
@@ -18,7 +18,7 @@ import com.sejong.userservice.domain.chat.repository.ChatRoomRepository;
 import com.sejong.userservice.domain.chat.repository.ChatRoomUserRepository;
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.repository.UserRepository;
-import com.sejong.userservice.support.common.exception.BaseException;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

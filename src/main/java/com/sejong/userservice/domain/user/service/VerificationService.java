@@ -4,7 +4,7 @@ import com.sejong.userservice.client.email.EmailSender;
 import com.sejong.userservice.domain.user.dto.request.ResetPasswordRequest;
 import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
 import com.sejong.userservice.domain.user.repository.VerificationCacheService;
-import com.sejong.userservice.support.common.RandomProvider;
+import com.sejong.userservice.support.common.util.RandomProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
