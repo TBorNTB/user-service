@@ -5,7 +5,7 @@ spring:
   application:
     name: user-service
   kafka:
-    bootstrap-servers: ${EC2_HOST_INFRA_PRIVATE}:9092
+    bootstrap-servers: ${DB_HOST}:9092
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -15,7 +15,7 @@ spring:
       auto-offset-reset: earliest
 
   datasource:
-    url: jdbc:mysql://${EC2_HOST_INFRA_PRIVATE}:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://${DB_HOST}:3306/user_schema?serverTimezone=Asia/Seoul&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -49,7 +49,7 @@ spring:
   # Redis 설정
   data:
     redis:
-      host: ${EC2_HOST_INFRA_PRIVATE}
+      host: ${DB_HOST}
       port: ${REDIS_PORT}
       password: 
       timeout: 3000ms
@@ -76,7 +76,7 @@ spring:
           github:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
-            redirect-uri: http://${EC2_HOST_APP}:8000/user-service/login/oauth2/code/github
+            redirect-uri: http://${APP_HOST}:8000/user-service/login/oauth2/code/github
 
 springdoc:
   api-docs:
