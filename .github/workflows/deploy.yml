@@ -46,37 +46,39 @@ jobs:
         run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
 
   deploy-to-ec2:
-    name: 🚀 Deploy To EC2
-    runs-on: ubuntu-latest
+    name: 🚀 Deploy To EC2 (Self-hosted)
+    # ✅ 배포만 self-hosted runner에서 실행
+    runs-on: self-hosted # 추후 해당 부분 label을 붙여 특정 runner에서만 실행되도록 바궈야 됨
     needs: build-and-push
 
     steps:
-      - name: 🔑 Bastion을 통해 SSH로 EC2에 접속 및 배포
-        uses: appleboy/ssh-action@v1.0.3
+      - name: 🔐 AWS 자격 증명 설정
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          debug: true
-          host: ${{ secrets.EC2_HOST_APP_PRIVATE }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_PRIVATE_KEY }}
-          proxy_host: ${{ secrets.EC2_HOST_BASTION }}    # Bastion 호스트
-          proxy_username: ${{ secrets.EC2_USERNAME }}
-          proxy_key: ${{ secrets.EC2_PRIVATE_KEY }}          # Bastion용 pem
-          script_stop: true
-          script: |
-            aws ecr get-login-password --region ap-northeast-2 | \
-              docker login --username AWS --password-stdin 869508798906.dkr.ecr.ap-northeast-2.amazonaws.com
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-            docker stop ${{ secrets.IMAGE_NAME }} || true
-            docker rm ${{ secrets.IMAGE_NAME }} || true
+      - name: 🔐 ECR 로그인
+        run: |
+          aws ecr get-login-password --region ap-northeast-2 | \
+            docker login --username AWS --password-stdin 869508798906.dkr.ecr.ap-northeast-2.amazonaws.com
 
-            docker pull 869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
+      - name: 🧹 Stop & Remove existing container
+        run: |
+          docker stop ${{ secrets.IMAGE_NAME }} || true
+          docker rm ${{ secrets.IMAGE_NAME }} || true
 
+      - name: 📥 Pull image from ECR
+        run: |
+          docker pull 869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
+
+      - name: 🚀 Run container
+        run: |
             docker run -d --name ${{ secrets.IMAGE_NAME }} -P \
               --network ${{secrets.DOCKER_NETWORK_NAME}} \
-              -e EC2_HOST_APP="${{secrets.EC2_HOST_APP}}" \
-              -e EC2_HOST_APP_PRIVATE="${{secrets.EC2_HOST_APP_PRIVATE}}" \
-              -e EC2_HOST_INFRA="${{secrets.EC2_HOST_INFRA}}" \
-              -e EC2_HOST_INFRA_PRIVATE="${{secrets.EC2_HOST_INFRA_PRIVATE}}" \
+              -e DB_HOST="${{secrets.DB_HOST}}" \
+              -e APP_HOST="${{secrets.APP_HOST}}" \
               -e S3_SECRET_KEY="${{ secrets.S3_SECRET_KEY }}" \
               -e S3_BUCKET="${{ secrets.S3_BUCKET }}" \
               -e S3_ACCESS_KEY="${{ secrets.S3_ACCESS_KEY }}" \
