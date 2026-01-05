@@ -95,7 +95,7 @@ public class LikeService {
     @Transactional(readOnly = true)
     public LikeCountRes getLikeCount(Long postId, PostType postType) {
         String redisKey = RedisKeyUtil.likeCountKey(postType, postId);
-        long likeCount = redisService.getCount(redisKey);
+        Long likeCount = redisService.getCount(redisKey);
         return new LikeCountRes(likeCount);
     }
 }

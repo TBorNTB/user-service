@@ -17,7 +17,7 @@ public class RedisService {
 
     public Long getCount(String key) {
         String count = redisTemplate.opsForValue().get(key);
-        return count != null ? Long.parseLong(count) : null;
+        return count != null ? Long.parseLong(count) : 0;
     }
 
     public void setCount(String key, Long count) {
