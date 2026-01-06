@@ -1,4 +1,4 @@
-package com.sejong.userservice.support.common.kafka;
+package com.sejong.userservice.support.common.kafka.event;
 
 import com.sejong.userservice.support.common.constants.PostType;
 import lombok.AllArgsConstructor;

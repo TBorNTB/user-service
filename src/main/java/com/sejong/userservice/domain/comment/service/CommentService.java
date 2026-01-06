@@ -11,7 +11,8 @@ import com.sejong.userservice.domain.comment.repository.CommentRepository;
 import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.internal.PostInternalFacade;
-import com.sejong.userservice.support.common.kafka.EventPublisher;
+import com.sejong.userservice.support.common.kafka.event.AlarmType;
+import com.sejong.userservice.support.common.kafka.event.DomainAlarmEvent;
 import com.sejong.userservice.support.common.pagination.CursorPageReq;
 import com.sejong.userservice.support.common.pagination.CursorPageRes;
 import com.sejong.userservice.support.common.pagination.SortDirection;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,7 +35,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostInternalFacade postInternalFacade;
-    private final EventPublisher eventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public CommentRes createComment(CommentCommand command) {
@@ -61,12 +63,16 @@ public class CommentService {
         }
     }
 
-    private void publishAlarm(Comment comment, Comment parent, String ownerUsername) {
+    private void publishAlarm(Comment savedComment, Comment parent, String ownerUsername) {
         if (parent != null) {
-            eventPublisher.publishReplyAlarm(parent, comment);
+            log.info("대댓글 이벤트 발행 시작 parent: {}, reply: {}", parent.getId(), savedComment.getId());
+            DomainAlarmEvent event = DomainAlarmEvent.fromReply(parent, savedComment, AlarmType.COMMENT_REPLY_ADDED);
+            applicationEventPublisher.publishEvent(event);
             return;
         }
-        eventPublisher.publishCommentAlarm(comment, ownerUsername);
+        log.info("댓글 이벤트 발행 시작: comment: {}", savedComment);
+        DomainAlarmEvent event = DomainAlarmEvent.from(savedComment, AlarmType.COMMENT_ADDED, ownerUsername);
+        applicationEventPublisher.publishEvent(event);
     }
 
     @Transactional(readOnly = true)
