@@ -1,4 +1,4 @@
-package com.sejong.userservice.support.common.kafka;
+package com.sejong.userservice.support.common.kafka.event;
 
 public enum AlarmType {
     COMMENT_ADDED,

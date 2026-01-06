@@ -46,7 +46,7 @@ public class ViewService {
         String viewCountKey = RedisKeyUtil.viewCountKey(postType, postId);
 
         // cache miss일 때만 DB 조회 (SETNX)
-        if (redisService.hasKey(viewCountKey)) {
+        if (!redisService.hasKey(viewCountKey)) {
             View view = getOrCreateViewEntity(postType, postId);
             redisService.setIfAbsent(viewCountKey, view.getViewCount());
         }
@@ -60,7 +60,7 @@ public class ViewService {
         return new ViewCountResponse(redisService.increment(viewCountKey));
     }
 
-
+    @Transactional
     public ViewCountResponse getViewCount(Long postId, PostType postType) {
         String viewCountKey = RedisKeyUtil.viewCountKey(postType, postId);
 

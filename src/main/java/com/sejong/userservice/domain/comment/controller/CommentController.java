@@ -1,6 +1,6 @@
 package com.sejong.userservice.domain.comment.controller;
 
-import com.sejong.userservice.domain.comment.command.CommentCommand;
+import com.sejong.userservice.domain.comment.dto.command.CommentCommand;
 import com.sejong.userservice.domain.comment.dto.request.CommentReq;
 import com.sejong.userservice.domain.comment.dto.response.CommentRes;
 import com.sejong.userservice.domain.comment.service.CommentService;

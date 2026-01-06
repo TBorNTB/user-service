@@ -1,4 +1,4 @@
-package com.sejong.userservice.support.common.kafka;
+package com.sejong.userservice.support.common.kafka.event;
 
 import com.sejong.userservice.domain.comment.domain.Comment;
 import com.sejong.userservice.domain.like.domain.Like;

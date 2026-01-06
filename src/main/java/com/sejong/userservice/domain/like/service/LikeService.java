@@ -7,9 +7,9 @@ import com.sejong.userservice.domain.like.dto.response.LikeRes;
 import com.sejong.userservice.domain.like.repository.LikeRepository;
 import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.internal.PostInternalFacade;
-import com.sejong.userservice.support.common.kafka.AlarmType;
-import com.sejong.userservice.support.common.kafka.DomainAlarmEvent;
-import com.sejong.userservice.support.common.kafka.PostLikeEvent;
+import com.sejong.userservice.support.common.kafka.event.AlarmType;
+import com.sejong.userservice.support.common.kafka.event.DomainAlarmEvent;
+import com.sejong.userservice.support.common.kafka.event.PostLikeEvent;
 import com.sejong.userservice.support.common.redis.RedisKeyUtil;
 import com.sejong.userservice.support.common.redis.RedisService;
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final PostInternalFacade postInternalFacade;
     private final RedisService redisService;
-    private final ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public LikeRes toggleLike(String username, Long postId, PostType postType) {
@@ -47,12 +47,13 @@ public class LikeService {
             count = redisService.decrement(RedisKeyUtil.likeCountKey(postType, postId));
         }
 
-        // Kafka는 이벤트로 분리 (커밋 후 발행)
-        eventPublisher.publishEvent(
+        // elastic-service
+        applicationEventPublisher.publishEvent(
                 PostLikeEvent.of(like.getPostType(), like.getPostId(), count));
 
+        // for alarm
         if (toggleResult.equals(LikeStatus.LIKED)) {
-            eventPublisher.publishEvent(
+            applicationEventPublisher.publishEvent(
                     DomainAlarmEvent.from(like, AlarmType.POST_LIKED, ownerUsername));
         }
         return LikeRes.of(toggleResult, count);

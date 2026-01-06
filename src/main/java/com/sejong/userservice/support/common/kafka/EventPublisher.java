@@ -2,7 +2,8 @@ package com.sejong.userservice.support.common.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sejong.userservice.domain.comment.domain.Comment;
+import com.sejong.userservice.support.common.kafka.event.DomainAlarmEvent;
+import com.sejong.userservice.support.common.kafka.event.PostLikeEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -27,20 +28,16 @@ public class EventPublisher {
     public void publishLikedAlarm(DomainAlarmEvent event){
         log.info("알람 이벤트 발행 시작 event :{}", event);
         String key = "alarm-like:" + event.getDomainId();
-        kafkaTemplate.send(alarmTopic,key, toJsonString(event));
+        kafkaTemplate.send(alarmTopic, key, toJsonString(event));
     }
 
-    public void publishCommentAlarm(Comment savedComment, String ownerUsername) {
-        log.info("알람 이벤트 발행 시작 comment :{}", savedComment);
-        DomainAlarmEvent event = DomainAlarmEvent.from(savedComment, AlarmType.COMMENT_ADDED, ownerUsername);
-        String key = "alarm-comment:" + savedComment.getId();
-        kafkaTemplate.send(alarmTopic,key, toJsonString(event));
+    public void publishCommentAlarm(DomainAlarmEvent event) {
+        String key = "alarm-comment:" + event.getDomainId();
+        kafkaTemplate.send(alarmTopic, key, toJsonString(event));
     }
 
-    public void publishReplyAlarm(Comment parentComment, Comment reply) {
-        log.info("알람 이벤트 발행 시작 parentComment: {}, reply: {}", parentComment.getId(), reply.getId());
-        DomainAlarmEvent event = DomainAlarmEvent.fromReply(parentComment, reply, AlarmType.COMMENT_REPLY_ADDED);
-        String key = "alarm-reply:" + reply.getId();
+    public void publishReplyAlarm(DomainAlarmEvent event) {
+        String key = "alarm-reply:" + event.getDomainId();
         kafkaTemplate.send(alarmTopic, key, toJsonString(event));
     }
 

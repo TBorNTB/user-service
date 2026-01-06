@@ -1,4 +1,4 @@
-package com.sejong.userservice.domain.comment.command;
+package com.sejong.userservice.domain.comment.dto.command;
 
 import com.sejong.userservice.domain.comment.domain.Comment;
 import com.sejong.userservice.support.common.constants.PostType;
