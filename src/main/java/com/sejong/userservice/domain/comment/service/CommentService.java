@@ -3,8 +3,8 @@ package com.sejong.userservice.domain.comment.service;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.DEPTH_LIMIT_EXCEEDED;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_COMMENT;
 
-import com.sejong.userservice.domain.comment.command.CommentCommand;
 import com.sejong.userservice.domain.comment.domain.Comment;
+import com.sejong.userservice.domain.comment.dto.command.CommentCommand;
 import com.sejong.userservice.domain.comment.dto.request.CommentReq;
 import com.sejong.userservice.domain.comment.dto.response.CommentRes;
 import com.sejong.userservice.domain.comment.repository.CommentRepository;
