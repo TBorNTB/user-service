@@ -60,7 +60,7 @@ public class ViewService {
         return new ViewCountResponse(redisService.increment(viewCountKey));
     }
 
-
+    @Transactional
     public ViewCountResponse getViewCount(Long postId, PostType postType) {
         String viewCountKey = RedisKeyUtil.viewCountKey(postType, postId);
 
