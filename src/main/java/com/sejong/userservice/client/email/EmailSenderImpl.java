@@ -11,6 +11,7 @@ import jakarta.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.retry.annotation.Backoff;
@@ -25,6 +26,9 @@ public class EmailSenderImpl implements EmailSender {
 
     private final JavaMailSender mailSender;
     private final EmailContentBuilder emailContentBuilder;
+
+    @Value("${spring.mail.username}")
+    private String fromEmail;
 
 
     @Override
@@ -41,7 +45,7 @@ public class EmailSenderImpl implements EmailSender {
             MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
 
             helper.setTo(to);
-            helper.setFrom("ssg-info-hub@noreply.com", "SSG Info Hub");
+            helper.setFrom(fromEmail, "SSG Info Hub");
             helper.setSubject("[비밀번호 재설정] 이메일 인증을 진행해주세요.");
             helper.setText(emailContentBuilder.buildVerificationHtml(code) , true);
 

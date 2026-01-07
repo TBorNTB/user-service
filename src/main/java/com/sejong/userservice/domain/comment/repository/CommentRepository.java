@@ -16,6 +16,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
       AND c.postType = :postType
       AND c.parent IS NULL
       AND (:cursorId IS NULL OR :cursorId <= 0 OR c.id < :cursorId)
+    ORDER BY c.id DESC 
     """)
     List<Comment> findAllCommentsDesc(
             @Param("postId") Long postId,
@@ -30,6 +31,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
       AND c.postType = :postType
       AND c.parent IS NULL
       AND (:cursorId IS NULL OR :cursorId <= 0 OR c.id > :cursorId)
+    ORDER BY c.id ASC 
     """)
     List<Comment> findAllCommentsAsc(
             @Param("postId") Long postId,
