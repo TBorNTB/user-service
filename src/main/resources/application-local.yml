@@ -101,7 +101,7 @@ aws:
 
 management:
   server:
-    port: 18082  #이거는 매트릭을 수집하기 위한 고정 포트다.
+    port: 18080  #이거는 매트릭을 수집하기 위한 고정 포트다.
   endpoints:
     web:
       exposure:
