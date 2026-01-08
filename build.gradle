@@ -62,10 +62,6 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
     // Resilience4j Core 모듈
     implementation 'io.github.resilience4j:resilience4j-spring-boot3:2.1.0'
-
-    // Monitoring
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -110,6 +106,11 @@ dependencies {
 
     // Logback과의 통합을 위한 라이브러리
     implementation 'io.github.dibog:cloudwatch-logback-appender:2.0.0'
+
+    //Actuator - metric 수집
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    //prometheus를 이용한 데이터 통계
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 dependencyManagement {
