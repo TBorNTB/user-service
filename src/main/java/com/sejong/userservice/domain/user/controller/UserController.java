@@ -75,13 +75,15 @@ public class UserController {
         return OffsetPageRes.ok(allUsers);
     }
 
-    @Operation(summary = "role로 사용자 조회 - 페이지네이션", description = "해당 role을 가진 모든 사용자 목록을 조회합니다.")
+    @Operation(summary = "role 및 이름으로 사용자 조회 - 페이지네이션", description = "해당 role을 가진 사용자 목록을 조회합니다. nickname, realName으로 검색 가능합니다.")
     @GetMapping("/roles")
     public OffsetPageRes<List<UserRes>> getUsersByRoles(
-            @RequestParam List<UserRole> roles,
+            @RequestParam(required = false) List<UserRole> roles,
+            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String realName,
             @ModelAttribute @Valid OffsetPageReq offsetPageReq
     ) {
-        Page<UserRes> users = userService.getUsersByRoles(roles, offsetPageReq.toPageable());
+        Page<UserRes> users = userService.getUsersByRoles(roles, nickname, realName, offsetPageReq.toPageable());
         return OffsetPageRes.ok(users);
     }
 

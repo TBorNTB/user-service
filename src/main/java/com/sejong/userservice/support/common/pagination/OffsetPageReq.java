@@ -3,7 +3,6 @@ package com.sejong.userservice.support.common.pagination;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,7 +24,6 @@ public class OffsetPageReq {
 
     private SortDirection sortDirection = SortDirection.ASC;
 
-    @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "정렬 기준은 알파벳, 숫자, 또는 언더스코어(_)만 포함할 수 있습니다.")
     private String sortBy = "id";
 
     public Pageable toPageable() {

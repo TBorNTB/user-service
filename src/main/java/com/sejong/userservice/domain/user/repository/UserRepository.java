@@ -8,9 +8,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    boolean existsByNickname(String nickname);
 
     Optional<User> findByEmail(String email);
 
@@ -25,5 +25,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select count(u) from User u")
     Long findUserCount();
 
-    Page<User> findByRoleIn(List<UserRole> roles, Pageable pageable);
+    @Query("SELECT u FROM User u WHERE u.role IN :roles " +
+           "AND (:nickname IS NULL OR u.nickname LIKE %:nickname%)" +
+           "AND (:realName IS NULL OR u.realName LIKE %:realName%)")
+    Page<User> findByRolesAndSearch(
+            @Param("roles") List<UserRole> roles,
+            @Param("nickname") String nickname,
+            @Param("realName") String realName,
+            Pageable pageable
+    );
 }

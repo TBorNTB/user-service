@@ -168,7 +168,10 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<UserRes> getUsersByRoles(List<UserRole> roles, Pageable pageable) {
-        return userRepository.findByRoleIn(roles, pageable).map(UserRes::from);
+    public Page<UserRes> getUsersByRoles(List<UserRole> roles, String nickname, String realName, Pageable pageable) {
+        List<UserRole> searchRoles = (roles == null || roles.isEmpty())
+                ? List.of(UserRole.values())
+                : roles;
+        return userRepository.findByRolesAndSearch(searchRoles, nickname, realName, pageable).map(UserRes::from);
     }
 }
