@@ -1,5 +1,6 @@
 package com.sejong.userservice.domain.user.controller;
 
+import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.domain.user.dto.request.JoinRequest;
 import com.sejong.userservice.domain.user.dto.request.LoginRequest;
 import com.sejong.userservice.domain.user.dto.request.ResetPasswordRequest;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -64,11 +66,23 @@ public class UserController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")
+    @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다")
     @GetMapping("/page")
-    public OffsetPageRes<List<UserRes>> getAllUsersPagination(@ModelAttribute @Valid OffsetPageReq offsetPageReq) {
+    public OffsetPageRes<List<UserRes>> getAllUsersPagination(
+        @ModelAttribute @Valid OffsetPageReq offsetPageReq
+    ) {
         Page<UserRes> allUsers = userService.getAllUsers(offsetPageReq.toPageable());
         return OffsetPageRes.ok(allUsers);
+    }
+
+    @Operation(summary = "role로 사용자 조회 - 페이지네이션", description = "해당 role을 가진 모든 사용자 목록을 조회합니다.")
+    @GetMapping("/roles")
+    public OffsetPageRes<List<UserRes>> getUsersByRoles(
+            @RequestParam List<UserRole> roles,
+            @ModelAttribute @Valid OffsetPageReq offsetPageReq
+    ) {
+        Page<UserRes> users = userService.getUsersByRoles(roles, offsetPageReq.toPageable());
+        return OffsetPageRes.ok(users);
     }
 
     @Operation(summary = "회원 role 수정 (어드민 전용 api)")

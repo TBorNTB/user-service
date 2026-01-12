@@ -166,4 +166,9 @@ public class UserService {
     public Long getUserCount() {
         return userRepository.findUserCount();
     }
+
+    @Transactional(readOnly = true)
+    public Page<UserRes> getUsersByRoles(List<UserRole> roles, Pageable pageable) {
+        return userRepository.findByRoleIn(roles, pageable).map(UserRes::from);
+    }
 }

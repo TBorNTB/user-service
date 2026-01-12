@@ -1,8 +1,11 @@
 package com.sejong.userservice.domain.user.repository;
 
+import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.domain.user.domain.User;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -21,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select count(u) from User u")
     Long findUserCount();
+
+    Page<User> findByRoleIn(List<UserRole> roles, Pageable pageable);
 }
