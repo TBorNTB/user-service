@@ -76,7 +76,7 @@ public class UserController {
     }
 
     @Operation(summary = "role 및 이름으로 사용자 조회 - 페이지네이션", description = "해당 role을 가진 사용자 목록을 조회합니다. nickname, realName으로 검색 가능합니다.")
-    @GetMapping("/roles")
+    @GetMapping("/search")
     public OffsetPageRes<List<UserRes>> getUsersByRoles(
             @RequestParam(required = false) List<UserRole> roles,
             @RequestParam(required = false) String nickname,
