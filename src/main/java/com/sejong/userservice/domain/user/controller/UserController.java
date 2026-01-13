@@ -10,8 +10,11 @@ import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
+import com.sejong.userservice.domain.user.dto.response.UserSearchResponse;
 import com.sejong.userservice.domain.user.service.UserService;
 import com.sejong.userservice.domain.user.service.VerificationService;
+import com.sejong.userservice.support.common.pagination.CursorPageReq;
+import com.sejong.userservice.support.common.pagination.CursorPageRes;
 import com.sejong.userservice.support.common.pagination.OffsetPageReq;
 import com.sejong.userservice.support.common.pagination.OffsetPageRes;
 import com.sejong.userservice.support.common.security.UserContext;
@@ -73,6 +76,26 @@ public class UserController {
     ) {
         Page<UserRes> allUsers = userService.getAllUsers(offsetPageReq.toPageable());
         return OffsetPageRes.ok(allUsers);
+    }
+
+    @Operation(summary = "전체 사용자 조회 - 커서 기반 페이지네이션", 
+               description = "커서 기반 페이지네이션으로 모든 사용자 목록을 조회합니다. username, realname, nickname, profileImageUrl, email을 반환합니다.")
+    @GetMapping("/search/cursor")
+    public CursorPageRes<List<UserSearchResponse>> getAllUsersWithCursor(
+        @ModelAttribute @Valid CursorPageReq cursorPageReq
+    ) {
+        return userService.getAllUsersWithCursor(cursorPageReq);
+    }
+
+    @Operation(summary = "사용자 검색 - 커서 기반 페이지네이션", 
+               description = "nickname이나 realname으로 사용자를 검색합니다. 커서 기반 페이지네이션을 사용합니다.")
+    @GetMapping("/search/cursor/name")
+    public CursorPageRes<List<UserSearchResponse>> searchUsersByNicknameOrRealName(
+        @RequestParam(required = false) String nickname,
+        @RequestParam(required = false) String realName,
+        @ModelAttribute @Valid CursorPageReq cursorPageReq
+    ) {
+        return userService.searchUsersByNicknameOrRealName(nickname, realName, cursorPageReq);
     }
 
     @Operation(summary = "role 및 이름으로 사용자 조회 - 페이지네이션", description = "해당 role을 가진 사용자 목록을 조회합니다. nickname, realName으로 검색 가능합니다.")

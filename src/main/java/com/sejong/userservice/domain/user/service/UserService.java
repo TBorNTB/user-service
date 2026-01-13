@@ -16,8 +16,12 @@ import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
+import com.sejong.userservice.domain.user.dto.response.UserSearchResponse;
 import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
+import com.sejong.userservice.support.common.pagination.CursorPageReq;
+import com.sejong.userservice.support.common.pagination.CursorPageRes;
+import com.sejong.userservice.support.common.pagination.SortDirection;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -173,5 +178,44 @@ public class UserService {
                 ? List.of(UserRole.values())
                 : roles;
         return userRepository.findByRolesAndSearch(searchRoles, nickname, realName, pageable).map(UserRes::from);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorPageRes<List<UserSearchResponse>> getAllUsersWithCursor(CursorPageReq cursorPageReq) {
+        Long cursorId = cursorPageReq.getCursorId();
+        Pageable pageable = PageRequest.of(0, cursorPageReq.getSize() + 1);
+
+        List<User> users;
+        if (cursorPageReq.getDirection() == SortDirection.ASC) {
+            users = userRepository.findAllUsersWithCursorAsc(cursorId, pageable);
+        } else {
+            users = userRepository.findAllUsersWithCursor(cursorId, pageable);
+        }
+
+        List<UserSearchResponse> response = users.stream()
+                .map(UserSearchResponse::from)
+                .collect(Collectors.toList());
+
+        return CursorPageRes.from(response, cursorPageReq.getSize(), UserSearchResponse::getId);
+    }
+
+    @Transactional(readOnly = true)
+    public CursorPageRes<List<UserSearchResponse>> searchUsersByNicknameOrRealName(
+            String nickname, String realName, CursorPageReq cursorPageReq) {
+        Long cursorId = cursorPageReq.getCursorId();
+        Pageable pageable = PageRequest.of(0, cursorPageReq.getSize() + 1);
+
+        List<User> users;
+        if (cursorPageReq.getDirection() == SortDirection.ASC) {
+            users = userRepository.searchUsersByNicknameOrRealNameAsc(nickname, realName, cursorId, pageable);
+        } else {
+            users = userRepository.searchUsersByNicknameOrRealName(nickname, realName, cursorId, pageable);
+        }
+
+        List<UserSearchResponse> response = users.stream()
+                .map(UserSearchResponse::from)
+                .collect(Collectors.toList());
+
+        return CursorPageRes.from(response, cursorPageReq.getSize(), UserSearchResponse::getId);
     }
 }

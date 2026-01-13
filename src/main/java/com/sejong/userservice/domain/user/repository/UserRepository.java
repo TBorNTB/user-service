@@ -34,4 +34,44 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("realName") String realName,
             Pageable pageable
     );
+
+    @Query("SELECT u FROM User u " +
+           "WHERE (:cursorId IS NULL OR :cursorId <= 0 OR u.id < :cursorId) " +
+           "ORDER BY u.id DESC")
+    List<User> findAllUsersWithCursor(
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
+
+    @Query("SELECT u FROM User u " +
+           "WHERE (:cursorId IS NULL OR :cursorId <= 0 OR u.id > :cursorId) " +
+           "ORDER BY u.id ASC")
+    List<User> findAllUsersWithCursorAsc(
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
+
+    @Query("SELECT u FROM User u " +
+           "WHERE (:nickname IS NULL OR u.nickname LIKE %:nickname%) " +
+           "AND (:realName IS NULL OR u.realName LIKE %:realName%) " +
+           "AND (:cursorId IS NULL OR :cursorId <= 0 OR u.id < :cursorId) " +
+           "ORDER BY u.id DESC")
+    List<User> searchUsersByNicknameOrRealName(
+            @Param("nickname") String nickname,
+            @Param("realName") String realName,
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
+
+    @Query("SELECT u FROM User u " +
+           "WHERE (:nickname IS NULL OR u.nickname LIKE %:nickname%) " +
+           "AND (:realName IS NULL OR u.realName LIKE %:realName%) " +
+           "AND (:cursorId IS NULL OR :cursorId <= 0 OR u.id > :cursorId) " +
+           "ORDER BY u.id ASC")
+    List<User> searchUsersByNicknameOrRealNameAsc(
+            @Param("nickname") String nickname,
+            @Param("realName") String realName,
+            @Param("cursorId") Long cursorId,
+            Pageable pageable
+    );
 }
