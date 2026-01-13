@@ -38,7 +38,7 @@ public class PostInternalFacade {
     public MetaPostCountDto getPostCount() {
         Long projectCount = projectInternalService.getProjectCount();
         Long articleCount = CSKnowledgeInternalService.getCsCount();
-        Long newsCount = projectInternalService.getCategoryCount();
+        Long newsCount = projectInternalService.getCsCount();
 
         return MetaPostCountDto.of(projectCount, articleCount, newsCount);
     }

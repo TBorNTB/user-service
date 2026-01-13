@@ -48,13 +48,13 @@ public class ProjectInternalService {
         return 0L;
     }
 
-    @CircuitBreaker(name = "myFeignClient", fallbackMethod = "getCategoryCountFallback")
-    public Long getCategoryCount() {
-        ResponseEntity<Long> response = projectClient.getCategoryCount();
+    @CircuitBreaker(name = "myFeignClient", fallbackMethod = "getCsCountFallback")
+    public Long getCsCount() {
+        ResponseEntity<Long> response = projectClient.getCsCount();
         return response.getBody();
     }
 
-    private Long getCategoryCountFallback(Throwable t) {
+    private Long getCsCountFallback(Throwable t) {
         return 0L;
     }
 }
