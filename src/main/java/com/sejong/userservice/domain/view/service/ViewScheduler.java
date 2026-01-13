@@ -9,10 +9,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@RestController("/viewScheduler")
 public class ViewScheduler {
 
     private static final String VIEW_COUNT_PATTERN = "post:*:view:count";
@@ -22,6 +25,12 @@ public class ViewScheduler {
     private final RedisTemplate<String, String> redisTemplate;
     private final ViewService viewService;
     private final ViewEventPublisher viewEventPublisher;
+
+    @GetMapping("/consistent/view/test")
+    public String consistentViewTest() {
+        int totalProcessed = scanAndSyncViewCounts();
+        return "동기화 성공";
+    }
 
     @Scheduled(cron = "0 0 3 * * *", zone = "Asia/Seoul")
     public void syncViewCount() {
