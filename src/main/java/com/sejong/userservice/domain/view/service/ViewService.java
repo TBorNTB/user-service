@@ -3,7 +3,9 @@ package com.sejong.userservice.domain.view.service;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_POST_TYPE_POST_ID;
 
 import com.sejong.userservice.domain.view.domain.View;
+import com.sejong.userservice.domain.view.domain.ViewDailyHistory;
 import com.sejong.userservice.domain.view.dto.response.ViewCountResponse;
+import com.sejong.userservice.domain.view.repository.ViewDailyHistoryRepository;
 import com.sejong.userservice.domain.view.repository.ViewJPARepository;
 import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.exception.type.BaseException;
@@ -11,6 +13,10 @@ import com.sejong.userservice.support.common.internal.PostInternalFacade;
 import com.sejong.userservice.support.common.redis.RedisKeyUtil;
 import com.sejong.userservice.support.common.redis.RedisService;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -25,6 +31,7 @@ public class ViewService {
     private final PostInternalFacade postInternalFacade;
     private final RedisService redisService;
     private final ViewJPARepository viewJPARepository;
+    private final ViewDailyHistoryRepository viewDailyHistoryRepository;
 
     @Transactional
     public void updateViewCount(Long postId, PostType postType, Long viewCount) {
@@ -87,4 +94,61 @@ public class ViewService {
                 });
     }
 
+    public ViewCountResponse getAllViewCount(Long startedDay, Long endedDay) {
+        LocalDateTime startDate = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(startedDay), 
+                ZoneId.systemDefault()
+        );
+        LocalDateTime endDate = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(endedDay), 
+                ZoneId.systemDefault()
+        );
+        Long viewCount = viewJPARepository.findByViewAllCount(startDate, endDate);
+        return new ViewCountResponse(viewCount);
+    }
+
+    public ViewCountResponse getTotalViewCountSince(Long startDateTimestamp) {
+        LocalDateTime startDate = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(startDateTimestamp), 
+                ZoneId.systemDefault()
+        );
+        Long viewCount = viewJPARepository.findTotalViewCountSince(startDate);
+        return new ViewCountResponse(viewCount);
+    }
+
+    @Transactional(readOnly = true)
+    public Long calculateTotalViewCount() {
+        return viewJPARepository.findAll().stream()
+                .mapToLong(View::getViewCount)
+                .sum();
+    }
+
+    @Transactional
+    public void saveOrUpdateDailyHistory(LocalDate date, Long totalViewCount) {
+        ViewDailyHistory history = viewDailyHistoryRepository.findByDate(date)
+                .orElseGet(() -> ViewDailyHistory.of(date, totalViewCount));
+        
+        history.updateTotalViewCount(totalViewCount);
+        viewDailyHistoryRepository.save(history);
+    }
+
+    @Transactional(readOnly = true)
+    public ViewCountResponse getDailyViewCount(LocalDate date) {
+        Long viewCount = viewDailyHistoryRepository.findByDate(date)
+                .map(ViewDailyHistory::getTotalViewCount)
+                .orElse(0L);
+        return new ViewCountResponse(viewCount);
+    }
+
+    @Transactional(readOnly = true)
+    public ViewCountResponse getDailyViewCountBetween(LocalDate startDate, LocalDate endDate) {
+        Long viewCount = viewDailyHistoryRepository.findTotalViewCountBetweenDates(startDate, endDate);
+        return new ViewCountResponse(viewCount);
+    }
+
+    @Transactional(readOnly = true)
+    public ViewCountResponse getDailyViewCountSince(LocalDate startDate) {
+        Long viewCount = viewDailyHistoryRepository.findTotalViewCountSince(startDate);
+        return new ViewCountResponse(viewCount);
+    }
 }
