@@ -2,7 +2,6 @@ package com.sejong.userservice.domain.view.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,8 +13,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(
@@ -26,7 +23,6 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class ViewDailyHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -38,14 +34,15 @@ public class ViewDailyHistory {
     @Column(nullable = false)
     private Long totalViewCount;
 
-    @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
     public static ViewDailyHistory of(LocalDate date, Long totalViewCount) {
+        LocalDateTime now = LocalDateTime.now();
         return ViewDailyHistory.builder()
                 .date(date)
                 .totalViewCount(totalViewCount)
+                .createdAt(now)
                 .build();
     }
 
