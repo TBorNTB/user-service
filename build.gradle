@@ -107,10 +107,10 @@ dependencies {
     // Logback과의 통합을 위한 라이브러리
     implementation 'io.github.dibog:cloudwatch-logback-appender:2.0.0'
 
-//    //Actuator - metric 수집
-//    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-//    //prometheus를 이용한 데이터 통계
-//    implementation 'io.micrometer:micrometer-registry-prometheus'
+    //Actuator - metric 수집
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    //prometheus를 이용한 데이터 통계
+    implementation 'io.micrometer:micrometer-registry-prometheus'
 }
 
 dependencyManagement {
