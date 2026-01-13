@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 public class ViewDailyHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(columnDefinition = "BIGINT AUTO_INCREMENT")
     private Long id;
 
     @Column(nullable = false, unique = true)

@@ -117,6 +117,10 @@ public class ViewService {
         return new ViewCountResponse(viewCount);
     }
 
+    /**
+     * MySQL의 모든 View 엔티티의 총 조회수를 계산합니다.
+     * @return MySQL에 저장된 총 조회수
+     */
     @Transactional(readOnly = true)
     public Long calculateTotalViewCount() {
         return viewJPARepository.findAll().stream()
@@ -124,24 +128,38 @@ public class ViewService {
                 .sum();
     }
 
-
+    /**
+     * Redis에서 직접 총 조회수를 계산합니다.
+     * Redis에 있는 데이터가 가장 최신이므로 이를 사용합니다.
+     * @return Redis에 저장된 총 조회수
+     */
     public Long calculateTotalViewCountFromRedis() {
         return redisService.scanAndSum(VIEW_COUNT_PATTERN);
     }
 
+    /**
+     * 일일 히스토리를 저장하거나 업데이트합니다.
+     * 이전 기록과 비교하여 증가량을 계산합니다.
+     * 
+     * @param date 기록할 날짜
+     * @param currentTotalViewCount 현재 총 조회수
+     */
     @Transactional
     public void saveOrUpdateDailyHistory(LocalDate date, Long currentTotalViewCount) {
         ViewDailyHistory existingHistory = viewDailyHistoryRepository.findByDate(date).orElse(null);
         
         Long incrementCount;
         if (existingHistory == null) {
+            // 첫 번째 기록: 증가량은 0 (기준점)
             incrementCount = 0L;
             ViewDailyHistory newHistory = ViewDailyHistory.of(date, currentTotalViewCount, incrementCount);
             viewDailyHistoryRepository.save(newHistory);
         } else {
+            // 기존 기록이 있으면 증가량 계산
             Long previousTotalViewCount = existingHistory.getTotalViewCount();
             incrementCount = Math.max(0L, currentTotalViewCount - previousTotalViewCount);
-
+            
+            // 증가량이 있는 경우에만 업데이트 (중복 기록 방지)
             if (incrementCount > 0) {
                 existingHistory.updateViewCount(currentTotalViewCount, incrementCount);
                 viewDailyHistoryRepository.save(existingHistory);
@@ -149,7 +167,11 @@ public class ViewService {
         }
     }
 
-
+    /**
+     * 특정 날짜의 일일 증가량을 조회합니다.
+     * @param date 조회할 날짜
+     * @return 해당 날짜의 증가량 (없으면 0)
+     */
     @Transactional(readOnly = true)
     public ViewCountResponse getDailyViewCount(LocalDate date) {
         Long incrementCount = viewDailyHistoryRepository.findByDate(date)
@@ -158,12 +180,23 @@ public class ViewService {
         return new ViewCountResponse(incrementCount);
     }
 
+    /**
+     * 기간 내 총 증가량 합계를 조회합니다.
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @return 기간 내 증가량 합계
+     */
     @Transactional(readOnly = true)
     public ViewCountResponse getDailyViewCountBetween(LocalDate startDate, LocalDate endDate) {
         Long incrementCount = viewDailyHistoryRepository.findIncrementCountBetweenDates(startDate, endDate);
         return new ViewCountResponse(incrementCount);
     }
 
+    /**
+     * 특정 날짜부터의 총 증가량 합계를 조회합니다.
+     * @param startDate 시작 날짜
+     * @return 시작 날짜부터의 증가량 합계
+     */
     @Transactional(readOnly = true)
     public ViewCountResponse getDailyViewCountSince(LocalDate startDate) {
         Long incrementCount = viewDailyHistoryRepository.findIncrementCountSince(startDate);
