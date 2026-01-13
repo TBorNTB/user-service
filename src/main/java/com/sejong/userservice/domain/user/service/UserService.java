@@ -16,8 +16,12 @@ import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
+import com.sejong.userservice.domain.user.dto.response.UserSearchRes;
 import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
+import com.sejong.userservice.support.common.pagination.CursorPageReq;
+import com.sejong.userservice.support.common.pagination.CursorPageRes;
+import com.sejong.userservice.support.common.pagination.SortDirection;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -165,5 +170,24 @@ public class UserService {
     @Transactional(readOnly = true)
     public Long getUserCount() {
         return userRepository.findUserCount();
+    }
+
+    @Transactional(readOnly = true)
+    public CursorPageRes<List<UserSearchRes>> searchUsers(String searchKeyword, CursorPageReq cursorPageReq) {
+        Long cursorId = cursorPageReq.getCursorId();
+        Pageable pageable = PageRequest.of(0, cursorPageReq.getSize() + 1);
+
+        List<User> users;
+        if (cursorPageReq.getDirection() == SortDirection.ASC) {
+            users = userRepository.searchUsersAsc(searchKeyword, cursorId, pageable);
+        } else {
+            users = userRepository.searchUsersDesc(searchKeyword, cursorId, pageable);
+        }
+
+        List<UserSearchRes> response = users.stream()
+                .map(UserSearchRes::from)
+                .toList();
+
+        return CursorPageRes.from(response, cursorPageReq.getSize(), UserSearchRes::getId);
     }
 }

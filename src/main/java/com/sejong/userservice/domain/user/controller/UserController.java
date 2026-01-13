@@ -9,8 +9,11 @@ import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
+import com.sejong.userservice.domain.user.dto.response.UserSearchRes;
 import com.sejong.userservice.domain.user.service.UserService;
 import com.sejong.userservice.domain.user.service.VerificationService;
+import com.sejong.userservice.support.common.pagination.CursorPageReq;
+import com.sejong.userservice.support.common.pagination.CursorPageRes;
 import com.sejong.userservice.support.common.pagination.OffsetPageReq;
 import com.sejong.userservice.support.common.pagination.OffsetPageRes;
 import com.sejong.userservice.support.common.security.UserContext;
@@ -25,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +42,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -66,9 +71,19 @@ public class UserController {
 
     @Operation(summary = "전체 사용자 조회 - 페이지네이션", description = "모든 사용자 목록을 조회합니다 (회원 권한 필요)")
     @GetMapping("/page")
-    public OffsetPageRes<List<UserRes>> getAllUsersPagination(@ModelAttribute @Valid OffsetPageReq offsetPageReq) {
+    public OffsetPageRes<List<UserRes>> getAllUsersPagination(@ParameterObject @Valid OffsetPageReq offsetPageReq) {
         Page<UserRes> allUsers = userService.getAllUsers(offsetPageReq.toPageable());
         return OffsetPageRes.ok(allUsers);
+    }
+
+    @Operation(summary = "유저 검색", description = "이름 또는 이메일로 유저를 검색합니다. 검색어가 없으면 전체 유저를 조회합니다. 커서 기반 페이지네이션을 사용합니다.")
+    @GetMapping("/search")
+    public ResponseEntity<CursorPageRes<List<UserSearchRes>>> searchUsers(
+            @RequestParam(required = false) String keyword,
+            @ParameterObject @Valid CursorPageReq cursorPageReq
+    ) {
+        CursorPageRes<List<UserSearchRes>> result = userService.searchUsers(keyword, cursorPageReq);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "회원 role 수정 (어드민 전용 api)")
