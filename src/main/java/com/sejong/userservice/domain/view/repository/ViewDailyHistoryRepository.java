@@ -10,11 +10,13 @@ import org.springframework.data.repository.query.Param;
 public interface ViewDailyHistoryRepository extends JpaRepository<ViewDailyHistory, Long> {
     Optional<ViewDailyHistory> findByDate(LocalDate date);
 
-    @Query("SELECT COALESCE(SUM(v.totalViewCount), 0) FROM ViewDailyHistory v WHERE v.date >= :startDate AND v.date <= :endDate")
-    Long findTotalViewCountBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    @Query("SELECT COALESCE(SUM(v.totalViewCount), 0) FROM ViewDailyHistory v WHERE v.date >= :startDate")
-    Long findTotalViewCountSince(@Param("startDate") LocalDate startDate);
+    @Query("SELECT COALESCE(SUM(v.incrementCount), 0) FROM ViewDailyHistory v WHERE v.date >= :startDate AND v.date <= :endDate")
+    Long findIncrementCountBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+
+    @Query("SELECT COALESCE(SUM(v.incrementCount), 0) FROM ViewDailyHistory v WHERE v.date >= :startDate")
+    Long findIncrementCountSince(@Param("startDate") LocalDate startDate);
 
     @Query("SELECT v FROM ViewDailyHistory v WHERE v.date = :date")
     Optional<ViewDailyHistory> findByDateQuery(@Param("date") LocalDate date);

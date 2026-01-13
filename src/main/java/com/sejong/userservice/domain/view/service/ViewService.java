@@ -27,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ViewService {
     
     private static final Duration VIEW_TTL = Duration.ofHours(24);
+    private static final String VIEW_COUNT_PATTERN = "post:*:view:count";
     
     private final PostInternalFacade postInternalFacade;
     private final RedisService redisService;
@@ -123,32 +124,49 @@ public class ViewService {
                 .sum();
     }
 
-    @Transactional
-    public void saveOrUpdateDailyHistory(LocalDate date, Long totalViewCount) {
-        ViewDailyHistory history = viewDailyHistoryRepository.findByDate(date)
-                .orElseGet(() -> ViewDailyHistory.of(date, totalViewCount));
-        
-        history.updateTotalViewCount(totalViewCount);
-        viewDailyHistoryRepository.save(history);
+
+    public Long calculateTotalViewCountFromRedis() {
+        return redisService.scanAndSum(VIEW_COUNT_PATTERN);
     }
+
+    @Transactional
+    public void saveOrUpdateDailyHistory(LocalDate date, Long currentTotalViewCount) {
+        ViewDailyHistory existingHistory = viewDailyHistoryRepository.findByDate(date).orElse(null);
+        
+        Long incrementCount;
+        if (existingHistory == null) {
+            incrementCount = 0L;
+            ViewDailyHistory newHistory = ViewDailyHistory.of(date, currentTotalViewCount, incrementCount);
+            viewDailyHistoryRepository.save(newHistory);
+        } else {
+            Long previousTotalViewCount = existingHistory.getTotalViewCount();
+            incrementCount = Math.max(0L, currentTotalViewCount - previousTotalViewCount);
+
+            if (incrementCount > 0) {
+                existingHistory.updateViewCount(currentTotalViewCount, incrementCount);
+                viewDailyHistoryRepository.save(existingHistory);
+            }
+        }
+    }
+
 
     @Transactional(readOnly = true)
     public ViewCountResponse getDailyViewCount(LocalDate date) {
-        Long viewCount = viewDailyHistoryRepository.findByDate(date)
-                .map(ViewDailyHistory::getTotalViewCount)
+        Long incrementCount = viewDailyHistoryRepository.findByDate(date)
+                .map(ViewDailyHistory::getIncrementCount)
                 .orElse(0L);
-        return new ViewCountResponse(viewCount);
+        return new ViewCountResponse(incrementCount);
     }
 
     @Transactional(readOnly = true)
     public ViewCountResponse getDailyViewCountBetween(LocalDate startDate, LocalDate endDate) {
-        Long viewCount = viewDailyHistoryRepository.findTotalViewCountBetweenDates(startDate, endDate);
-        return new ViewCountResponse(viewCount);
+        Long incrementCount = viewDailyHistoryRepository.findIncrementCountBetweenDates(startDate, endDate);
+        return new ViewCountResponse(incrementCount);
     }
 
     @Transactional(readOnly = true)
     public ViewCountResponse getDailyViewCountSince(LocalDate startDate) {
-        Long viewCount = viewDailyHistoryRepository.findTotalViewCountSince(startDate);
-        return new ViewCountResponse(viewCount);
+        Long incrementCount = viewDailyHistoryRepository.findIncrementCountSince(startDate);
+        return new ViewCountResponse(incrementCount);
     }
 }
