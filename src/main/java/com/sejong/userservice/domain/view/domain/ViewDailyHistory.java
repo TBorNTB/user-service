@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ViewDailyHistory {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -34,20 +34,25 @@ public class ViewDailyHistory {
     @Column(nullable = false)
     private Long totalViewCount;
 
+    @Column(nullable = false)
+    private Long incrementCount;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    public static ViewDailyHistory of(LocalDate date, Long totalViewCount) {
+    public static ViewDailyHistory of(LocalDate date, Long totalViewCount, Long incrementCount) {
         LocalDateTime now = LocalDateTime.now();
         return ViewDailyHistory.builder()
                 .date(date)
                 .totalViewCount(totalViewCount)
+                .incrementCount(incrementCount)
                 .createdAt(now)
                 .build();
     }
 
-    public void updateTotalViewCount(Long totalViewCount) {
+    public void updateViewCount(Long totalViewCount, Long incrementCount) {
         this.totalViewCount = totalViewCount;
+        this.incrementCount = incrementCount;
     }
 }
 

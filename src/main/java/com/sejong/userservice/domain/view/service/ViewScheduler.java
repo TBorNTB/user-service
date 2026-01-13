@@ -35,12 +35,12 @@ public class ViewScheduler {
         // Redis → MySQL 동기화
         int totalProcessed = scanAndSyncViewCounts();
         
-        // 일일 히스토리 기록
+        // 일일 히스토리 기록 (Redis에서 직접 계산)
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        Long totalViewCount = viewService.calculateTotalViewCount();
+        Long totalViewCount = viewService.calculateTotalViewCountFromRedis();
         viewService.saveOrUpdateDailyHistory(today, totalViewCount);
         
-        return String.format("동기화 성공 - 처리 건수: %d, 오늘(%s) 총 조회수: %d 회", 
+        return String.format("동기화 성공 - 처리 건수: %d, 오늘(%s) 총 조회수: %d 회 (Redis 기준)", 
                 totalProcessed, today, totalViewCount);
     }
 
@@ -57,8 +57,12 @@ public class ViewScheduler {
 //    }
 
     /**
-     * 일일 총 조회수 히스토리 기록 (1시간마다)
+     * 일일 조회수 히스토리 기록 (1시간마다)
      * 대시보드 실시간성을 위해 더 자주 기록
+     * 
+     * Redis에서 직접 총 조회수를 계산하여 기록합니다.
+     * 이전 기록과 비교하여 증가량(incrementCount)을 계산하고 저장합니다.
+     * 증가량이 0인 경우(중복 기록 방지) 업데이트하지 않습니다.
      * 
      * Cron 표현식: "0 0 * * * *" = 매 시간 정각
      * 예: 00:00, 01:00, 02:00, ..., 23:00
@@ -68,9 +72,10 @@ public class ViewScheduler {
     public void recordDailyViewHistory() {
         log.debug("일일 조회수 히스토리 기록 시작");
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
-        Long totalViewCount = viewService.calculateTotalViewCount();
+        // Redis에서 직접 총 조회수 계산 (최신 데이터)
+        Long totalViewCount = viewService.calculateTotalViewCountFromRedis();
         viewService.saveOrUpdateDailyHistory(today, totalViewCount);
-        log.info("오늘({}) 총 조회수 기록 완료: {} 회", today, totalViewCount);
+        log.info("오늘({}) 조회수 히스토리 기록 완료: 총 조회수 {} 회 (Redis 기준)", today, totalViewCount);
     }
 
     private int scanAndSyncViewCounts() {
