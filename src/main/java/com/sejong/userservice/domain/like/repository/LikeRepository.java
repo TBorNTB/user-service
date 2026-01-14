@@ -5,6 +5,8 @@ import com.sejong.userservice.support.common.constants.PostType;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +24,6 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
 
     @Query("SELECT COUNT(l) FROM Like l WHERE l.postType = :postType AND l.postId IN :postIds")
     Long countByPostTypeAndPostIds(@Param("postType") PostType postType, @Param("postIds") List<Long> postIds);
+
+    Page<Like> findByUsernameOrderByCreatedAtDesc(String username, Pageable pageable);
 }

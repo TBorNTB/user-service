@@ -19,8 +19,11 @@ import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.dto.response.UserRoleCountResponse;
+import com.sejong.userservice.domain.user.dto.response.LikedPostResponse;
 import com.sejong.userservice.domain.user.dto.response.UserActivityStatsResponse;
+import com.sejong.userservice.domain.user.dto.response.UserCommentPostResponse;
 import com.sejong.userservice.domain.user.dto.response.UserSearchResponse;
+import com.sejong.userservice.domain.like.domain.Like;
 import com.sejong.userservice.domain.view.repository.ViewJPARepository;
 import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.internal.PostInternalFacade;
@@ -348,5 +351,57 @@ public class UserService {
         return viewJPARepository.findByPostTypeAndPostId(postType, postId)
                 .map(com.sejong.userservice.domain.view.domain.View::getViewCount)
                 .orElse(0L);
+    }
+
+    /**
+     * 사용자가 좋아요 누른 글의 postId와 postType 목록을 조회합니다.
+     */
+    @Transactional(readOnly = true)
+    public Page<LikedPostResponse> getLikedPosts(String username, Pageable pageable) {
+        Page<Like> likes = likeRepository.findByUsernameOrderByCreatedAtDesc(username, pageable);
+        return likes.map(like -> LikedPostResponse.builder()
+                .postType(like.getPostType())
+                .postId(like.getPostId())
+                .build());
+    }
+
+    /**
+     * 사용자가 작성한 댓글이 있는 글의 postId와 postType 목록을 조회합니다.
+     * 중복 제거하여 각 글당 하나의 레코드만 반환합니다.
+     */
+    @Transactional(readOnly = true)
+    public Page<UserCommentPostResponse> getCommentedPosts(String username, Pageable pageable) {
+        Page<com.sejong.userservice.domain.comment.domain.Comment> comments = 
+                commentRepository.findByUsernameOrderByCreatedAtDesc(username, pageable);
+        
+        // postType과 postId로 그룹화하여 중복 제거
+        Map<String, com.sejong.userservice.domain.comment.domain.Comment> uniquePosts = comments.stream()
+                .collect(Collectors.toMap(
+                        comment -> comment.getPostType().name() + "_" + comment.getPostId(),
+                        comment -> comment,
+                        (existing, replacement) -> existing // 중복 시 기존 것 유지
+                ));
+        
+        // Map을 List로 변환하고 정렬 (최신순)
+        List<UserCommentPostResponse> uniquePostList = uniquePosts.values().stream()
+                .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
+                .map(comment -> UserCommentPostResponse.builder()
+                        .postType(comment.getPostType())
+                        .postId(comment.getPostId())
+                        .build())
+                .collect(Collectors.toList());
+        
+        // 페이지네이션 적용
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), uniquePostList.size());
+        List<UserCommentPostResponse> pagedList = start < uniquePostList.size() 
+                ? uniquePostList.subList(start, end) 
+                : List.of();
+        
+        return new org.springframework.data.domain.PageImpl<>(
+                pagedList, 
+                pageable, 
+                uniquePostList.size()
+        );
     }
 }

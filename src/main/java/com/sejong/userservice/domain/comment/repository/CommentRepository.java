@@ -3,6 +3,7 @@ package com.sejong.userservice.domain.comment.repository;
 import com.sejong.userservice.domain.comment.domain.Comment;
 import com.sejong.userservice.support.common.constants.PostType;
 import java.util.List;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -67,4 +68,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT COUNT(c) FROM Comment c WHERE c.postType = :postType AND c.postId IN :postIds")
     Long countByPostTypeAndPostIds(@Param("postType") PostType postType, @Param("postIds") List<Long> postIds);
 
+    Page<Comment> findByUsernameOrderByCreatedAtDesc(String username, Pageable pageable);
 }

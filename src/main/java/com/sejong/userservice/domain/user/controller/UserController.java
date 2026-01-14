@@ -10,7 +10,9 @@ import com.sejong.userservice.domain.user.dto.request.UserUpdateRoleRequest;
 import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
+import com.sejong.userservice.domain.user.dto.response.LikedPostResponse;
 import com.sejong.userservice.domain.user.dto.response.UserActivityStatsResponse;
+import com.sejong.userservice.domain.user.dto.response.UserCommentPostResponse;
 import com.sejong.userservice.domain.user.dto.response.UserCountResponse;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.dto.response.UserRoleCountResponse;
@@ -263,6 +265,38 @@ public class UserController {
         UserContext currentUser = getCurrentUser();
         UserActivityStatsResponse response = userService.getUserActivityStats(currentUser.getUsername());
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "좋아요 누른 글 목록 조회", 
+               description = "현재 로그인한 사용자가 좋아요를 누른 글의 postId와 postType 목록을 페이지네이션으로 반환합니다.")
+    @GetMapping("/liked-posts")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER', 'GUEST')")
+    public OffsetPageRes<List<LikedPostResponse>> getLikedPosts(
+            @ModelAttribute @Valid OffsetPageReq offsetPageReq
+    ) {
+        UserContext currentUser = getCurrentUser();
+        Page<LikedPostResponse> likedPosts = userService.getLikedPosts(
+                currentUser.getUsername(), 
+                offsetPageReq.toPageable()
+        );
+        return OffsetPageRes.ok(likedPosts);
+    }
+
+    @Operation(summary = "작성한 댓글이 있는 글 목록 조회", 
+               description = "현재 로그인한 사용자가 작성한 댓글이 있는 글의 postId와 postType 목록을 페이지네이션으로 반환합니다. 중복 제거되어 각 글당 하나의 레코드만 반환됩니다.")
+    @GetMapping("/commented-posts")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER', 'GUEST')")
+    public OffsetPageRes<List<UserCommentPostResponse>> getCommentedPosts(
+            @ModelAttribute @Valid OffsetPageReq offsetPageReq
+    ) {
+        UserContext currentUser = getCurrentUser();
+        Page<UserCommentPostResponse> commentedPosts = userService.getCommentedPosts(
+                currentUser.getUsername(), 
+                offsetPageReq.toPageable()
+        );
+        return OffsetPageRes.ok(commentedPosts);
     }
 
     private UserContext getCurrentUser() {
