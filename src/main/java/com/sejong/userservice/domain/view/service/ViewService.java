@@ -141,7 +141,7 @@ public class ViewService {
      * 일일 히스토리를 저장하거나 업데이트합니다.
      * 이전 기록과 비교하여 증가량을 계산합니다.
      * 
-     * 같은 날짜 내에서는 이전 기록과 비교하고,
+     * 같은 날짜 내에서는 증가량을 누적하고,
      * 새로운 날짜의 첫 기록일 경우 전날의 마지막 기록과 비교합니다.
      * 
      * @param date 기록할 날짜
@@ -169,13 +169,15 @@ public class ViewService {
             ViewDailyHistory newHistory = ViewDailyHistory.of(date, currentTotalViewCount, incrementCount);
             viewDailyHistoryRepository.save(newHistory);
         } else {
-            // 같은 날짜의 기존 기록이 있으면 증가량 계산
+            // 같은 날짜의 기존 기록이 있으면 증가량 계산 후 누적
             Long previousTotalViewCount = existingHistory.getTotalViewCount();
-            incrementCount = Math.max(0L, currentTotalViewCount - previousTotalViewCount);
+            Long newIncrement = Math.max(0L, currentTotalViewCount - previousTotalViewCount);
             
             // 증가량이 있는 경우에만 업데이트 (중복 기록 방지)
-            if (incrementCount > 0) {
-                existingHistory.updateViewCount(currentTotalViewCount, incrementCount);
+            if (newIncrement > 0) {
+                // 기존 증가량에 새로운 증가량을 누적
+                Long accumulatedIncrement = existingHistory.getIncrementCount() + newIncrement;
+                existingHistory.updateViewCount(currentTotalViewCount, accumulatedIncrement);
                 viewDailyHistoryRepository.save(existingHistory);
             }
         }
