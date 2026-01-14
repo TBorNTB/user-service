@@ -2,6 +2,8 @@ package com.sejong.userservice.domain.user.repository;
 
 import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.domain.user.domain.User;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("select count(u) from User u")
     Long findUserCount();
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :startDate")
+    Long countByCreatedAtAfter(@Param("startDate") LocalDateTime startDate);
 
     @Query("SELECT u FROM User u WHERE u.role IN :roles " +
            "AND (:nickname IS NULL OR u.nickname LIKE %:nickname%)" +

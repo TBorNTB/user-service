@@ -25,6 +25,9 @@ import com.sejong.userservice.support.common.pagination.SortDirection;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -217,5 +220,11 @@ public class UserService {
                 .collect(Collectors.toList());
 
         return CursorPageRes.from(response, cursorPageReq.getSize(), UserSearchResponse::getId);
+    }
+
+    @Transactional(readOnly = true)
+    public Long getNewUserCountSince(LocalDate startDate) {
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        return userRepository.countByCreatedAtAfter(startDateTime);
     }
 }

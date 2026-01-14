@@ -9,6 +9,7 @@ import com.sejong.userservice.domain.user.dto.request.UserUpdateRoleRequest;
 import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
+import com.sejong.userservice.domain.user.dto.response.UserCountResponse;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.dto.response.UserSearchResponse;
 import com.sejong.userservice.domain.user.service.UserService;
@@ -41,9 +42,11 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.time.LocalDate;
 
 @Slf4j
 @RestController
@@ -212,6 +215,19 @@ public class UserController {
         verificationService.verifyEmailCode(request);
         userService.resetPassword(request.getEmail(), request.getNewPassword());
         Map<String, String> response = Map.of("message", "비밀번호가 성공적으로 변경되었습니다.");
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "신규 가입자 수 조회", 
+               description = "특정 날짜(YYYY-MM-DD 형식) 이후에 가입한 유저 수를 반환합니다.")
+    @GetMapping("/count/new")
+    public ResponseEntity<UserCountResponse> getNewUserCount(
+            @RequestParam(name = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate
+    ) {
+        Long count = userService.getNewUserCountSince(startDate);
+        UserCountResponse response = UserCountResponse.builder()
+                .count(count)
+                .build();
         return ResponseEntity.ok(response);
     }
 
