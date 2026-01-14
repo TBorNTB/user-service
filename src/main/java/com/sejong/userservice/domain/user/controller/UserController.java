@@ -1,6 +1,7 @@
 package com.sejong.userservice.domain.user.controller;
 
 import com.sejong.userservice.domain.role.domain.UserRole;
+import com.sejong.userservice.domain.user.dto.request.BatchRoleUpdateRequest;
 import com.sejong.userservice.domain.user.dto.request.JoinRequest;
 import com.sejong.userservice.domain.user.dto.request.LoginRequest;
 import com.sejong.userservice.domain.user.dto.request.ResetPasswordRequest;
@@ -238,6 +239,18 @@ public class UserController {
     public ResponseEntity<UserRoleCountResponse> getUserRoleCounts() {
         UserRoleCountResponse response = userService.getUserRoleCounts();
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "유저 등급 변경 (어드민 전용)", 
+               description = "username 배열을 받아서 등급을 일괄 변경합니다. 단일 유저도 배열에 1개만 넣어서 사용 가능합니다.")
+    @PatchMapping("/role/batch")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    public ResponseEntity<Map<String, String>> batchUpdateUserRole(
+            @Valid @RequestBody BatchRoleUpdateRequest request
+    ) {
+        String message = userService.batchUpdateUserRole(request.getUsernames(), request.getRole());
+        return ResponseEntity.ok(Map.of("message", message));
     }
 
     private UserContext getCurrentUser() {

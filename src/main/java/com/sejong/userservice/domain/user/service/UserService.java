@@ -148,6 +148,25 @@ public class UserService {
         return "유저 업데이트 성공";
     }
 
+    /**
+     * 여러 유저의 등급을 일괄 변경합니다. 단일 유저도 배열에 1개만 넣어서 사용 가능합니다.
+     */
+    @Transactional
+    public String batchUpdateUserRole(List<String> usernames, UserRole newUserRole) {
+        List<User> users = userRepository.findByUsernameIn(usernames);
+        
+        if (users.size() != usernames.size()) {
+            throw new BaseException(NOT_FOUND_USER);
+        }
+
+        users.forEach(user -> user.updateUserRole(newUserRole));
+        
+        if (users.size() == 1) {
+            return "유저 등급 변경 성공";
+        }
+        return String.format("%d명의 유저 등급 변경 성공", users.size());
+    }
+
     @Transactional(readOnly = true)
     public User getUser(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
