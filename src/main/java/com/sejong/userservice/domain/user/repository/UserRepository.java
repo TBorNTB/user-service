@@ -30,6 +30,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT COUNT(u) FROM User u WHERE u.createdAt >= :startDate")
     Long countByCreatedAtAfter(@Param("startDate") LocalDateTime startDate);
 
+    @Query("SELECT COUNT(u) FROM User u WHERE u.role = :role")
+    Long countByRole(@Param("role") UserRole role);
+
     @Query("SELECT u FROM User u WHERE u.role IN :roles " +
            "AND (:nickname IS NULL OR u.nickname LIKE %:nickname%)" +
            "AND (:realName IS NULL OR u.realName LIKE %:realName%)")

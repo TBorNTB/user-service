@@ -16,6 +16,7 @@ import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
+import com.sejong.userservice.domain.user.dto.response.UserRoleCountResponse;
 import com.sejong.userservice.domain.user.dto.response.UserSearchResponse;
 import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
@@ -226,5 +227,25 @@ public class UserService {
     public Long getNewUserCountSince(LocalDate startDate) {
         LocalDateTime startDateTime = startDate.atStartOfDay();
         return userRepository.countByCreatedAtAfter(startDateTime);
+    }
+
+
+    @Transactional(readOnly = true)
+    public UserRoleCountResponse getUserRoleCounts() {
+        Long guestCount = userRepository.countByRole(UserRole.GUEST);
+        Long associateMemberCount = userRepository.countByRole(UserRole.ASSOCIATE_MEMBER);
+        Long fullMemberCount = userRepository.countByRole(UserRole.FULL_MEMBER);
+        Long seniorCount = userRepository.countByRole(UserRole.SENIOR);
+        Long adminCount = userRepository.countByRole(UserRole.ADMIN);
+        Long totalCount = userRepository.findUserCount();
+
+        return UserRoleCountResponse.builder()
+                .guestCount(guestCount)
+                .associateMemberCount(associateMemberCount)
+                .fullMemberCount(fullMemberCount)
+                .seniorCount(seniorCount)
+                .adminCount(adminCount)
+                .totalCount(totalCount)
+                .build();
     }
 }

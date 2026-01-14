@@ -11,6 +11,7 @@ import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserCountResponse;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
+import com.sejong.userservice.domain.user.dto.response.UserRoleCountResponse;
 import com.sejong.userservice.domain.user.dto.response.UserSearchResponse;
 import com.sejong.userservice.domain.user.service.UserService;
 import com.sejong.userservice.domain.user.service.VerificationService;
@@ -228,6 +229,14 @@ public class UserController {
         UserCountResponse response = UserCountResponse.builder()
                 .count(count)
                 .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "역할별 회원 수 조회", 
+               description = "각 역할(외부인, 준회원, 정회원, 선배님, 운영진)별 회원 수와 전체 회원 수를 반환합니다.")
+    @GetMapping("/count/role")
+    public ResponseEntity<UserRoleCountResponse> getUserRoleCounts() {
+        UserRoleCountResponse response = userService.getUserRoleCounts();
         return ResponseEntity.ok(response);
     }
 
