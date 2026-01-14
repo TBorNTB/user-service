@@ -141,6 +141,9 @@ public class ViewService {
      * 일일 히스토리를 저장하거나 업데이트합니다.
      * 이전 기록과 비교하여 증가량을 계산합니다.
      * 
+     * 같은 날짜 내에서는 이전 기록과 비교하고,
+     * 새로운 날짜의 첫 기록일 경우 전날의 마지막 기록과 비교합니다.
+     * 
      * @param date 기록할 날짜
      * @param currentTotalViewCount 현재 총 조회수
      */
@@ -150,12 +153,23 @@ public class ViewService {
         
         Long incrementCount;
         if (existingHistory == null) {
-            // 첫 번째 기록: 증가량은 0 (기준점)
-            incrementCount = 0L;
+            // 새로운 날짜의 첫 기록: 전날의 마지막 기록과 비교
+            LocalDate previousDate = date.minusDays(1);
+            ViewDailyHistory previousHistory = viewDailyHistoryRepository.findByDate(previousDate).orElse(null);
+            
+            if (previousHistory == null) {
+                // 전날 기록도 없으면 첫 기록 (기준점)
+                incrementCount = 0L;
+            } else {
+                // 전날의 마지막 기록과 비교하여 증가량 계산
+                Long previousTotalViewCount = previousHistory.getTotalViewCount();
+                incrementCount = Math.max(0L, currentTotalViewCount - previousTotalViewCount);
+            }
+            
             ViewDailyHistory newHistory = ViewDailyHistory.of(date, currentTotalViewCount, incrementCount);
             viewDailyHistoryRepository.save(newHistory);
         } else {
-            // 기존 기록이 있으면 증가량 계산
+            // 같은 날짜의 기존 기록이 있으면 증가량 계산
             Long previousTotalViewCount = existingHistory.getTotalViewCount();
             incrementCount = Math.max(0L, currentTotalViewCount - previousTotalViewCount);
             
