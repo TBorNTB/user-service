@@ -6,40 +6,39 @@ import static com.sejong.userservice.support.common.exception.type.ExceptionType
 
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
+import com.sejong.userservice.domain.comment.repository.CommentRepository;
+import com.sejong.userservice.domain.like.domain.Like;
+import com.sejong.userservice.domain.like.repository.LikeRepository;
 import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.domain.token.TokenService;
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.dto.request.JoinRequest;
 import com.sejong.userservice.domain.user.dto.request.LoginRequest;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
-import com.sejong.userservice.domain.comment.repository.CommentRepository;
-import com.sejong.userservice.domain.like.repository.LikeRepository;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
+import com.sejong.userservice.domain.user.dto.response.LikedPostResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
+import com.sejong.userservice.domain.user.dto.response.UserActivityStatsResponse;
+import com.sejong.userservice.domain.user.dto.response.UserCommentPostResponse;
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.dto.response.UserRoleCountResponse;
-import com.sejong.userservice.domain.user.dto.response.LikedPostResponse;
-import com.sejong.userservice.domain.user.dto.response.UserActivityStatsResponse;
-import com.sejong.userservice.domain.user.dto.response.UserCommentPostResponse;
 import com.sejong.userservice.domain.user.dto.response.UserSearchResponse;
-import com.sejong.userservice.domain.like.domain.Like;
+import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.domain.view.repository.ViewJPARepository;
 import com.sejong.userservice.support.common.constants.PostType;
-import com.sejong.userservice.support.common.internal.PostInternalFacade;
-import com.sejong.userservice.support.common.redis.RedisKeyUtil;
-import com.sejong.userservice.support.common.redis.RedisService;
-import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
+import com.sejong.userservice.support.common.internal.PostInternalFacade;
 import com.sejong.userservice.support.common.pagination.CursorPageReq;
 import com.sejong.userservice.support.common.pagination.CursorPageRes;
 import com.sejong.userservice.support.common.pagination.SortDirection;
+import com.sejong.userservice.support.common.redis.RedisKeyUtil;
+import com.sejong.userservice.support.common.redis.RedisService;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -137,7 +136,7 @@ public class UserService {
         Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
         response.addCookie(refreshTokenCookie);
 
-        return new LoginResponse("로그인 성공", accessToken, refreshToken);
+        return LoginResponse.from(user, "로그인 성공", accessToken, refreshToken);
     }
 
     @Transactional(readOnly = true)
