@@ -5,6 +5,7 @@ import static com.sejong.userservice.support.common.exception.type.ExceptionType
 import com.sejong.userservice.domain.view.domain.View;
 import com.sejong.userservice.domain.view.domain.ViewDailyHistory;
 import com.sejong.userservice.domain.view.dto.response.ViewCountResponse;
+import com.sejong.userservice.domain.view.dto.response.WeeklyViewCountResponse;
 import com.sejong.userservice.domain.view.repository.ViewDailyHistoryRepository;
 import com.sejong.userservice.domain.view.repository.ViewJPARepository;
 import com.sejong.userservice.support.common.constants.PostType;
@@ -17,6 +18,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -218,5 +223,57 @@ public class ViewService {
     public ViewCountResponse getDailyViewCountSince(LocalDate startDate) {
         Long incrementCount = viewDailyHistoryRepository.findIncrementCountSince(startDate);
         return new ViewCountResponse(incrementCount);
+    }
+
+    /**
+     * 주간 방문자 수를 조회합니다.
+     * 저번 주부터 시작해서 한 달간(4주)의 주간 통계를 반환합니다.
+     * 각 주는 [월, 화, 수, 목, 금, 토, 일] 순서로 배열됩니다.
+     * 
+     * @return 4주치 데이터, 각 주는 [월, 화, 수, 목, 금, 토, 일] 순서
+     *         예: [[저번주 월~일], [그전주 월~일], [그전주 월~일], [그전주 월~일]]
+     */
+    @Transactional(readOnly = true)
+    public WeeklyViewCountResponse getWeeklyViewCount() {
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        
+        // 저번 주 월요일 계산 (오늘이 속한 주의 월요일에서 7일 전)
+        int daysFromMonday = (today.getDayOfWeek().getValue() - 1) % 7;
+        LocalDate thisWeekMonday = today.minusDays(daysFromMonday);
+        LocalDate lastWeekMonday = thisWeekMonday.minusDays(7);
+        
+        // 저번 주 월요일부터 4주간(28일)의 데이터 조회
+        LocalDate startDate = lastWeekMonday;
+        LocalDate endDate = startDate.plusDays(27); // 4주 = 28일
+        
+        // 기간 내 모든 기록 조회
+        List<ViewDailyHistory> histories = viewDailyHistoryRepository
+                .findByDateBetweenOrderByDate(startDate, endDate);
+        
+        // 날짜별로 맵 생성 (빠른 조회를 위해)
+        Map<LocalDate, Long> countMap = histories.stream()
+                .collect(Collectors.toMap(
+                        ViewDailyHistory::getDate,
+                        ViewDailyHistory::getIncrementCount
+                ));
+        
+        // 4주치 데이터 생성
+        List<List<Long>> weeklyData = new ArrayList<>();
+        for (int week = 0; week < 4; week++) {
+            List<Long> weekData = new ArrayList<>();
+            LocalDate weekMonday = startDate.plusDays(week * 7);
+            
+            // 각 주의 월~일 데이터
+            for (int day = 0; day < 7; day++) {
+                LocalDate date = weekMonday.plusDays(day);
+                Long count = countMap.getOrDefault(date, 0L);
+                weekData.add(count);
+            }
+            weeklyData.add(weekData);
+        }
+        
+        return WeeklyViewCountResponse.builder()
+                .weeklyData(weeklyData)
+                .build();
     }
 }
