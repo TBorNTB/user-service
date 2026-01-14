@@ -158,8 +158,9 @@ public class ViewService {
             ViewDailyHistory previousHistory = viewDailyHistoryRepository.findByDate(previousDate).orElse(null);
             
             if (previousHistory == null) {
-                // 전날 기록도 없으면 첫 기록 (기준점)
-                incrementCount = 0L;
+                // 전날 기록도 없으면 첫 기록
+                // 이 시점의 총 조회수가 첫 증가량이 됨 (이미 존재하는 조회수)
+                incrementCount = currentTotalViewCount;
             } else {
                 // 전날의 마지막 기록과 비교하여 증가량 계산
                 Long previousTotalViewCount = previousHistory.getTotalViewCount();
