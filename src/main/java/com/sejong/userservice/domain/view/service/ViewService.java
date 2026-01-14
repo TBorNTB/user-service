@@ -230,8 +230,8 @@ public class ViewService {
      * 저번 주부터 시작해서 한 달간(4주)의 주간 통계를 반환합니다.
      * 각 주는 [월, 화, 수, 목, 금, 토, 일] 순서로 배열됩니다.
      * 
-     * @return 4주치 데이터, 각 주는 [월, 화, 수, 목, 금, 토, 일] 순서
-     *         예: [[저번주 월~일], [그전주 월~일], [그전주 월~일], [그전주 월~일]]
+     * @return 1주치 데이터, 각 주는 [월, 화, 수, 목, 금, 토, 일] 순서
+     *         예: [[저번주 월~일]]
      */
     @Transactional(readOnly = true)
     public WeeklyViewCountResponse getWeeklyViewCount() {
@@ -244,7 +244,7 @@ public class ViewService {
         
         // 저번 주 월요일부터 4주간(28일)의 데이터 조회
         LocalDate startDate = lastWeekMonday;
-        LocalDate endDate = startDate.plusDays(27); // 4주 = 28일
+        LocalDate endDate = startDate.plusDays(6);
         
         // 기간 내 모든 기록 조회
         List<ViewDailyHistory> histories = viewDailyHistoryRepository
@@ -257,9 +257,9 @@ public class ViewService {
                         ViewDailyHistory::getIncrementCount
                 ));
         
-        // 4주치 데이터 생성
+        // 1주치 데이터 생성
         List<List<Long>> weeklyData = new ArrayList<>();
-        for (int week = 0; week < 4; week++) {
+        for (int week = 0; week < 1; week++) {
             List<Long> weekData = new ArrayList<>();
             LocalDate weekMonday = startDate.plusDays(week * 7);
             

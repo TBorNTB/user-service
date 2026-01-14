@@ -114,9 +114,9 @@ public class ViewController {
     }
 
     @Operation(summary = "주간 방문자 수 조회", 
-               description = "저번 주부터 시작해서 한 달간(4주)의 주간 통계를 반환합니다. " +
+               description = "저번 주부터 시작해서 주간 통계를 반환합니다. " +
                              "각 주는 [월, 화, 수, 목, 금, 토, 일] 순서로 배열됩니다. " +
-                             "총 4주치 데이터가 반환됩니다.")
+                             "총 1주치 데이터가 반환됩니다.")
     @GetMapping("/count/weekly")
     public ResponseEntity<WeeklyViewCountResponse> getWeeklyViewCount() {
         WeeklyViewCountResponse response = viewService.getWeeklyViewCount();
