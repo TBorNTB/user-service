@@ -25,6 +25,6 @@ public interface ViewDailyHistoryRepository extends JpaRepository<ViewDailyHisto
      * 특정 기간의 날짜별 증가량을 날짜 순으로 조회합니다.
      */
     @Query("SELECT v FROM ViewDailyHistory v WHERE v.date >= :startDate AND v.date <= :endDate ORDER BY v.date ASC")
-    List<ViewDailyHistory> findByDateBetweenOrderByDate(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    java.util.List<ViewDailyHistory> findByDateBetweenOrderByDate(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }
 
