@@ -17,4 +17,7 @@ public interface ViewJPARepository extends JpaRepository<View, Long> {
 
     @Query("SELECT COALESCE(SUM(v.viewCount), 0) FROM View v WHERE v.createdAt >= :startDate AND v.createdAt <= :endDate")
     Long findByViewAllCount(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT COALESCE(SUM(v.viewCount), 0) FROM View v WHERE v.postType = :postType AND v.postId IN :postIds")
+    Long sumViewCountByPostTypeAndPostIds(@Param("postType") PostType postType, @Param("postIds") List<Long> postIds);
 }

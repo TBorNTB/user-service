@@ -64,4 +64,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             Pageable pageable
     );
 
+    @Query("SELECT COUNT(c) FROM Comment c WHERE c.postType = :postType AND c.postId IN :postIds")
+    Long countByPostTypeAndPostIds(@Param("postType") PostType postType, @Param("postIds") List<Long> postIds);
+
 }

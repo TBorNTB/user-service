@@ -10,6 +10,7 @@ import com.sejong.userservice.domain.user.dto.request.UserUpdateRoleRequest;
 import com.sejong.userservice.domain.user.dto.request.VerificationRequest;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
+import com.sejong.userservice.domain.user.dto.response.UserActivityStatsResponse;
 import com.sejong.userservice.domain.user.dto.response.UserCountResponse;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.dto.response.UserRoleCountResponse;
@@ -251,6 +252,17 @@ public class UserController {
     ) {
         String message = userService.batchUpdateUserRole(request.getUsernames(), request.getRole());
         return ResponseEntity.ok(Map.of("message", message));
+    }
+
+    @Operation(summary = "사용자 활동 통계 조회", 
+               description = "현재 로그인한 사용자의 활동 통계를 반환합니다. 총 조회수, 받은 좋아요, 받은 댓글 수를 포함합니다.")
+    @GetMapping("/activity/stats")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER', 'GUEST')")
+    public ResponseEntity<UserActivityStatsResponse> getUserActivityStats() {
+        UserContext currentUser = getCurrentUser();
+        UserActivityStatsResponse response = userService.getUserActivityStats(currentUser.getUsername());
+        return ResponseEntity.ok(response);
     }
 
     private UserContext getCurrentUser() {

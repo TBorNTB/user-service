@@ -12,12 +12,20 @@ import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.dto.request.JoinRequest;
 import com.sejong.userservice.domain.user.dto.request.LoginRequest;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
+import com.sejong.userservice.domain.comment.repository.CommentRepository;
+import com.sejong.userservice.domain.like.repository.LikeRepository;
 import com.sejong.userservice.domain.user.dto.response.JoinResponse;
 import com.sejong.userservice.domain.user.dto.response.LoginResponse;
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.dto.response.UserRes;
 import com.sejong.userservice.domain.user.dto.response.UserRoleCountResponse;
+import com.sejong.userservice.domain.user.dto.response.UserActivityStatsResponse;
 import com.sejong.userservice.domain.user.dto.response.UserSearchResponse;
+import com.sejong.userservice.domain.view.repository.ViewJPARepository;
+import com.sejong.userservice.support.common.constants.PostType;
+import com.sejong.userservice.support.common.internal.PostInternalFacade;
+import com.sejong.userservice.support.common.redis.RedisKeyUtil;
+import com.sejong.userservice.support.common.redis.RedisService;
 import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.pagination.CursorPageReq;
@@ -51,6 +59,11 @@ public class UserService {
     private final TokenService tokenService;
     private final AlarmService alarmService;
     private final JWTUtil jwtUtil;
+    private final PostInternalFacade postInternalFacade;
+    private final ViewJPARepository viewJPARepository;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
+    private final RedisService redisService;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
@@ -266,5 +279,74 @@ public class UserService {
                 .adminCount(adminCount)
                 .totalCount(totalCount)
                 .build();
+    }
+
+    /**
+     * 사용자의 활동 통계를 조회합니다 (작성한 글 개수, 총 조회수, 받은 좋아요, 받은 댓글).
+     */
+    @Transactional(readOnly = true)
+    public UserActivityStatsResponse getUserActivityStats(String username) {
+        // 사용자가 작성한 글 목록 가져오기
+        Map<PostType, List<Long>> userPostIds = postInternalFacade.getUserPostIds(username);
+
+        Long totalPostCount = 0L;
+        Long totalViewCount = 0L;
+        Long totalLikeCount = 0L;
+        Long totalCommentCount = 0L;
+
+        // 각 PostType별로 통계 계산
+        for (PostType postType : PostType.values()) {
+            List<Long> postIds = userPostIds.getOrDefault(postType, List.of());
+            
+            if (postIds.isEmpty()) {
+                continue;
+            }
+
+            // 작성한 글 개수 계산
+            totalPostCount += postIds.size();
+
+            // 총 조회수 계산 (Redis에서 가져오기)
+            totalViewCount += calculateTotalViewCountFromRedis(postType, postIds);
+            
+            // 받은 좋아요 수 계산
+            totalLikeCount += likeRepository.countByPostTypeAndPostIds(postType, postIds);
+            
+            // 받은 댓글 수 계산
+            totalCommentCount += commentRepository.countByPostTypeAndPostIds(postType, postIds);
+        }
+
+        return UserActivityStatsResponse.builder()
+                .totalPostCount(totalPostCount)
+                .totalViewCount(totalViewCount)
+                .totalLikeCount(totalLikeCount)
+                .totalCommentCount(totalCommentCount)
+                .build();
+    }
+
+    /**
+     * Redis에서 특정 글들의 조회수 합계를 계산합니다.
+     */
+    private Long calculateTotalViewCountFromRedis(PostType postType, List<Long> postIds) {
+        long sum = 0L;
+        for (Long postId : postIds) {
+            String viewCountKey = RedisKeyUtil.viewCountKey(postType, postId);
+            Long viewCount = getViewCountFromRedisOrDB(postType, postId, viewCountKey);
+            sum += viewCount;
+        }
+        return sum;
+    }
+
+    /**
+     * Redis에서 조회수를 가져오고, 없으면 DB에서 가져옵니다.
+     */
+    private Long getViewCountFromRedisOrDB(PostType postType, Long postId, String viewCountKey) {
+        if (redisService.hasKey(viewCountKey)) {
+            return redisService.getCount(viewCountKey);
+        }
+
+        // Redis에 없으면 DB에서 조회
+        return viewJPARepository.findByPostTypeAndPostId(postType, postId)
+                .map(com.sejong.userservice.domain.view.domain.View::getViewCount)
+                .orElse(0L);
     }
 }

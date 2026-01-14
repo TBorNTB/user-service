@@ -47,4 +47,14 @@ public class CSKnowledgeInternalService {
         // 예외 대신 기본값 0 반환
         return 0L;
     }
+
+    @CircuitBreaker(name = "myFeignClient", fallbackMethod = "getUserCsKnowledgeIdsFallback")
+    public List<Long> getUserCsKnowledgeIds(String username) {
+        ResponseEntity<List<Long>> response = projectClient.getUserCsKnowledgeIds(username);
+        return response.getBody() != null ? response.getBody() : List.of();
+    }
+
+    private List<Long> getUserCsKnowledgeIdsFallback(String username, Throwable t) {
+        return List.of();
+    }
 }

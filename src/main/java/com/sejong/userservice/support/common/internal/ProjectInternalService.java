@@ -57,4 +57,14 @@ public class ProjectInternalService {
     private Long getCsCountFallback(Throwable t) {
         return 0L;
     }
+
+    @CircuitBreaker(name = "myFeignClient", fallbackMethod = "getUserProjectIdsFallback")
+    public List<Long> getUserProjectIds(String username) {
+        ResponseEntity<List<Long>> response = projectClient.getUserProjectIds(username);
+        return response.getBody() != null ? response.getBody() : List.of();
+    }
+
+    private List<Long> getUserProjectIdsFallback(String username, Throwable t) {
+        return List.of();
+    }
 }

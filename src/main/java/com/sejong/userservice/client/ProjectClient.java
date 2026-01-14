@@ -28,4 +28,13 @@ public interface ProjectClient {
 
     @GetMapping("/archive/cs/count")
     ResponseEntity<Long> getCsCount();
+
+    @GetMapping("/project/user/{username}")
+    ResponseEntity<List<Long>> getUserProjectIds(@PathVariable("username") String username);
+
+    @GetMapping("/archive/news/user/{username}")
+    ResponseEntity<List<Long>> getUserNewsIds(@PathVariable("username") String username);
+
+    @GetMapping("/archive/cs/user/{username}")
+    ResponseEntity<List<Long>> getUserCsKnowledgeIds(@PathVariable("username") String username);
 }
