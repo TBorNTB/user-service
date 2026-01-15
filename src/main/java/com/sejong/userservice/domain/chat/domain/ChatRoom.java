@@ -3,6 +3,7 @@ package com.sejong.userservice.domain.chat.domain;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,10 +23,13 @@ public class ChatRoom {
 
     private String roomName;
 
+    private LocalDateTime createdAt;
+
     public static ChatRoom dmRoom(String roomId) {
         return ChatRoom.builder()
                 .roomId(roomId)
                 .roomName(null)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 
@@ -33,6 +37,7 @@ public class ChatRoom {
         return ChatRoom.builder()
                 .roomId(newRoomId)
                 .roomName(roomName)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 

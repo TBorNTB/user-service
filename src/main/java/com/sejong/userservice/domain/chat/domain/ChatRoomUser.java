@@ -46,16 +46,40 @@ public class ChatRoomUser {
     @Enumerated(EnumType.STRING)
     private ChatRoomUserRole role;
 
+    // DM 방 제목 등, 유저별로 다른 표시 이름
+    @Column(length = 100)
+    private String displayName;
+
+    // 마지막으로 읽은 메시지 ID (cursor)
+    private Long lastReadMessageId;
+
     public static ChatRoomUser join(ChatRoom room, User user, ChatRoomUserRole role) {
         ChatRoomUser cru = ChatRoomUser.builder()
                 .chatRoom(room)
                 .user(user)
                 .role(role)
+                .displayName(null)
+                .lastReadMessageId(null)
+                .build();
+        return cru;
+    }
+
+    public static ChatRoomUser join(ChatRoom room, User user, ChatRoomUserRole role, String displayName) {
+        ChatRoomUser cru = ChatRoomUser.builder()
+                .chatRoom(room)
+                .user(user)
+                .role(role)
+                .displayName(displayName)
+                .lastReadMessageId(null)
                 .build();
         return cru;
     }
 
     public void changeRole(ChatRoomUserRole role) {
         this.role = role;
+    }
+
+    public void updateLastReadMessageId(Long lastReadMessageId) {
+        this.lastReadMessageId = lastReadMessageId;
     }
 }

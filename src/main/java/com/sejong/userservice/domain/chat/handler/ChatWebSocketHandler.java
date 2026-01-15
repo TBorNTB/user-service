@@ -47,6 +47,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         // 첫 메시지는 반드시 AUTH 타입이어야 함
         if (!isAuthenticated(session)) {
             if ("AUTH".equals(messageType)) {
+
+                log.info("AUTH 타입 들어왔습니다. {}",payload);
                 handleAuth(payload, session);
                 return;
             } else {
@@ -134,6 +136,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void handleJoin(ChatMessageDto chatMessageDto, WebSocketSession session) {
+        log.info("join 메서드");
         BroadCastDto broadCastDto = chatHandleMessageService.handleJoin(chatMessageDto, session);
         // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
         chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());
@@ -142,6 +145,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void handleChat(ChatMessageDto chatMessageDto, WebSocketSession session) {
+        log.info("chat 메서드");
         BroadCastDto broadCastDto = chatHandleMessageService.handleChat(chatMessageDto,session);
         // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
         chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());
@@ -150,6 +154,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     private void handleClose(ChatMessageDto chatMessageDto, WebSocketSession session) {
+        log.info("close 메서드");
         BroadCastDto broadCastDto = chatHandleMessageService.handleClose(chatMessageDto, session);
         // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
         chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());

@@ -23,7 +23,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update  # ?? validate, create, create-drop
+      ddl-auto: update # ?? validate, create, create-drop
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
@@ -76,14 +76,14 @@ springdoc:
     enabled: true
     path: /swagger-ui.html
 
-eureka:
-  instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
-  client:
-    register-with-eureka: true
-    fetch-registry: true
-    service-url:
-      defaultZone: ${EUREKA_DEFAULTZONE}
+#eureka:
+#  instance:
+#    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+#  client:
+#    register-with-eureka: true
+#    fetch-registry: true
+#    service-url:
+#      defaultZone: ${EUREKA_DEFAULTZONE}
 
 google:
   credentials:
@@ -101,7 +101,7 @@ aws:
 
 management:
   server:
-    port: 18080  #이거는 매트릭을 수집하기 위한 고정 포트다.
+    port: 0  #이거는 매트릭을 수집하기 위한 고정 포트다.
   endpoints:
     web:
       exposure:

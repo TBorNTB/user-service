@@ -15,14 +15,16 @@ public class ChatMessageResponse {
     private String message;
     private String senderNickname;
     private String senderUsername;
+    private String senderThumbnailUrl;
     private LocalDateTime createdAt;
     private String imageUrl;
 
-    public static ChatMessageResponse of(ChatMessage chatMessage, String senderNickname){
+    public static ChatMessageResponse of(ChatMessage chatMessage, String senderNickname, String senderThumbnailUrl){
         return ChatMessageResponse.builder()
                 .message(chatMessage.getContent())
                 .senderNickname(senderNickname)
                 .senderUsername(chatMessage.getUsername())
+                .senderThumbnailUrl(senderThumbnailUrl)
                 .createdAt(chatMessage.getCreatedAt())
                 .imageUrl(chatMessage.getImageUrl())
                 .build();
