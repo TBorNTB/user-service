@@ -1,6 +1,7 @@
 package com.sejong.userservice.domain.chat.interceptor;
 
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import org.springframework.http.server.ServerHttpRequest;
@@ -13,6 +14,8 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 @Component
 public class CustomWebSocketInterceptor implements HandshakeInterceptor {
 
+    private static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
+
     private final JWTUtil jwtUtil;
 
     public CustomWebSocketInterceptor(JWTUtil jwtUtil) {
@@ -20,30 +23,63 @@ public class CustomWebSocketInterceptor implements HandshakeInterceptor {
     }
 
     @Override
-    public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-        if (request instanceof ServletServerHttpRequest servletRequest) {
-            HttpServletRequest httpRequest = servletRequest.getServletRequest();
-            String token = resolveToken(httpRequest);
-            jwtUtil.validateToken(token); //null이 아닌걸 내부 메서드에서 확정
-            String username = jwtUtil.getUsername(token);
-            String userRole = jwtUtil.getRole(token);
-            attributes.put("username", username);
-            attributes.put("userRole", userRole);
-            return true;
+    public boolean beforeHandshake(
+            ServerHttpRequest request,
+            ServerHttpResponse response,
+            WebSocketHandler wsHandler,
+            Map<String, Object> attributes
+    ) {
+        if (!(request instanceof ServletServerHttpRequest servletRequest)) {
+            return false;
         }
-        return false;
+
+        HttpServletRequest httpRequest = servletRequest.getServletRequest();
+
+        String token = resolveTokenFromCookie(httpRequest);
+        if (token == null) {
+            token = resolveTokenFromAuthorizationHeader(httpRequest); // (선택) 기존 방식 fallback
+        }
+
+        if (token == null) {
+            return false; // 토큰 없으면 연결 거부
+        }
+
+        jwtUtil.validateToken(token);
+
+        String username = jwtUtil.getUsername(token);
+        String userRole = jwtUtil.getRole(token);
+
+        attributes.put("username", username);
+        attributes.put("userRole", userRole);
+
+        return true;
     }
 
-    private String resolveToken(HttpServletRequest httpRequest) {
+    private String resolveTokenFromCookie(HttpServletRequest httpRequest) {
+        Cookie[] cookies = httpRequest.getCookies();
+        if (cookies == null) return null;
+
+        for (Cookie cookie : cookies) {
+            if (ACCESS_TOKEN_COOKIE_NAME.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    private String resolveTokenFromAuthorizationHeader(HttpServletRequest httpRequest) {
         String bearerToken = httpRequest.getHeader("Authorization");
-        if(bearerToken!=null && bearerToken.startsWith("Bearer ")){
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
         return null;
     }
 
     @Override
-    public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
-
-    }
+    public void afterHandshake(
+            ServerHttpRequest request,
+            ServerHttpResponse response,
+            WebSocketHandler wsHandler,
+            Exception exception
+    ) { }
 }
