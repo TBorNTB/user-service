@@ -24,7 +24,7 @@ public enum ExceptionType implements ExceptionTypeIfs {
     ACCESS_TOKEN_NOT_EXPIRED(400, "액세스 토큰이 아직 유효합니다"),
     REFRESH_TOKEN_NOT_FOUND(401, "쿠키에 리프레시 토큰이 없습니다."),
     TOKEN_MISMATCH(400, "액세스 토큰과 리프레시 토큰이 다른 사용자를 가리킵니다."),
-    EXPIRED_TOKEN(401, "리프레시 토큰이 만료되었습니다. 다시 로그인해주세요."),
+    EXPIRED_REFRESH_TOKEN(401, "리프레시 토큰이 만료되었습니다. 다시 로그인해주세요."),
     INVALID_OR_REVOKED_TOKEN(401, "유효하지 않거나 무효화된 리프레시 토큰입니다. 다시 로그인해주세요."),
 
     EMAIL_TRANSFER_ERROR(501, "메일 전송 중 오류 발생"),
