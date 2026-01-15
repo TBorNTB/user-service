@@ -20,6 +20,7 @@ public class ChatMessageDto {
     private String imageUrl;
     private LocalDateTime createdAt;
     private String serverId; // 메시지를 발행한 서버 ID (중복 방지용)
+    private String token; // AUTH 메시지 타입에서 사용하는 토큰 필드
 
     public static ChatMessageDto from(ChatMessageEvent event){
         return ChatMessageDto.builder()
