@@ -4,6 +4,8 @@ import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -12,6 +14,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 @Component
+@Slf4j
 public class CustomWebSocketInterceptor implements HandshakeInterceptor {
 
     private static final String ACCESS_TOKEN_COOKIE_NAME = "accessToken";
@@ -29,6 +32,9 @@ public class CustomWebSocketInterceptor implements HandshakeInterceptor {
             WebSocketHandler wsHandler,
             Map<String, Object> attributes
     ) {
+
+        log.info("before handshake start");
+
         if (!(request instanceof ServletServerHttpRequest servletRequest)) {
             return false;
         }
