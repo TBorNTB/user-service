@@ -40,16 +40,19 @@ public class CustomWebSocketInterceptor implements HandshakeInterceptor {
         }
 
         HttpServletRequest httpRequest = servletRequest.getServletRequest();
-
+        log.info("쿠키를 한번 추출해보겠습니다.");
         String token = resolveTokenFromCookie(httpRequest);
+        log.info("쿠키에서 추출한 토큰입니다 : {}",token);
         if (token == null) {
+            log.info("쿠키가 없어서 헤더에서 토큰 추출하는 과정!");
             token = resolveTokenFromAuthorizationHeader(httpRequest); // (선택) 기존 방식 fallback
         }
 
         if (token == null) {
+            log.info("토큰들이 없어서 연결 거부합니다.");
             return false; // 토큰 없으면 연결 거부
         }
-
+        log.info("토큰이 있네요??");
         jwtUtil.validateToken(token);
 
         String username = jwtUtil.getUsername(token);
