@@ -55,10 +55,11 @@ public class TokenService {
     private TokenReissueResponse issueNewTokens(String username, String role) {
         String newAccessToken = jwtUtil.createAccessToken(username, role);
         String newRefreshToken = jwtUtil.createRefreshToken(username);
+        Cookie newAccessTokenCookie = jwtUtil.createAccessTokenCookie(newAccessToken);
         Cookie newRefreshTokenCookie = jwtUtil.createRefreshTokenCookie(newRefreshToken);
 
         log.info("새 토큰 발급 완료. User: {}", username);
-        return new TokenReissueResponse(newAccessToken, newRefreshTokenCookie);
+        return new TokenReissueResponse(newAccessTokenCookie, newRefreshTokenCookie);
     }
 
     public void blacklist(String accessToken, String refreshToken) {
