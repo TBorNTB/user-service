@@ -1,6 +1,6 @@
 package com.sejong.userservice.support.common.security.jwt;
 
-import static com.sejong.userservice.support.common.exception.type.ExceptionType.EXPIRED_TOKEN;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.EXPIRED_REFRESH_TOKEN;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.TOKEN_MISMATCH;
 
 import com.sejong.userservice.support.common.exception.type.BaseException;
@@ -18,11 +18,13 @@ import java.util.UUID;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 @Getter
+@Slf4j
 public class JWTUtil {
 
     final long accessTokenExpirationTime;
@@ -46,8 +48,7 @@ public class JWTUtil {
             return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
                     .get("username", String.class);
         } catch (ExpiredJwtException e) {
-    
-            return e.getClaims().getSubject(); // <-- 이 부분 수정
+            return e.getClaims().get("username", String.class);
         } catch (Exception e) {
             // 다른 예외 (예: SignatureException, MalformedJwtException 등) 처리
             // 토큰이 유효하지 않은 경우 (변조 등) null을 반환하거나 특정 예외를 던질 수 있습니다.
@@ -63,7 +64,7 @@ public class JWTUtil {
 
     public void validateToken(String token) {
         if (isExpired(token)) {
-            throw new BaseException(EXPIRED_TOKEN);
+            throw new BaseException(EXPIRED_REFRESH_TOKEN);
         }
     }
 
@@ -75,6 +76,7 @@ public class JWTUtil {
             // 토큰이 만료되었을 경우 발생하는 예외 처리
             return true;
         } catch (Exception e) {
+            log.error("토큰 검증 실패: {}", e.getMessage());
             // 다른 예외 발생 시 (예: 토큰 변조), 유효하지 않다고 간주
             return true;
         }
@@ -104,6 +106,9 @@ public class JWTUtil {
         try {
             Date expirationDate = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
                     .getExpiration();
+            return expirationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        } catch (ExpiredJwtException e) {
+            Date expirationDate = e.getClaims().getExpiration();
             return expirationDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         } catch (Exception e) {
             return null; // 토큰이 유효하지 않거나 만료 시간 없음
@@ -153,7 +158,7 @@ public class JWTUtil {
     public Cookie createAccessTokenCookie(String accessToken) {
         Cookie cookie = new Cookie("accessToken", accessToken);
         cookie.setMaxAge((int) (accessTokenExpirationTime / 1000)); // 쿠키 만료 시간 (초 단위)
-        cookie.setHttpOnly(false); // JavaScript에서 접근 가능
+        cookie.setHttpOnly(true); // JavaScript에서 접근 불가 (XSS 방어)
         // cookie.setSecure(true); // HTTPS 환경에서만 전송
         cookie.setPath("/"); // 모든 경로에서 접근 가능하도록 설정
         return cookie;
@@ -188,7 +193,16 @@ public class JWTUtil {
         return null;
     }
 
-    public String getAccessTokenFromHeader(HttpServletRequest request) {
+    public String getOldAccessTokenFromHeader(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            String accessToken = authorizationHeader.substring(7);//  "   Bearer_" 이후의 토큰 부분
+            return accessToken;
+        }
+        throw new RuntimeException("Authorization header is missing or invalid format");
+    }
+
+    public String getValidAccessTokenFromHeader(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             String accessToken = authorizationHeader.substring(7);//  "   Bearer_" 이후의 토큰 부분

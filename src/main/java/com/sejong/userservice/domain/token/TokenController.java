@@ -33,7 +33,7 @@ public class TokenController {
     @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<String> reissueToken(HttpServletRequest request, HttpServletResponse response) {
         String oldRefreshToken = jwtUtil.getRefreshTokenFromCookie(request);
-        String oldAccessToken = jwtUtil.getAccessTokenFromHeader(request);
+        String oldAccessToken = jwtUtil.getOldAccessTokenFromHeader(request);
 
         if (oldRefreshToken == null) {
             log.error("재발급 시도 실패: 쿠키에 리프레시 토큰이 없습니다.");
@@ -42,7 +42,7 @@ public class TokenController {
 
         TokenReissueResponse reissueResponse = tokenService.reissueTokens(oldAccessToken, oldRefreshToken);
 
-        response.addHeader("Authorization", "Bearer " + reissueResponse.getNewAccessToken());
+        response.addCookie(reissueResponse.getNewAccessTokenCookie());
         response.addCookie(reissueResponse.getNewRefreshTokenCookie());
 
         return new ResponseEntity<>("토큰이 성공적으로 재발급되었습니다.", HttpStatus.OK);

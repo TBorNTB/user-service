@@ -7,6 +7,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class TokenReissueResponse {
-    private final String newAccessToken;
+    private final Cookie newAccessTokenCookie;
     private final Cookie newRefreshTokenCookie;
 }
