@@ -72,7 +72,7 @@ spring:
           github:
             client-id: ${OAUTH_GITHUB_CLIENT_ID}
             client-secret: ${OAUTH_GITHUB_CLIENT_SECRET}
-            redirect-uri: http://${APP_HOST}:8000/user-service/login/oauth2/code/github
+            redirect-uri: https://${APP_HOST}:8000/user-service/login/oauth2/code/github
 
 springdoc:
   api-docs:
