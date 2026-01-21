@@ -92,7 +92,7 @@ jobs:
               -e MAIL_USERNAME="${{ secrets.MAIL_USERNAME }}" \
               -e MAIL_PASSWORD="${{ secrets.MAIL_PASSWORD }}" \
               -e REDIS_PORT="${{ secrets.REDIS_PORT }}" \
-              -e APP_HOST="${{secrets.APP_HOST}}" \
+              -e API_SERVER_URL="${{secrets.API_SERVER_URL}}" \
               -e OAUTH_GITHUB_CLIENT_ID="${{ secrets.OAUTH_GITHUB_CLIENT_ID }}" \
               -e OAUTH_GITHUB_CLIENT_SECRET="${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}" \
               -e FRONTEND="${{ secrets.FRONTEND }}" \
