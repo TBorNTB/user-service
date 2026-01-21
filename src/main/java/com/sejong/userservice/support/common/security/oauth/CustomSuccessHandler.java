@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -20,6 +21,8 @@ import org.springframework.stereotype.Component;
 public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JWTUtil jwtUtil;
+    @Value("${app.oauth2.success-redirect-uri}")
+    private String successRedirectUri;
 
 
     @Override
@@ -49,12 +52,8 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         Cookie refreshTokenCookie = jwtUtil.createRefreshTokenCookie(refreshToken);
         response.addCookie(refreshTokenCookie);
 
-        // TODO: 프론트엔드로 리다이렉트
-//        response.sendRedirect("http://localhost:3000/");
-        // OAuth2 로그인 성공 응답 (프론트엔드 없을 때)
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write("{\"status\":\"success\",\"message\":\"OAuth2 login successful\"}");
+        // 프론트 앱 리다이렉트
+        response.sendRedirect(successRedirectUri);
     }
 }
 
