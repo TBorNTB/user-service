@@ -1,7 +1,6 @@
 package com.sejong.userservice.support.common.security.jwt;
 
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.EXPIRED_REFRESH_TOKEN;
-import static com.sejong.userservice.support.common.exception.type.ExceptionType.TOKEN_MISMATCH;
 
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -196,10 +195,9 @@ public class JWTUtil {
     public String getOldAccessTokenFromHeader(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String accessToken = authorizationHeader.substring(7);//  "   Bearer_" 이후의 토큰 부분
-            return accessToken;
+            return authorizationHeader.substring(7);
         }
-        throw new RuntimeException("Authorization header is missing or invalid format");
+        return null;
     }
 
     public String getValidAccessTokenFromHeader(HttpServletRequest request) {
@@ -210,16 +208,5 @@ public class JWTUtil {
             return accessToken;
         }
         throw new RuntimeException("Authorization header is missing or invalid format");
-    }
-
-    /**
-     * 두 토큰의 사용자가 같은지 확인
-     */
-    public void validateSameUser(String token1, String token2) {
-        String username1 = getUsername(token1);
-        String username2 = getUsername(token2);
-        if (username1 == null || username2 == null || !username1.equals(username2)) {
-            throw new BaseException(TOKEN_MISMATCH);
-        }
     }
 }

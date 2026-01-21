@@ -123,3 +123,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+app:
+  oauth2:
+    success-redirect-uri: ${FRONTEND}
