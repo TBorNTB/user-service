@@ -95,5 +95,5 @@ jobs:
               -e APP_HOST="${{secrets.APP_HOST}}" \
               -e OAUTH_GITHUB_CLIENT_ID="${{ secrets.OAUTH_GITHUB_CLIENT_ID }}" \
               -e OAUTH_GITHUB_CLIENT_SECRET="${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}" \
-              -e FRONTEND_HOST="${{ secrets.FRONTEND_HOST }}" \
+              -e FRONTEND="${{ secrets.FRONTEND }}" \
               869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
