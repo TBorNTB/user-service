@@ -26,7 +26,7 @@ public class TokenService {
 
     @Transactional
     public TokenReissueResponse reissueTokens(String accessToken, String refreshToken) {
-        validateTokensForReissue(accessToken, refreshToken);
+        validateTokensForReissue(refreshToken);
 
         String username = jwtUtil.getUsername(refreshToken);
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
@@ -36,8 +36,7 @@ public class TokenService {
         return issueNewTokens(username, user.getRole().name());
     }
 
-    private void validateTokensForReissue(String accessToken, String refreshToken) {
-        jwtUtil.validateSameUser(accessToken, refreshToken);
+    private void validateTokensForReissue(String refreshToken) {
         jwtUtil.validateToken(refreshToken);
 
         String refreshTokenJti = jwtUtil.getJti(refreshToken);
@@ -63,10 +62,12 @@ public class TokenService {
     }
 
     public void blacklist(String accessToken, String refreshToken) {
-        String accessJti = jwtUtil.getJti(accessToken);
-        Duration accessTTL = jwtUtil.getTTL(accessToken);
-        addJtiToBlacklist(accessJti, accessTTL);
-        log.info("액세스 토큰 JTI를 블랙리스트에 추가했습니다. JTI: {}", accessJti);
+        if (accessToken != null) {
+            String accessJti = jwtUtil.getJti(accessToken);
+            Duration accessTTL = jwtUtil.getTTL(accessToken);
+            addJtiToBlacklist(accessJti, accessTTL);
+            log.info("액세스 토큰 JTI를 블랙리스트에 추가했습니다. JTI: {}", accessJti);
+        }
 
         String refreshTokenJti = jwtUtil.getJti(refreshToken);
         Duration refreshTTL = jwtUtil.getTTL(refreshToken);
