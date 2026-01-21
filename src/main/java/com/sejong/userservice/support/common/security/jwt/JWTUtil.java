@@ -28,15 +28,18 @@ public class JWTUtil {
 
     final long accessTokenExpirationTime;
     final long refreshTokenExpirationTime;
+    private final String cookieDomain;
     private SecretKey secretKey;
 
     public JWTUtil(@Value("${jwt.secret}") String secret,
                    @Value("${jwt.expiration-time}") long accessTokenExpirationTime,
-                   @Value("${jwt.refresh-expiration-time}") long refreshTokenExpirationTime) {
+                   @Value("${jwt.refresh-expiration-time}") long refreshTokenExpirationTime,
+                   @Value("${jwt.cookie-domain:}") String cookieDomain) {
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
                 SIG.HS256.key().build().getAlgorithm());
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
+        this.cookieDomain = cookieDomain;
     }
 
     /**
@@ -158,8 +161,9 @@ public class JWTUtil {
         Cookie cookie = new Cookie("accessToken", accessToken);
         cookie.setMaxAge((int) (accessTokenExpirationTime / 1000)); // 쿠키 만료 시간 (초 단위)
         cookie.setHttpOnly(true); // JavaScript에서 접근 불가 (XSS 방어)
-        // cookie.setSecure(true); // HTTPS 환경에서만 전송
+        cookie.setSecure(true); // HTTPS 환경에서만 전송
         cookie.setPath("/"); // 모든 경로에서 접근 가능하도록 설정
+        cookie.setDomain(cookieDomain);
         return cookie;
     }
 
@@ -170,8 +174,9 @@ public class JWTUtil {
         Cookie cookie = new Cookie("refreshToken", refreshToken);
         cookie.setMaxAge((int) (refreshTokenExpirationTime / 1000)); // 쿠키 만료 시간 (초 단위)
         cookie.setHttpOnly(true); // JavaScript에서 접근 불가
-        // cookie.setSecure(true); // HTTPS 환경에서만 전송
+        cookie.setSecure(true); // HTTPS 환경에서만 전송
         cookie.setPath("/"); // 모든 경로에서 접근 가능하도록 설정
+        cookie.setDomain(cookieDomain);
         return cookie;
     }
 
