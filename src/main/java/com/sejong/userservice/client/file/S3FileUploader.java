@@ -26,8 +26,8 @@ public class S3FileUploader implements FileUploader {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    @Value("${aws.s3.region}")
-    private String region;
+    @Value("${aws.s3.endpoint}")
+    private String endpoint;
 
     @Value("${spring.application.name}")
     private String serviceName;
@@ -35,7 +35,7 @@ public class S3FileUploader implements FileUploader {
 
     @Override
     public PreSignedUrl generatePreSignedUrl(String fileName, String contentType, String fileType) {
-        // 서비스별 폴더 구조: archive-service/thumbnails/filename_uuid.ext
+        // 서비스별 폴더 구조: user-service/thumbnails/filename_uuid.ext
         String key = generateKey(serviceName, fileType, fileName);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -50,7 +50,7 @@ public class S3FileUploader implements FileUploader {
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-        String downloadUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
+        String downloadUrl = String.format("%s/%s/%s", endpoint, bucketName, key);
 
         return new PreSignedUrl(
                 presignedRequest.url().toString(),
@@ -78,7 +78,7 @@ public class S3FileUploader implements FileUploader {
 
     @Override
     public Filepath getFileUrl(String key) {
-        String url = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
+        String url = String.format("%s/%s/%s", endpoint, bucketName, key);
         return Filepath.of(url);
     }
 
@@ -91,10 +91,12 @@ public class S3FileUploader implements FileUploader {
     }
 
     private String extractKeyFromUrl(String url) {
-        int comIndex = url.indexOf(".com/");
-        if (comIndex == -1) {
+        // Garage URL 형식: http://host:port/bucket/key
+        String bucketPrefix = "/" + bucketName + "/";
+        int bucketIndex = url.indexOf(bucketPrefix);
+        if (bucketIndex == -1) {
             throw new IllegalArgumentException("Invalid S3 URL format: " + url);
         }
-        return url.substring(comIndex + 5);
+        return url.substring(bucketIndex + bucketPrefix.length());
     }
 }
