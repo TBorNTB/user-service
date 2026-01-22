@@ -135,4 +135,8 @@ public class User {
         this.encryptPassword = newEncryptedPassword;
         this.updatedAt = LocalDateTime.now();
     }
+
+    public void updateProfileImage(String newImagePath) {
+        this.profileImageUrl = newImagePath;
+    }
 }

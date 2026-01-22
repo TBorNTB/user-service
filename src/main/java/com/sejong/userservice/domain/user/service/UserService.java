@@ -4,6 +4,7 @@ import static com.sejong.userservice.support.common.exception.type.ExceptionType
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.WRONG_PASSWORD;
 
+import com.sejong.userservice.client.file.FileUploader;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
 import com.sejong.userservice.domain.comment.repository.CommentRepository;
@@ -35,6 +36,8 @@ import com.sejong.userservice.support.common.pagination.SortDirection;
 import com.sejong.userservice.support.common.redis.RedisKeyUtil;
 import com.sejong.userservice.support.common.redis.RedisService;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
+import com.sejong.userservice.support.common.util.FileValidator;
+import com.sejong.userservice.support.common.util.Filepath;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
@@ -50,6 +53,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -57,15 +61,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final TokenService tokenService;
-    private final AlarmService alarmService;
+
     private final JWTUtil jwtUtil;
-    private final PostInternalFacade postInternalFacade;
-    private final ViewJPARepository viewJPARepository;
-    private final LikeRepository likeRepository;
-    private final CommentRepository commentRepository;
+    private final TokenService tokenService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
     private final RedisService redisService;
+    private final LikeRepository likeRepository;
+    private final ViewJPARepository viewJPARepository;
+    private final AlarmService alarmService;
+    private final CommentRepository commentRepository;
+    private final PostInternalFacade postInternalFacade;
+
+    private final FileUploader fileUploader;
+    private final FileValidator fileValidator;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
@@ -402,5 +411,29 @@ public class UserService {
                 pageable, 
                 uniquePostList.size()
         );
+    }
+
+    public UserRes updateProfileImage(String username, MultipartFile imageFile) {
+         fileValidator.validateImageFile(imageFile);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+        if (user.getProfileImageUrl() != null) {
+            try {
+                fileUploader.delete(Filepath.of(user.getProfileImageUrl()));
+                log.info("기존 프로필 이미지 삭제: {}", user.getProfileImageUrl());
+            } catch (Exception e) {
+                log.warn("기존 이미지 삭제 실패 (계속 진행): {}", user.getProfileImageUrl(), e);
+            }
+        }
+        String directory = String.format("%s/users/%d/profile", "user-service", user.getId());
+
+        Filepath newImagePath = fileUploader.uploadFile(
+            imageFile,
+            directory,
+            imageFile.getOriginalFilename()
+        );
+
+        user.updateProfileImage(newImagePath.path());
+        log.info("프로필 이미지 업데이트 완료: userId={}, url={}", user.getId(), newImagePath.path());
+        return UserRes.from(user);
     }
 }
