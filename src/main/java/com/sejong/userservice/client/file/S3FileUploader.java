@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -100,5 +101,37 @@ public class S3FileUploader implements FileUploader {
             throw new IllegalArgumentException("Invalid S3 URL format: " + url);
         }
         return url.substring(bucketIndex + bucketPrefix.length());
+    }
+
+    @Override
+    public Filepath moveFile(String sourceKey, String targetDirectory) {
+        // sourceKey: temp/user-service/profiles/image_uuid.jpg
+        // targetDirectory: user-service/users/{userId}/profiles
+
+        String fileName = sourceKey.substring(sourceKey.lastIndexOf("/") + 1);
+        String targetKey = String.format("%s/%s", targetDirectory, fileName);
+
+        try {
+            // 1. 복사
+            s3Client.copyObject(CopyObjectRequest.builder()
+                .sourceBucket(bucketName)
+                .sourceKey(sourceKey)
+                .destinationBucket(bucketName)
+                .destinationKey(targetKey)
+                .build());
+
+            // 2. 원본 삭제
+            s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(sourceKey)
+                .build());
+
+            log.info("S3 파일 이동 완료: {} -> {}", sourceKey, targetKey);
+            return getFileUrl(targetKey);
+
+        } catch (Exception e) {
+            log.error("S3 파일 이동 실패: {} -> {}", sourceKey, targetDirectory, e);
+            throw new RuntimeException("파일 이동 실패", e);
+        }
     }
 }

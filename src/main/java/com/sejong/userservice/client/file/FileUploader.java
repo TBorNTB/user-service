@@ -9,4 +9,6 @@ public interface FileUploader {
     void delete(Filepath filepath);
 
     Filepath getFileUrl(String key);
+
+    Filepath moveFile(String sourceKey, String targetDirectory);
 }
