@@ -19,6 +19,13 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+/**
+ * S3 호환 스토리지 (Garage) 파일 업로더
+ *
+ * 지원 방식:
+ * 1. Presigned URL - generatePreSignedUrl() + moveFile()
+ * 2. 직접 업로드 - uploadFile()
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -36,11 +43,38 @@ public class S3FileUploader implements FileUploader {
     @Value("${spring.application.name}")
     private String serviceName;
 
+    // 공통
+    @Override
+    public void delete(Filepath filePath) {
+        try {
+            String key = extractKeyFromUrl(filePath.path());
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+            s3Client.deleteObject(deleteRequest);
+            log.info("S3 파일 삭제 완료: {}", key);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: {}", filePath.path(), e);
+            throw new RuntimeException("파일 삭제 실패", e);
+        }
+    }
 
+    // 공통
+    @Override
+    public Filepath getFileUrl(String key) {
+        String url = String.format("%s/%s/%s", endpoint, bucketName, key);
+        return Filepath.of(url);
+    }
+
+    /**
+     * Presigned URL 생성
+     * - temp 폴더에 업로드 후, 저장 시 moveFile()로 최종 위치 이동
+     * - 용도: 에디터 이미지, 대용량 파일
+     */
     @Override
     public PreSignedUrl generatePreSignedUrl(String fileName, String contentType, String fileType) {
-        // 서비스별 폴더 구조: user-service/thumbnails/filename_uuid.ext
-        String key = generateKey(serviceName, fileType, fileName);
+        String key = generateTempKey(serviceName, fileType, fileName);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -64,30 +98,11 @@ public class S3FileUploader implements FileUploader {
         );
     }
 
-    @Override
-    public void delete(Filepath filePath) {
-        try {
-            String key = extractKeyFromUrl(filePath.path());
-            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(key)
-                    .build();
-            s3Client.deleteObject(deleteRequest);
-            log.info("S3 파일 삭제 완료: {}", key);
-        } catch (Exception e) {
-            log.error("S3 파일 삭제 실패: {}", filePath.path(), e);
-            throw new RuntimeException("파일 삭제 실패", e);
-        }
-    }
-
-    @Override
-    public Filepath getFileUrl(String key) {
-        String url = String.format("%s/%s/%s", endpoint, bucketName, key);
-        return Filepath.of(url);
-    }
-
-    // Presigned URL용 key 생성 (temp 포함)
-    private String generateKey(String serviceName, String dirName, String fileName) {
+    /**
+     * Presigned URL용 key 생성 (temp 폴더 포함)
+     * 결과: temp/{service}/{type}/{filename}_{uuid}.{ext}
+     */
+    private String generateTempKey(String serviceName, String dirName, String fileName) {
         int lastDotIndex = fileName.lastIndexOf(".");
         String fileExtension = lastDotIndex != -1 ? fileName.substring(lastDotIndex) : "";
         String uuid = UUID.randomUUID().toString();
@@ -107,11 +122,13 @@ public class S3FileUploader implements FileUploader {
         return url.substring(bucketIndex + bucketPrefix.length());
     }
 
+    /**
+     * temp 파일을 최종 위치로 이동 (복사 후 원본 삭제)
+     * @param sourceKey temp/project-service/projects/image_uuid.jpg
+     * @param targetDirectory project-service/projects/{projectId}/images
+     */
     @Override
     public Filepath moveFile(String sourceKey, String targetDirectory) {
-        // sourceKey: temp/user-service/profiles/image_uuid.jpg
-        // targetDirectory: user-service/users/{userId}/profiles
-
         String fileName = sourceKey.substring(sourceKey.lastIndexOf("/") + 1);
         String targetKey = String.format("%s/%s", targetDirectory, fileName);
 
@@ -139,7 +156,13 @@ public class S3FileUploader implements FileUploader {
         }
     }
 
-    // 파일 직접 업로드 (프로필 사진, 썸네일 등)
+    // 직접 업로드
+    /**
+     * 파일 직접 업로드 (temp 거치지 않고 바로 최종 위치)
+     * - 용도: 프로필 이미지, 썸네일 등 소용량 파일
+     * @param directory user-service/users/{userId}/profile
+     * @param fileName 원본 파일명
+     */
     @Override
     public Filepath uploadFile(MultipartFile file, String directory, String fileName) {
         try {
@@ -169,7 +192,8 @@ public class S3FileUploader implements FileUploader {
     }
 
     /**
-     * 직접 업로드용 key 생성 (temp 없음)
+     * 직접 업로드용 key 생성 (temp 없이 바로 최종 위치)
+     * 결과: {directory}/{filename}_{uuid}.{ext}
      */
     private String generateDirectUploadKey(String directory, String fileName) {
         int lastDotIndex = fileName.lastIndexOf(".");
@@ -177,7 +201,6 @@ public class S3FileUploader implements FileUploader {
         String uuid = UUID.randomUUID().toString();
         String cleanFileName = lastDotIndex != -1 ? fileName.substring(0, lastDotIndex) : fileName;
 
-        // user-service/users/123/profile/image_uuid.jpg (temp 없이 바로 최종 위치)
         return String.format("%s/%s_%s%s", directory, cleanFileName, uuid, fileExtension);
     }
 }
