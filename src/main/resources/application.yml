@@ -62,13 +62,14 @@ spring:
 
   cloud:
     aws:
-      region:
-        static: ap-northeast-2
       credentials:
         access-key: ${S3_ACCESS_KEY}
         secret-key: ${S3_SECRET_KEY}
-      stack:
-        auto: false
+      s3:
+        endpoint: http://${DB_HOST}:3900
+        region: ${S3_REGION:garage}
+      region:
+        static: ${S3_REGION:garage}
 
   security:
     oauth2:
@@ -120,7 +121,9 @@ jwt:
 aws:
   s3:
     bucket: ${S3_BUCKET}
-    region: ap-northeast-2
+    region: garage
+    endpoint: http://${DB_HOST}:3900
+    path-style-access-enabled: true
 
 management:
   server:
