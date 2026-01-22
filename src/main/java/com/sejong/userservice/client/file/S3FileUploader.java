@@ -2,12 +2,15 @@ package com.sejong.userservice.client.file;
 
 import com.sejong.userservice.client.file.dto.PreSignedUrl;
 import com.sejong.userservice.support.common.util.Filepath;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
@@ -83,6 +86,7 @@ public class S3FileUploader implements FileUploader {
         return Filepath.of(url);
     }
 
+    // Presigned URL용 key 생성 (temp 포함)
     private String generateKey(String serviceName, String dirName, String fileName) {
         int lastDotIndex = fileName.lastIndexOf(".");
         String fileExtension = lastDotIndex != -1 ? fileName.substring(lastDotIndex) : "";
@@ -133,5 +137,47 @@ public class S3FileUploader implements FileUploader {
             log.error("S3 파일 이동 실패: {} -> {}", sourceKey, targetDirectory, e);
             throw new RuntimeException("파일 이동 실패", e);
         }
+    }
+
+    // 파일 직접 업로드 (프로필 사진, 썸네일 등)
+    @Override
+    public Filepath uploadFile(MultipartFile file, String directory, String fileName) {
+        try {
+            // key 생성: user-service/users/123/profile/image_uuid.jpg
+            String key = generateDirectUploadKey(directory, fileName);
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(file.getContentType())
+                .contentLength(file.getSize())
+                .build();
+
+            // S3에 직접 업로드
+            s3Client.putObject(
+                putObjectRequest,
+                RequestBody.fromInputStream(file.getInputStream(), file.getSize())
+            );
+
+            log.info("S3 파일 업로드 완료: {}", key);
+            return getFileUrl(key);
+
+        } catch (IOException e) {
+            log.error("파일 업로드 실패: {}", fileName, e);
+            throw new RuntimeException("파일 업로드 실패", e);
+        }
+    }
+
+    /**
+     * 직접 업로드용 key 생성 (temp 없음)
+     */
+    private String generateDirectUploadKey(String directory, String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        String fileExtension = lastDotIndex != -1 ? fileName.substring(lastDotIndex) : "";
+        String uuid = UUID.randomUUID().toString();
+        String cleanFileName = lastDotIndex != -1 ? fileName.substring(0, lastDotIndex) : fileName;
+
+        // user-service/users/123/profile/image_uuid.jpg (temp 없이 바로 최종 위치)
+        return String.format("%s/%s_%s%s", directory, cleanFileName, uuid, fileExtension);
     }
 }
