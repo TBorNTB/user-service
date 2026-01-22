@@ -87,7 +87,9 @@ public class S3FileUploader implements FileUploader {
         String fileExtension = lastDotIndex != -1 ? fileName.substring(lastDotIndex) : "";
         String uuid = UUID.randomUUID().toString();
         String cleanFileName = lastDotIndex != -1 ? fileName.substring(0, lastDotIndex) : fileName;
-        return String.format("%s/%s/%s_%s%s", serviceName, dirName, cleanFileName, uuid, fileExtension);
+
+        // temp 폴더에 먼저 업로드
+        return String.format("temp/%s/%s/%s_%s%s", serviceName, dirName, cleanFileName, uuid, fileExtension);
     }
 
     private String extractKeyFromUrl(String url) {
