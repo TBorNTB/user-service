@@ -1,5 +1,6 @@
 package com.sejong.userservice.support.config;
 
+import java.net.URI;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,6 +8,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
@@ -14,6 +16,12 @@ public class S3Config {
 
     @Value("${aws.s3.region}")
     private String region;
+
+    @Value("${aws.s3.endpoint}")
+    private String endpoint;
+
+    @Value("${aws.s3.path-style-access-enabled:true}")
+    private boolean pathStyleAccessEnabled;
 
     @Value("${spring.cloud.aws.credentials.access-key}")
     private String accessKey;
@@ -27,7 +35,11 @@ public class S3Config {
 
         return S3Client.builder()
                 .region(Region.of(region))
+                .endpointOverride(URI.create(endpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(pathStyleAccessEnabled)
+                        .build())
                 .build();
     }
 
@@ -37,7 +49,11 @@ public class S3Config {
 
         return S3Presigner.builder()
                 .region(Region.of(region))
+                .endpointOverride(URI.create(endpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(pathStyleAccessEnabled)
+                        .build())
                 .build();
     }
 }
