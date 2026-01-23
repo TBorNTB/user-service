@@ -167,6 +167,7 @@ public class JWTUtil {
         if (StringUtils.hasText(cookieDomain)) {
             cookie.setDomain(cookieDomain);
         }
+
         return cookie;
     }
 
@@ -202,6 +203,7 @@ public class JWTUtil {
         if (StringUtils.hasText(cookieDomain)) {
             cookie.setDomain(cookieDomain);
         }
+
         return cookie;
     }
 

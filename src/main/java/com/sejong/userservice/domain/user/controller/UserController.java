@@ -174,6 +174,7 @@ public class UserController {
 
         response.addCookie(jwtUtil.createExpiredAccessTokenCookie());
         response.addCookie(jwtUtil.createExpiredRefreshTokenCookie());
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
