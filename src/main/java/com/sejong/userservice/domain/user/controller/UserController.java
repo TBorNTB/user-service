@@ -172,11 +172,9 @@ public class UserController {
 
         userService.logout(accessToken, refreshToken);
 
-        Cookie expiredCookie = new Cookie("refreshToken", null);
-        expiredCookie.setMaxAge(0);
-        expiredCookie.setHttpOnly(true);
-        expiredCookie.setPath("/");
-        response.addCookie(expiredCookie);
+        response.addCookie(jwtUtil.createExpiredAccessTokenCookie());
+        response.addCookie(jwtUtil.createExpiredRefreshTokenCookie());
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

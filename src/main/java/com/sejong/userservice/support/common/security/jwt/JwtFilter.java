@@ -2,8 +2,10 @@ package com.sejong.userservice.support.common.security.jwt;
 
 import com.sejong.userservice.domain.token.TokenBlacklistRepository;
 import com.sejong.userservice.support.common.security.UserContext;
+
 import com.sejong.userservice.support.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.support.common.security.oauth.dto.UserDTO;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,7 +15,9 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
 import org.springframework.security.core.Authentication;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -41,6 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         // 이미 인증이 되어 있으면 건너뜀
+
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
             return;
@@ -66,6 +71,7 @@ public class JwtFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             log.debug("User context set: userId={}, userRole={}", username, role);
+
             filterChain.doFilter(request, response);
             return;
         }
@@ -84,6 +90,7 @@ public class JwtFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         log.info("JWT 토큰 인증 필터가 실행되었습니다. 사용자: {}, 권한: {}인 사용자 SecurityContext를 생성했습니다.", username, role);
+
         filterChain.doFilter(request, response);
     }
 }

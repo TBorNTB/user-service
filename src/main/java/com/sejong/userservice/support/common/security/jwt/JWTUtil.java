@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 @Getter
@@ -163,7 +164,10 @@ public class JWTUtil {
         cookie.setHttpOnly(true); // JavaScript에서 접근 불가 (XSS 방어)
         cookie.setSecure(true); // HTTPS 환경에서만 전송
         cookie.setPath("/"); // 모든 경로에서 접근 가능하도록 설정
-        cookie.setDomain(cookieDomain);
+        if (StringUtils.hasText(cookieDomain)) {
+            cookie.setDomain(cookieDomain);
+        }
+
         return cookie;
     }
 
@@ -176,7 +180,30 @@ public class JWTUtil {
         cookie.setHttpOnly(true); // JavaScript에서 접근 불가
         cookie.setSecure(true); // HTTPS 환경에서만 전송
         cookie.setPath("/"); // 모든 경로에서 접근 가능하도록 설정
-        cookie.setDomain(cookieDomain);
+        if (StringUtils.hasText(cookieDomain)) {
+            cookie.setDomain(cookieDomain);
+        }
+        return cookie;
+    }
+
+    public Cookie createExpiredAccessTokenCookie() {
+        return createExpiredCookie("accessToken");
+    }
+
+    public Cookie createExpiredRefreshTokenCookie() {
+        return createExpiredCookie("refreshToken");
+    }
+
+    private Cookie createExpiredCookie(String name) {
+        Cookie cookie = new Cookie(name, "");
+        cookie.setMaxAge(0);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        if (StringUtils.hasText(cookieDomain)) {
+            cookie.setDomain(cookieDomain);
+        }
+
         return cookie;
     }
 
