@@ -37,7 +37,6 @@ import com.sejong.userservice.support.common.redis.RedisKeyUtil;
 import com.sejong.userservice.support.common.redis.RedisService;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
 import com.sejong.userservice.support.common.util.FileValidator;
-import com.sejong.userservice.support.common.util.Filepath;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
@@ -87,20 +86,20 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserRes> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(UserRes::from);
+        return userRepository.findAll(pageable).map(this::toUserResWithUrl);
     }
 
     @Transactional
     public UserRes updateUser(String username, UserUpdateRequest updateRequest) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         user.updateProfile(updateRequest);
-        return UserRes.from(user);
+        return toUserResWithUrl(user);
     }
 
     @Transactional
     public UserRes deleteUser(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-        UserRes userRes = UserRes.from(user);
+        UserRes userRes = toUserResWithUrl(user);
         userRepository.deleteByUsername(username);
         log.info("User {} deleted successfully.", username);
         return userRes;
@@ -199,7 +198,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserRes getUserInfo(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-        return UserRes.from(user);
+        return toUserResWithUrl(user);
     }
 
     @Transactional
@@ -224,7 +223,7 @@ public class UserService {
         List<UserRole> searchRoles = (roles == null || roles.isEmpty())
                 ? List.of(UserRole.values())
                 : roles;
-        return userRepository.findByRolesAndSearch(searchRoles, nickname, realName, pageable).map(UserRes::from);
+        return userRepository.findByRolesAndSearch(searchRoles, nickname, realName, pageable).map(this::toUserResWithUrl);
     }
 
     @Transactional(readOnly = true)
@@ -240,7 +239,7 @@ public class UserService {
         }
 
         List<UserSearchResponse> response = users.stream()
-                .map(UserSearchResponse::from)
+                .map(this::toUserSearchResponseWithUrl)
                 .collect(Collectors.toList());
 
         return CursorPageRes.from(response, cursorPageReq.getSize(), UserSearchResponse::getId);
@@ -260,7 +259,7 @@ public class UserService {
         }
 
         List<UserSearchResponse> response = users.stream()
-                .map(UserSearchResponse::from)
+                .map(this::toUserSearchResponseWithUrl)
                 .collect(Collectors.toList());
 
         return CursorPageRes.from(response, cursorPageReq.getSize(), UserSearchResponse::getId);
@@ -413,12 +412,14 @@ public class UserService {
         );
     }
 
+    @Transactional
     public UserRes updateProfileImage(String username, MultipartFile imageFile) {
-         fileValidator.validateImageFile(imageFile);
+        fileValidator.validateImageFile(imageFile);
+
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         if (user.getProfileImageKey() != null) {
             try {
-                fileUploader.delete(Filepath.of(user.getProfileImageKey()));
+                fileUploader.delete(user.getProfileImageKey());
                 log.info("기존 프로필 이미지 삭제: {}", user.getProfileImageKey());
             } catch (Exception e) {
                 log.warn("기존 이미지 삭제 실패 (계속 진행): {}", user.getProfileImageKey(), e);
@@ -426,14 +427,39 @@ public class UserService {
         }
         String directory = String.format("%s/users/%d/profile", "user-service", user.getId());
 
-        Filepath newImagePath = fileUploader.uploadFile(
+        String key = fileUploader.upㅇloadFile(
             imageFile,
             directory,
             imageFile.getOriginalFilename()
         );
 
-        user.updateProfileImage(newImagePath.path());
-        log.info("프로필 이미지 업데이트 완료: userId={}, url={}", user.getId(), newImagePath.path());
-        return UserRes.from(user);
+        user.updateProfileImage(key);
+        log.info("프로필 이미지 업데이트 완료: userId={}, key={}", user.getId(), key);
+
+        return toUserResWithUrl(user);
+    }
+
+    /**
+     * User -> UserRes 변환 시 profileImageKey를 URL로 변환
+     * - 외부 URL (GitHub 등): 그대로 반환
+     * - 내부 key: endpoint/bucket/key 형태로 조립
+     */
+    private UserRes toUserResWithUrl(User user) {
+        UserRes userRes = UserRes.from(user);
+        if (user.getProfileImageKey() != null) {
+            userRes.setProfileImageUrl(fileUploader.getFileUrl(user.getProfileImageKey()));
+        }
+        return userRes;
+    }
+
+    /**
+     * User -> UserSearchResponse 변환 시 profileImageKey를 URL로 변환
+     */
+    private UserSearchResponse toUserSearchResponseWithUrl(User user) {
+        UserSearchResponse response = UserSearchResponse.from(user);
+        if (user.getProfileImageKey() != null) {
+            response.setProfileImageUrl(fileUploader.getFileUrl(user.getProfileImageKey()));
+        }
+        return response;
     }
 }
