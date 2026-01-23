@@ -1,7 +1,6 @@
 package com.sejong.userservice.client.file;
 
 import com.sejong.userservice.client.file.dto.PreSignedUrl;
-import com.sejong.userservice.support.common.util.Filepath;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
@@ -43,11 +42,18 @@ public class S3FileUploader implements FileUploader {
     @Value("${spring.application.name}")
     private String serviceName;
 
-    // 공통
+    // ==================== 공통 ====================
+
+    /**
+     * 파일 삭제 (내부 스토리지 파일만)
+     */
     @Override
-    public void delete(Filepath filePath) {
+    public void delete(String key) {
+        if (key == null || isExternalUrl(key)) {
+            log.warn("삭제 스킵 - null이거나 외부 URL: {}", key);
+            return;
+        }
         try {
-            String key = extractKeyFromUrl(filePath.path());
             DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
@@ -55,16 +61,34 @@ public class S3FileUploader implements FileUploader {
             s3Client.deleteObject(deleteRequest);
             log.info("S3 파일 삭제 완료: {}", key);
         } catch (Exception e) {
-            log.error("S3 파일 삭제 실패: {}", filePath.path(), e);
+            log.error("S3 파일 삭제 실패: {}", key, e);
             throw new RuntimeException("파일 삭제 실패", e);
         }
     }
 
-    // 공통
+    /**
+     * key 또는 외부 URL을 전체 URL로 변환
+     * - 외부 URL (http://, https://): 그대로 반환
+     * - 내부 key: endpoint/bucket/key 형태로 조립
+     */
     @Override
-    public Filepath getFileUrl(String key) {
-        String url = String.format("%s/%s/%s", endpoint, bucketName, key);
-        return Filepath.of(url);
+    public String getFileUrl(String keyOrUrl) {
+        if (keyOrUrl == null) {
+            return null;
+        }
+        // 이미 URL이면 그대로 반환 (GitHub 프로필 등 외부 이미지)
+        if (isExternalUrl(keyOrUrl)) {
+            return keyOrUrl;
+        }
+        // 내부 key면 URL 조립
+        return String.format("%s/%s/%s", endpoint, bucketName, keyOrUrl);
+    }
+
+    /**
+     * 외부 URL인지 판단
+     */
+    private boolean isExternalUrl(String value) {
+        return value.startsWith("http://") || value.startsWith("https://");
     }
 
     /**
@@ -112,12 +136,21 @@ public class S3FileUploader implements FileUploader {
         return String.format("temp/%s/%s/%s_%s%s", serviceName, dirName, cleanFileName, uuid, fileExtension);
     }
 
-    private String extractKeyFromUrl(String url) {
-        // Garage URL 형식: http://host:port/bucket/key
+    /**
+     * URL에서 key 추출
+     * - 내부 URL: bucket 이후 경로 추출
+     * - 외부 URL: 그대로 반환 (GitHub 등)
+     */
+    @Override
+    public String extractKeyFromUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        // 외부 URL이면 그대로 반환
         String bucketPrefix = "/" + bucketName + "/";
         int bucketIndex = url.indexOf(bucketPrefix);
-        if (bucketIndex == -1) {
-            throw new IllegalArgumentException("Invalid S3 URL format: " + url);
+        if (bucketIndex == -1) { // 내부 URL 형식이 아니면 그대로 반환 (외부 URL로 간주)
+            return url;
         }
         return url.substring(bucketIndex + bucketPrefix.length());
     }
@@ -128,7 +161,7 @@ public class S3FileUploader implements FileUploader {
      * @param targetDirectory project-service/projects/{projectId}/images
      */
     @Override
-    public Filepath moveFile(String sourceKey, String targetDirectory) {
+    public String moveFile(String sourceKey, String targetDirectory) {
         String fileName = sourceKey.substring(sourceKey.lastIndexOf("/") + 1);
         String targetKey = String.format("%s/%s", targetDirectory, fileName);
 
@@ -148,7 +181,7 @@ public class S3FileUploader implements FileUploader {
                 .build());
 
             log.info("S3 파일 이동 완료: {} -> {}", sourceKey, targetKey);
-            return getFileUrl(targetKey);
+            return targetKey;
 
         } catch (Exception e) {
             log.error("S3 파일 이동 실패: {} -> {}", sourceKey, targetDirectory, e);
@@ -164,7 +197,7 @@ public class S3FileUploader implements FileUploader {
      * @param fileName 원본 파일명
      */
     @Override
-    public Filepath uploadFile(MultipartFile file, String directory, String fileName) {
+    public String uploadFile(MultipartFile file, String directory, String fileName) {
         try {
             // key 생성: user-service/users/123/profile/image_uuid.jpg
             String key = generateDirectUploadKey(directory, fileName);
@@ -183,7 +216,7 @@ public class S3FileUploader implements FileUploader {
             );
 
             log.info("S3 파일 업로드 완료: {}", key);
-            return getFileUrl(key);
+            return key;
 
         } catch (IOException e) {
             log.error("파일 업로드 실패: {}", fileName, e);

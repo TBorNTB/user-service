@@ -50,7 +50,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .email(oAuth2Response.getEmail())
                     .encryptPassword(bCryptPasswordEncoder.encode(UUID.randomUUID().toString())) // OAuth2 사용자용 더미 비밀번호
                     .role(UserRole.GUEST)
-                    .profileImageUrl(oAuth2Response.getAvatarUrl())
+                    .profileImageKey(oAuth2Response.getAvatarUrl())
                     .build();
 
             userRepository.save(user);
