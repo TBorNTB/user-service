@@ -427,7 +427,7 @@ public class UserService {
         }
         String directory = String.format("%s/users/%d/profile", "user-service", user.getId());
 
-        String key = fileUploader.upㅇloadFile(
+        String key = fileUploader.uploadFile(
             imageFile,
             directory,
             imageFile.getOriginalFilename()
