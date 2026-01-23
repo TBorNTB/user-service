@@ -416,12 +416,12 @@ public class UserService {
     public UserRes updateProfileImage(String username, MultipartFile imageFile) {
          fileValidator.validateImageFile(imageFile);
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-        if (user.getProfileImageUrl() != null) {
+        if (user.getProfileImageKey() != null) {
             try {
-                fileUploader.delete(Filepath.of(user.getProfileImageUrl()));
-                log.info("기존 프로필 이미지 삭제: {}", user.getProfileImageUrl());
+                fileUploader.delete(Filepath.of(user.getProfileImageKey()));
+                log.info("기존 프로필 이미지 삭제: {}", user.getProfileImageKey());
             } catch (Exception e) {
-                log.warn("기존 이미지 삭제 실패 (계속 진행): {}", user.getProfileImageUrl(), e);
+                log.warn("기존 이미지 삭제 실패 (계속 진행): {}", user.getProfileImageKey(), e);
             }
         }
         String directory = String.format("%s/users/%d/profile", "user-service", user.getId());

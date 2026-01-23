@@ -21,7 +21,7 @@ public class ChatRoomMemberResponse {
                 .username(user.getUsername())
                 .nickname(user.getNickname())
                 .realName(user.getRealName())
-                .thumbnailUrl(user.getProfileImageUrl())
+                .thumbnailUrl(user.getProfileImageKey())
                 .build();
     }
 }

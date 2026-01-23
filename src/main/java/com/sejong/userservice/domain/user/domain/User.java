@@ -70,7 +70,7 @@ public class User {
     private String blogUrl;
 
     @Column(length = 255)
-    private String profileImageUrl;
+    private String profileImageKey;
 
     @CreatedDate
     @Column(updatable = false)
@@ -92,7 +92,7 @@ public class User {
             .githubUrl(null)
             .linkedinUrl(null)
             .blogUrl(null)
-            .profileImageUrl(null)
+            .profileImageKey(null)
             .createdAt(LocalDateTime.now())
             .updatedAt(LocalDateTime.now())
             .build();
@@ -126,7 +126,7 @@ public class User {
             this.blogUrl = updateRequest.getBlogUrl();
         }
         if (updateRequest.getProfileImageUrl() != null) {
-            this.profileImageUrl = updateRequest.getProfileImageUrl();
+            this.profileImageKey = updateRequest.getProfileImageUrl();
         }
         this.updatedAt = LocalDateTime.now();
     }
@@ -136,7 +136,7 @@ public class User {
         this.updatedAt = LocalDateTime.now();
     }
 
-    public void updateProfileImage(String newImagePath) {
-        this.profileImageUrl = newImagePath;
+    public void updateProfileImage(String newImageKey) {
+        this.profileImageKey = newImageKey;
     }
 }
