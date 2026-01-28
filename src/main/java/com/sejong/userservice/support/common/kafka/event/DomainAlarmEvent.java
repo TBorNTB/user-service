@@ -69,6 +69,7 @@ public class DomainAlarmEvent {
         DomainType domainType = switch (postType) {
             case NEWS -> DomainType.NEWS;
             case PROJECT -> DomainType.PROJECT;
+            case QNA_QUESTION, QNA_ANSWER -> DomainType.QNA;
             case DOCUMENT -> DomainType.DOCUMENT;
             case ARTICLE -> DomainType.ARTICLE;
             default -> DomainType.GLOBAL;

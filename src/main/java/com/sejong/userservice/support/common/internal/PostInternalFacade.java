@@ -19,6 +19,7 @@ public class PostInternalFacade {
     private final ProjectInternalService projectInternalService;
     private final NewsInternalService newsInternalService;
     private final CSKnowledgeInternalService CSKnowledgeInternalService;
+    private final QnaInternalService qnaInternalService;
 
     public String checkPostExistenceAndOwner(Long postId, PostType postType) {
         switch (postType) {
@@ -30,6 +31,12 @@ public class PostInternalFacade {
             }
             case ARTICLE -> {
                 return CSKnowledgeInternalService.validateExists(postId);
+            }
+            case QNA_QUESTION -> {
+                return qnaInternalService.validateQuestionExists(postId);
+            }
+            case QNA_ANSWER -> {
+                return qnaInternalService.validateAnswerExists(postId);
             }
             default -> throw new BaseException(BAD_REQUEST);
 

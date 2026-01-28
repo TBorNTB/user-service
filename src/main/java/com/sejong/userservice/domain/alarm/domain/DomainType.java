@@ -7,6 +7,7 @@ public enum DomainType {
 
     NEWS("뉴스"),
     PROJECT("프로젝트"),
+    QNA("QnA"),
     DOCUMENT("다큐먼트"),
     ARTICLE("아티클"),
     GLOBAL(""),

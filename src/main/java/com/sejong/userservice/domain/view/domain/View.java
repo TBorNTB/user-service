@@ -31,6 +31,7 @@ public class View {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(50)")
     private PostType postType;
 
     private Long postId;

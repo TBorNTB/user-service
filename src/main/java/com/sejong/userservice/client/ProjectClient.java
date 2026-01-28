@@ -25,6 +25,12 @@ public interface ProjectClient {
     @GetMapping("/archive/check/cs/{csKnowledgeId}")
     ResponseEntity<PostLikeCheckResponse> checkCSKnowledge(@PathVariable("csKnowledgeId") Long csKnowledgeId);
 
+    @GetMapping("/qna/check/question/{questionId}")
+    ResponseEntity<PostLikeCheckResponse> checkQnaQuestion(@PathVariable("questionId") Long questionId);
+
+    @GetMapping("/qna/check/answer/{answerId}")
+    ResponseEntity<PostLikeCheckResponse> checkQnaAnswer(@PathVariable("answerId") Long answerId);
+
     @GetMapping("/archive/news/count")
     ResponseEntity<Long> getNewsCount();
 
