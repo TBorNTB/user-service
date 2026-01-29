@@ -69,7 +69,7 @@ public class S3FileUploader implements FileUploader {
     /**
      * key 또는 외부 URL을 전체 URL로 변환
      * - 외부 URL (http://, https://): 그대로 반환
-     * - 내부 key: endpoint/bucket/key 형태로 조립
+     * - 내부 key: baseUrl/key 형태로 조립 (버킷명은 nginx에서 Host 헤더로 처리)
      */
     @Override
     public String getFileUrl(String keyOrUrl) {
@@ -80,8 +80,8 @@ public class S3FileUploader implements FileUploader {
         if (isExternalUrl(keyOrUrl)) {
             return keyOrUrl;
         }
-        // 내부 key면 URL 조립
-        return String.format("%s/%s/%s", baseUrl, bucketName, keyOrUrl);
+        // 내부 key면 URL 조립 (버킷명 제외 - nginx Host 헤더로 처리)
+        return String.format("%s/%s", baseUrl, keyOrUrl);
     }
 
     /**
@@ -112,7 +112,7 @@ public class S3FileUploader implements FileUploader {
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-        String downloadUrl = String.format("%s/%s/%s", baseUrl, bucketName, key);
+        String downloadUrl = String.format("%s/%s", baseUrl, key);
 
         return new PreSignedUrl(
                 presignedRequest.url().toString(),
@@ -138,7 +138,7 @@ public class S3FileUploader implements FileUploader {
 
     /**
      * URL에서 key 추출
-     * - 내부 URL: bucket 이후 경로 추출
+     * - 내부 URL (baseUrl로 시작): baseUrl 이후 경로 추출
      * - 외부 URL: 그대로 반환 (GitHub 등)
      */
     @Override
@@ -146,13 +146,14 @@ public class S3FileUploader implements FileUploader {
         if (url == null) {
             return null;
         }
-        // 외부 URL이면 그대로 반환
-        String bucketPrefix = "/" + bucketName + "/";
-        int bucketIndex = url.indexOf(bucketPrefix);
-        if (bucketIndex == -1) { // 내부 URL 형식이 아니면 그대로 반환 (외부 URL로 간주)
-            return url;
+        // baseUrl로 시작하면 내부 URL → key 추출
+        if (url.startsWith(baseUrl)) {
+            String key = url.substring(baseUrl.length());
+            // 앞에 / 가 있으면 제거
+            return key.startsWith("/") ? key.substring(1) : key;
         }
-        return url.substring(bucketIndex + bucketPrefix.length());
+        // 그 외는 외부 URL로 간주하여 그대로 반환
+        return url;
     }
 
     /**
