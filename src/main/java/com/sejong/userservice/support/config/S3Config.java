@@ -20,6 +20,9 @@ public class S3Config {
     @Value("${aws.s3.endpoint}")
     private String endpoint;
 
+    @Value("${app.file.base-url}")
+    private String publicEndpoint;
+
     @Value("${aws.s3.path-style-access-enabled:true}")
     private boolean pathStyleAccessEnabled;
 
@@ -29,6 +32,10 @@ public class S3Config {
     @Value("${spring.cloud.aws.credentials.secret-key}")
     private String secretKey;
 
+    /**
+     * S3Client - 내부 통신용 (업로드, 삭제, 복사 등)
+     * endpoint: http://${DB_HOST}:3900
+     */
     @Bean
     public S3Client s3Client() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
@@ -43,13 +50,17 @@ public class S3Config {
                 .build();
     }
 
+    /**
+     * S3Presigner - Presigned URL 생성용 (클라이언트가 직접 접근)
+     * endpoint: https://files.sejongssg.kr (공개 URL)
+     */
     @Bean
     public S3Presigner s3Presigner() {
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
         return S3Presigner.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(endpoint))
+                .endpointOverride(URI.create(publicEndpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .serviceConfiguration(S3Configuration.builder()
                         .pathStyleAccessEnabled(pathStyleAccessEnabled)
