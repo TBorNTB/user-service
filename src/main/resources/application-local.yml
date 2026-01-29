@@ -123,4 +123,5 @@ app:
   oauth2:
     success-redirect-uri: ${FRONTEND}
   file:
-    base-url: ${FILE_BASE_URL:http://tbntb-bucket.localhost:3902}
+    base-url: ${FILE_BASE_URL:http://tbntb-bucket.localhost:3902} # 다운로드용
+    presigner-endpoint: http://localhost:3900 # 업로드용 S3 API

@@ -20,8 +20,8 @@ public class S3Config {
     @Value("${aws.s3.endpoint}")
     private String endpoint;
 
-    @Value("${app.file.base-url}")
-    private String publicEndpoint;
+    @Value("${app.file.presigner-endpoint}")
+    private String presignerEndpoint;
 
     @Value("${aws.s3.path-style-access-enabled:true}")
     private boolean pathStyleAccessEnabled;
@@ -60,7 +60,7 @@ public class S3Config {
 
         return S3Presigner.builder()
                 .region(Region.of(region))
-                .endpointOverride(URI.create(publicEndpoint))
+                .endpointOverride(URI.create(presignerEndpoint))
                 .credentialsProvider(StaticCredentialsProvider.create(credentials))
                 .serviceConfiguration(S3Configuration.builder()
                         .pathStyleAccessEnabled(pathStyleAccessEnabled)

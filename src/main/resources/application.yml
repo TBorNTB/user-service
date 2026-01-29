@@ -137,4 +137,5 @@ app:
   oauth2:
     success-redirect-uri: ${FRONTEND}
   file:
-    base-url: ${FILE_BASE_URL:https://files.sejongssg.kr} # 외부 공개용
+    base-url: ${FILE_BASE_URL:https://files.sejongssg.kr} # 외부 공개용 (다운로드)
+    presigner-endpoint: ${PRESIGNER_ENDPOINT:https://files.sejongssg.kr} # 업로드용 S3 API
