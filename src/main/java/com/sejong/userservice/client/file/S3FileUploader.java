@@ -36,8 +36,8 @@ public class S3FileUploader implements FileUploader {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    @Value("${aws.s3.endpoint}")
-    private String endpoint;
+    @Value("${app.file.base-url}")
+    private String baseUrl;
 
     @Value("${spring.application.name}")
     private String serviceName;
@@ -81,7 +81,7 @@ public class S3FileUploader implements FileUploader {
             return keyOrUrl;
         }
         // 내부 key면 URL 조립
-        return String.format("%s/%s/%s", endpoint, bucketName, keyOrUrl);
+        return String.format("%s/%s/%s", baseUrl, bucketName, keyOrUrl);
     }
 
     /**
@@ -112,7 +112,7 @@ public class S3FileUploader implements FileUploader {
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-        String downloadUrl = String.format("%s/%s/%s", endpoint, bucketName, key);
+        String downloadUrl = String.format("%s/%s/%s", baseUrl, bucketName, key);
 
         return new PreSignedUrl(
                 presignedRequest.url().toString(),

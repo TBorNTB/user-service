@@ -119,7 +119,7 @@ aws:
   s3:
     bucket: ${S3_BUCKET}
     region: ${S3_REGION:garage}
-    endpoint: http://${DB_HOST}:3900
+    endpoint: http://${DB_HOST}:3900  # 내부 통신용
     path-style-access-enabled: true
 
 management:
@@ -136,3 +136,5 @@ management:
 app:
   oauth2:
     success-redirect-uri: ${FRONTEND}
+  file:
+    base-url: ${FILE_BASE_URL:https://files.sejongssg.kr} # 외부 공개용
