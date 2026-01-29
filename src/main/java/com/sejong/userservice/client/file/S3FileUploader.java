@@ -1,20 +1,30 @@
 package com.sejong.userservice.client.file;
 
 import com.sejong.userservice.client.file.dto.PreSignedUrl;
-import com.sejong.userservice.support.common.util.Filepath;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
+/**
+ * S3 호환 스토리지 (Garage) 파일 업로더
+ *
+ * 지원 방식:
+ * 1. Presigned URL - generatePreSignedUrl() + moveFile()
+ * 2. 직접 업로드 - uploadFile()
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -26,17 +36,69 @@ public class S3FileUploader implements FileUploader {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    @Value("${aws.s3.region}")
-    private String region;
+    @Value("${app.file.base-url}")
+    private String baseUrl;
 
     @Value("${spring.application.name}")
     private String serviceName;
 
+    // ==================== 공통 ====================
 
+    /**
+     * 파일 삭제 (내부 스토리지 파일만)
+     */
+    @Override
+    public void delete(String key) {
+        if (key == null || isExternalUrl(key)) {
+            log.warn("삭제 스킵 - null이거나 외부 URL: {}", key);
+            return;
+        }
+        try {
+            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+            s3Client.deleteObject(deleteRequest);
+            log.info("S3 파일 삭제 완료: {}", key);
+        } catch (Exception e) {
+            log.error("S3 파일 삭제 실패: {}", key, e);
+            throw new RuntimeException("파일 삭제 실패", e);
+        }
+    }
+
+    /**
+     * key 또는 외부 URL을 전체 URL로 변환
+     * - 외부 URL (http://, https://): 그대로 반환
+     * - 내부 key: endpoint/bucket/key 형태로 조립
+     */
+    @Override
+    public String getFileUrl(String keyOrUrl) {
+        if (keyOrUrl == null) {
+            return null;
+        }
+        // 이미 URL이면 그대로 반환 (GitHub 프로필 등 외부 이미지)
+        if (isExternalUrl(keyOrUrl)) {
+            return keyOrUrl;
+        }
+        // 내부 key면 URL 조립
+        return String.format("%s/%s/%s", baseUrl, bucketName, keyOrUrl);
+    }
+
+    /**
+     * 외부 URL인지 판단
+     */
+    private boolean isExternalUrl(String value) {
+        return value.startsWith("http://") || value.startsWith("https://");
+    }
+
+    /**
+     * Presigned URL 생성
+     * - temp 폴더에 업로드 후, 저장 시 moveFile()로 최종 위치 이동
+     * - 용도: 에디터 이미지, 대용량 파일
+     */
     @Override
     public PreSignedUrl generatePreSignedUrl(String fileName, String contentType, String fileType) {
-        // 서비스별 폴더 구조: archive-service/thumbnails/filename_uuid.ext
-        String key = generateKey(serviceName, fileType, fileName);
+        String key = generateTempKey(serviceName, fileType, fileName);
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
@@ -50,7 +112,7 @@ public class S3FileUploader implements FileUploader {
                 .build();
 
         PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-        String downloadUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
+        String downloadUrl = String.format("%s/%s/%s", baseUrl, bucketName, key);
 
         return new PreSignedUrl(
                 presignedRequest.url().toString(),
@@ -60,41 +122,118 @@ public class S3FileUploader implements FileUploader {
         );
     }
 
-    @Override
-    public void delete(Filepath filePath) {
-        try {
-            String key = extractKeyFromUrl(filePath.path());
-            DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(key)
-                    .build();
-            s3Client.deleteObject(deleteRequest);
-            log.info("S3 파일 삭제 완료: {}", key);
-        } catch (Exception e) {
-            log.error("S3 파일 삭제 실패: {}", filePath.path(), e);
-            throw new RuntimeException("파일 삭제 실패", e);
-        }
-    }
-
-    @Override
-    public Filepath getFileUrl(String key) {
-        String url = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, key);
-        return Filepath.of(url);
-    }
-
-    private String generateKey(String serviceName, String dirName, String fileName) {
+    /**
+     * Presigned URL용 key 생성 (temp 폴더 포함)
+     * 결과: temp/{service}/{type}/{filename}_{uuid}.{ext}
+     */
+    private String generateTempKey(String serviceName, String dirName, String fileName) {
         int lastDotIndex = fileName.lastIndexOf(".");
         String fileExtension = lastDotIndex != -1 ? fileName.substring(lastDotIndex) : "";
         String uuid = UUID.randomUUID().toString();
         String cleanFileName = lastDotIndex != -1 ? fileName.substring(0, lastDotIndex) : fileName;
-        return String.format("%s/%s/%s_%s%s", serviceName, dirName, cleanFileName, uuid, fileExtension);
+
+        // temp 폴더에 먼저 업로드
+        return String.format("temp/%s/%s/%s_%s%s", serviceName, dirName, cleanFileName, uuid, fileExtension);
     }
 
-    private String extractKeyFromUrl(String url) {
-        int comIndex = url.indexOf(".com/");
-        if (comIndex == -1) {
-            throw new IllegalArgumentException("Invalid S3 URL format: " + url);
+    /**
+     * URL에서 key 추출
+     * - 내부 URL: bucket 이후 경로 추출
+     * - 외부 URL: 그대로 반환 (GitHub 등)
+     */
+    @Override
+    public String extractKeyFromUrl(String url) {
+        if (url == null) {
+            return null;
         }
-        return url.substring(comIndex + 5);
+        // 외부 URL이면 그대로 반환
+        String bucketPrefix = "/" + bucketName + "/";
+        int bucketIndex = url.indexOf(bucketPrefix);
+        if (bucketIndex == -1) { // 내부 URL 형식이 아니면 그대로 반환 (외부 URL로 간주)
+            return url;
+        }
+        return url.substring(bucketIndex + bucketPrefix.length());
+    }
+
+    /**
+     * temp 파일을 최종 위치로 이동 (복사 후 원본 삭제)
+     * @param sourceKey temp/project-service/projects/image_uuid.jpg
+     * @param targetDirectory project-service/projects/{projectId}/images
+     */
+    @Override
+    public String moveFile(String sourceKey, String targetDirectory) {
+        String fileName = sourceKey.substring(sourceKey.lastIndexOf("/") + 1);
+        String targetKey = String.format("%s/%s", targetDirectory, fileName);
+
+        try {
+            // 1. 복사
+            s3Client.copyObject(CopyObjectRequest.builder()
+                .sourceBucket(bucketName)
+                .sourceKey(sourceKey)
+                .destinationBucket(bucketName)
+                .destinationKey(targetKey)
+                .build());
+
+            // 2. 원본 삭제
+            s3Client.deleteObject(DeleteObjectRequest.builder()
+                .bucket(bucketName)
+                .key(sourceKey)
+                .build());
+
+            log.info("S3 파일 이동 완료: {} -> {}", sourceKey, targetKey);
+            return targetKey;
+
+        } catch (Exception e) {
+            log.error("S3 파일 이동 실패: {} -> {}", sourceKey, targetDirectory, e);
+            throw new RuntimeException("파일 이동 실패", e);
+        }
+    }
+
+    // 직접 업로드
+    /**
+     * 파일 직접 업로드 (temp 거치지 않고 바로 최종 위치)
+     * - 용도: 프로필 이미지, 썸네일 등 소용량 파일
+     * @param directory user-service/users/{userId}/profile
+     * @param fileName 원본 파일명
+     */
+    @Override
+    public String uploadFile(MultipartFile file, String directory, String fileName) {
+        try {
+            // key 생성: user-service/users/123/profile/image_uuid.jpg
+            String key = generateDirectUploadKey(directory, fileName);
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType(file.getContentType())
+                .contentLength(file.getSize())
+                .build();
+
+            // S3에 직접 업로드
+            s3Client.putObject(
+                putObjectRequest,
+                RequestBody.fromInputStream(file.getInputStream(), file.getSize())
+            );
+
+            log.info("S3 파일 업로드 완료: {}", key);
+            return key;
+
+        } catch (IOException e) {
+            log.error("파일 업로드 실패: {}", fileName, e);
+            throw new RuntimeException("파일 업로드 실패", e);
+        }
+    }
+
+    /**
+     * 직접 업로드용 key 생성 (temp 없이 바로 최종 위치)
+     * 결과: {directory}/{filename}_{uuid}.{ext}
+     */
+    private String generateDirectUploadKey(String directory, String fileName) {
+        int lastDotIndex = fileName.lastIndexOf(".");
+        String fileExtension = lastDotIndex != -1 ? fileName.substring(lastDotIndex) : "";
+        String uuid = UUID.randomUUID().toString();
+        String cleanFileName = lastDotIndex != -1 ? fileName.substring(0, lastDotIndex) : fileName;
+
+        return String.format("%s/%s_%s%s", directory, cleanFileName, uuid, fileExtension);
     }
 }

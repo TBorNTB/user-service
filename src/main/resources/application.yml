@@ -62,13 +62,11 @@ spring:
 
   cloud:
     aws:
-      region:
-        static: ap-northeast-2
       credentials:
         access-key: ${S3_ACCESS_KEY}
         secret-key: ${S3_SECRET_KEY}
-      stack:
-        auto: false
+      region:
+        static: ${S3_REGION:garage}
 
   security:
     oauth2:
@@ -120,7 +118,9 @@ jwt:
 aws:
   s3:
     bucket: ${S3_BUCKET}
-    region: ap-northeast-2
+    region: ${S3_REGION:garage}
+    endpoint: http://${DB_HOST}:3900  # 내부 통신용
+    path-style-access-enabled: true
 
 management:
   server:
@@ -136,3 +136,5 @@ management:
 app:
   oauth2:
     success-redirect-uri: ${FRONTEND}
+  file:
+    base-url: ${FILE_BASE_URL:https://files.sejongssg.kr} # 외부 공개용

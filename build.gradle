@@ -111,6 +111,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     //prometheus를 이용한 데이터 통계
     implementation 'io.micrometer:micrometer-registry-prometheus'
+
+    //jsoup
+    implementation 'org.jsoup:jsoup:1.22.1'
 }
 
 dependencyManagement {

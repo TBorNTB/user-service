@@ -29,7 +29,7 @@ public class UserSearchResponse {
                 .username(user.getUsername())
                 .realName(user.getRealName())
                 .nickname(user.getNickname())
-                .profileImageUrl(user.getProfileImageUrl())
+                .profileImageUrl(user.getProfileImageKey())
                 .email(user.getEmail())
                 .build();
     }
