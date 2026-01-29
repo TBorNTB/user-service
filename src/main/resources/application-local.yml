@@ -123,4 +123,4 @@ app:
   oauth2:
     success-redirect-uri: ${FRONTEND}
   file:
-    base-url: ${FILE_BASE_URL:http://localhost:3900/}
+    base-url: ${FILE_BASE_URL:http://localhost:3900}
