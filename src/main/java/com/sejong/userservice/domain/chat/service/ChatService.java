@@ -10,10 +10,10 @@ import com.sejong.userservice.domain.chat.controller.response.ChatMessagesPageRe
 import com.sejong.userservice.domain.chat.controller.response.ChatRoomListItemResponse;
 import com.sejong.userservice.domain.chat.controller.response.ChatRoomMemberResponse;
 import com.sejong.userservice.domain.chat.controller.response.ChatRoomsPageResponse;
-import com.sejong.userservice.domain.chat.controller.response.UnreadCountResponse;
 import com.sejong.userservice.domain.chat.controller.response.GroupRoomResponse;
 import com.sejong.userservice.domain.chat.controller.response.RoomResponse;
 import com.sejong.userservice.domain.chat.controller.response.SingleRoomResponse;
+import com.sejong.userservice.domain.chat.controller.response.UnreadCountResponse;
 import com.sejong.userservice.domain.chat.domain.ChatMessage;
 import com.sejong.userservice.domain.chat.domain.ChatRoom;
 import com.sejong.userservice.domain.chat.domain.ChatRoomUser;
@@ -27,10 +27,10 @@ import com.sejong.userservice.domain.chat.repository.projection.RoomUnreadCountP
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
-import java.util.List;
 import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -211,7 +211,7 @@ public class ChatService {
                     summary.getLastSenderUsername(),
                     lastSender == null ? null : lastSender.getNickname(),
                     lastSender == null ? null : lastSender.getRealName(),
-                    lastSender == null ? null : lastSender.getProfileImageUrl(),
+                    lastSender == null ? null : lastSender.getProfileImageKey(),
                     memberCountByRoomId.getOrDefault(roomId, 0L),
                     unreadByRoomId.getOrDefault(roomId, 0L),
                     others
@@ -307,7 +307,7 @@ public class ChatService {
                 .map(it -> {
                     User user = userRepository.findByUsername(it.getUsername())
                             .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-                    return ChatMessageResponse.of(it, user.getNickname(), user.getProfileImageUrl());
+                    return ChatMessageResponse.of(it, user.getNickname(), user.getProfileImageKey());
                 }).toList();
     }
 
@@ -340,7 +340,7 @@ public class ChatService {
             .map(message -> {
                 User user = userByUsername.get(message.getUsername());
                 String nickname = (user == null) ? null : user.getNickname();
-                String thumbnailUrl = (user == null) ? null : user.getProfileImageUrl();
+                String thumbnailUrl = (user == null) ? null : user.getProfileImageKey();
                 return ChatMessageResponse.of(message, nickname, thumbnailUrl);
             })
             .toList();

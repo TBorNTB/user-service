@@ -4,6 +4,7 @@ import static com.sejong.userservice.support.common.exception.type.ExceptionType
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.WRONG_PASSWORD;
 
+import com.sejong.userservice.client.file.FileUploader;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
 import com.sejong.userservice.domain.comment.repository.CommentRepository;
@@ -35,6 +36,7 @@ import com.sejong.userservice.support.common.pagination.SortDirection;
 import com.sejong.userservice.support.common.redis.RedisKeyUtil;
 import com.sejong.userservice.support.common.redis.RedisService;
 import com.sejong.userservice.support.common.security.jwt.JWTUtil;
+import com.sejong.userservice.support.common.util.FileValidator;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
@@ -50,6 +52,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -57,15 +60,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final TokenService tokenService;
-    private final AlarmService alarmService;
+
     private final JWTUtil jwtUtil;
-    private final PostInternalFacade postInternalFacade;
-    private final ViewJPARepository viewJPARepository;
-    private final LikeRepository likeRepository;
-    private final CommentRepository commentRepository;
+    private final TokenService tokenService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
     private final RedisService redisService;
+    private final LikeRepository likeRepository;
+    private final ViewJPARepository viewJPARepository;
+    private final AlarmService alarmService;
+    private final CommentRepository commentRepository;
+    private final PostInternalFacade postInternalFacade;
+
+    private final FileUploader fileUploader;
+    private final FileValidator fileValidator;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
@@ -78,20 +86,20 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserRes> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(UserRes::from);
+        return userRepository.findAll(pageable).map(this::toUserResWithUrl);
     }
 
     @Transactional
     public UserRes updateUser(String username, UserUpdateRequest updateRequest) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         user.updateProfile(updateRequest);
-        return UserRes.from(user);
+        return toUserResWithUrl(user);
     }
 
     @Transactional
     public UserRes deleteUser(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-        UserRes userRes = UserRes.from(user);
+        UserRes userRes = toUserResWithUrl(user);
         userRepository.deleteByUsername(username);
         log.info("User {} deleted successfully.", username);
         return userRes;
@@ -190,7 +198,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserRes getUserInfo(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
-        return UserRes.from(user);
+        return toUserResWithUrl(user);
     }
 
     @Transactional
@@ -215,7 +223,7 @@ public class UserService {
         List<UserRole> searchRoles = (roles == null || roles.isEmpty())
                 ? List.of(UserRole.values())
                 : roles;
-        return userRepository.findByRolesAndSearch(searchRoles, nickname, realName, pageable).map(UserRes::from);
+        return userRepository.findByRolesAndSearch(searchRoles, nickname, realName, pageable).map(this::toUserResWithUrl);
     }
 
     @Transactional(readOnly = true)
@@ -231,7 +239,7 @@ public class UserService {
         }
 
         List<UserSearchResponse> response = users.stream()
-                .map(UserSearchResponse::from)
+                .map(this::toUserSearchResponseWithUrl)
                 .collect(Collectors.toList());
 
         return CursorPageRes.from(response, cursorPageReq.getSize(), UserSearchResponse::getId);
@@ -251,7 +259,7 @@ public class UserService {
         }
 
         List<UserSearchResponse> response = users.stream()
-                .map(UserSearchResponse::from)
+                .map(this::toUserSearchResponseWithUrl)
                 .collect(Collectors.toList());
 
         return CursorPageRes.from(response, cursorPageReq.getSize(), UserSearchResponse::getId);
@@ -402,5 +410,56 @@ public class UserService {
                 pageable, 
                 uniquePostList.size()
         );
+    }
+
+    @Transactional
+    public UserRes updateProfileImage(String username, MultipartFile imageFile) {
+        fileValidator.validateImageFile(imageFile);
+
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+        if (user.getProfileImageKey() != null) {
+            try {
+                fileUploader.delete(user.getProfileImageKey());
+                log.info("기존 프로필 이미지 삭제: {}", user.getProfileImageKey());
+            } catch (Exception e) {
+                log.warn("기존 이미지 삭제 실패 (계속 진행): {}", user.getProfileImageKey(), e);
+            }
+        }
+        String directory = String.format("%s/users/%d/profile", "user-service", user.getId());
+
+        String key = fileUploader.uploadFile(
+            imageFile,
+            directory,
+            imageFile.getOriginalFilename()
+        );
+
+        user.updateProfileImage(key);
+        log.info("프로필 이미지 업데이트 완료: userId={}, key={}", user.getId(), key);
+
+        return toUserResWithUrl(user);
+    }
+
+    /**
+     * User -> UserRes 변환 시 profileImageKey를 URL로 변환
+     * - 외부 URL (GitHub 등): 그대로 반환
+     * - 내부 key: endpoint/bucket/key 형태로 조립
+     */
+    private UserRes toUserResWithUrl(User user) {
+        UserRes userRes = UserRes.from(user);
+        if (user.getProfileImageKey() != null) {
+            userRes.setProfileImageUrl(fileUploader.getFileUrl(user.getProfileImageKey()));
+        }
+        return userRes;
+    }
+
+    /**
+     * User -> UserSearchResponse 변환 시 profileImageKey를 URL로 변환
+     */
+    private UserSearchResponse toUserSearchResponseWithUrl(User user) {
+        UserSearchResponse response = UserSearchResponse.from(user);
+        if (user.getProfileImageKey() != null) {
+            response.setProfileImageUrl(fileUploader.getFileUrl(user.getProfileImageKey()));
+        }
+        return response;
     }
 }

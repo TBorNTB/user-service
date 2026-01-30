@@ -79,9 +79,11 @@ jobs:
               --network ${{secrets.DOCKER_NETWORK_NAME}} \
               -e DB_HOST="${{secrets.DB_HOST}}" \
               -e APP_HOST="${{secrets.APP_HOST}}" \
-              -e S3_SECRET_KEY="${{ secrets.S3_SECRET_KEY }}" \
               -e S3_BUCKET="${{ secrets.S3_BUCKET }}" \
+              -e S3_REGION="${{ secrets.S3_REGION }}" \
               -e S3_ACCESS_KEY="${{ secrets.S3_ACCESS_KEY }}" \
+              -e S3_SECRET_KEY="${{ secrets.S3_SECRET_KEY }}" \
+              -e FILE_BASE_URL="${{ secrets.FILE_BASE_URL }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
               -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \

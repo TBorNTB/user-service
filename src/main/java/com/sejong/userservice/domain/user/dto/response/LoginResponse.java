@@ -43,7 +43,7 @@ public class LoginResponse {
             .refreshToken(refreshToken)
             .nickname(user.getNickname())
             .role(user.getRole())
-            .profileImageUrl(user.getProfileImageUrl())
+            .profileImageUrl(user.getProfileImageKey())
             .build();
     }
 }

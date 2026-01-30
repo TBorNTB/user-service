@@ -43,7 +43,7 @@ public class UserRes {
                 .githubUrl(user.getGithubUrl())
                 .linkedinUrl(user.getLinkedinUrl())
                 .blogUrl(user.getBlogUrl())
-                .profileImageUrl(user.getProfileImageUrl())
+                .profileImageUrl(user.getProfileImageKey())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
