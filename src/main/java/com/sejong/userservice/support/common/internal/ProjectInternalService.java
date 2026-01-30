@@ -69,4 +69,15 @@ public class ProjectInternalService {
     private List<Long> getUserProjectIdsFallback(String username, Throwable t) {
         return List.of();
     }
+
+    @CircuitBreaker(name = "myFeignClient", fallbackMethod = "getUserCategoryCountFallback")
+    public Long getCategoryCount() {
+        ResponseEntity<Long> response = projectClient.getCategoryCount();
+        return response.getBody() != null ? response.getBody() : 0L;
+    }
+
+    private Long getUserCategoryCountFallback(Throwable t) {
+        return 0L;
+    }
+
 }

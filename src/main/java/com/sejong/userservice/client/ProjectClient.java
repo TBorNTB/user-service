@@ -16,7 +16,10 @@ public interface ProjectClient {
     @GetMapping("/project/count")
     ResponseEntity<Long> getProjectCount();
 
-    @GetMapping("/category/count")
+//    @GetMapping("/category/count")
+//    ResponseEntity<Long> getCategoryCount();
+
+    @GetMapping("/project/category/count")
     ResponseEntity<Long> getCategoryCount();
 
     @GetMapping("/archive/check/news/{newsId}")
