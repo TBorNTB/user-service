@@ -31,6 +31,9 @@ public class JoinRequest {
     private String email;
 
     private String description;
+
+    private String techStack;
+
     private String githubUrl;
     private String linkedinUrl;
     private String blogUrl;

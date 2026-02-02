@@ -19,6 +19,7 @@ public class UserSearchResponse {
     private String nickname;
     private String profileImageUrl;
     private String email;
+    private String techStack;
 
     public static UserSearchResponse from(User user) {
         if (user == null) {
@@ -31,6 +32,7 @@ public class UserSearchResponse {
                 .nickname(user.getNickname())
                 .profileImageUrl(user.getProfileImageKey())
                 .email(user.getEmail())
+            .techStack(user.getTechStack())
                 .build();
     }
 }

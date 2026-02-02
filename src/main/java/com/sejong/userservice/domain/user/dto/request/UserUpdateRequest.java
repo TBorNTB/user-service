@@ -17,6 +17,7 @@ public class UserUpdateRequest {
     private String email;
     private String realName;
     private String description;
+    private String techStack;
     private String githubUrl;
     private String linkedinUrl;
     private String blogUrl;

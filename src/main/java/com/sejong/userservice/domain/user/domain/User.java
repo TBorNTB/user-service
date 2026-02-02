@@ -61,6 +61,9 @@ public class User {
     private String description;
 
     @Column(length = 255)
+    private String techStack;
+
+    @Column(length = 255)
     private String githubUrl;
 
     @Column(length = 255)
@@ -89,6 +92,7 @@ public class User {
             .role(UserRole.GUEST)
             .realName(joinRequest.getRealName())
             .description(null)
+            .techStack(joinRequest.getTechStack())
             .githubUrl(null)
             .linkedinUrl(null)
             .blogUrl(null)
@@ -115,6 +119,9 @@ public class User {
         }
         if (updateRequest.getDescription() != null) {
             this.description = updateRequest.getDescription();
+        }
+        if (updateRequest.getTechStack() != null) {
+            this.techStack = updateRequest.getTechStack();
         }
         if (updateRequest.getGithubUrl() != null) {
             this.githubUrl = updateRequest.getGithubUrl();
