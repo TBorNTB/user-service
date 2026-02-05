@@ -32,7 +32,7 @@ public class UserSearchResponse {
                 .nickname(user.getNickname())
                 .profileImageUrl(user.getProfileImageKey())
                 .email(user.getEmail())
-            .techStack(user.getTechStack())
+                .techStack(user.getTechStack())
                 .build();
     }
 }
