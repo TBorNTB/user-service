@@ -21,6 +21,7 @@ public class UserRes {
     private String email;
     private String username;
     private String description;
+    private String techStack;
     private String githubUrl;
     private String linkedinUrl;
     private String blogUrl;
@@ -40,6 +41,7 @@ public class UserRes {
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .description(user.getDescription())
+            .techStack(user.getTechStack())
                 .githubUrl(user.getGithubUrl())
                 .linkedinUrl(user.getLinkedinUrl())
                 .blogUrl(user.getBlogUrl())

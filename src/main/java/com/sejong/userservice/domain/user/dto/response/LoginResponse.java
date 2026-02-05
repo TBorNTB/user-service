@@ -34,6 +34,8 @@ public class LoginResponse {
 
     private String profileImageUrl;
 
+    private String techStack;
+
     public static LoginResponse from(User user, String message, String accessToken, String refreshToken) {
         return LoginResponse.builder()
             .id(user.getId())
@@ -44,6 +46,7 @@ public class LoginResponse {
             .nickname(user.getNickname())
             .role(user.getRole())
             .profileImageUrl(user.getProfileImageKey())
+            .techStack(user.getTechStack())
             .build();
     }
 }

@@ -297,6 +297,15 @@ public class UserController {
         return OffsetPageRes.ok(commentedPosts);
     }
 
+    @Operation(summary = "특정 유저의 프로필 조회", description = "특정 유저의 프로필 조회")
+    @GetMapping("/profile/one")
+    public ResponseEntity<UserRes> getUserProfileByUsername(
+            @RequestParam("username") String username
+    ) {
+        UserRes response = userService.getUserInfo(username);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     private UserContext getCurrentUser() {
         return (UserContext) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
