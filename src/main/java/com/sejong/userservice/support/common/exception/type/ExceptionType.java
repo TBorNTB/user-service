@@ -21,6 +21,10 @@ public enum ExceptionType implements ExceptionTypeIfs {
     USER_NOT_FOUND_BY_REFRESH_TOKEN(401, "제공된 리프레시 토큰에 해당하는 사용자를 찾을 수 없습니다."),
     WRONG_PASSWORD(401, "잘못된 비밀번호입니다."),
 
+    DUPLICATE_EMAIL(409, "이미 사용중인 이메일입니다."),
+    DUPLICATE_NICKNAME(409, "이미 사용중인 닉네임입니다."),
+    DUPLICATE_USER(409, "이미 존재하는 사용자입니다."),
+
     ACCESS_TOKEN_NOT_EXPIRED(400, "액세스 토큰이 아직 유효합니다"),
     REFRESH_TOKEN_NOT_FOUND(401, "쿠키에 리프레시 토큰이 없습니다."),
     TOKEN_MISMATCH(400, "액세스 토큰과 리프레시 토큰이 다른 사용자를 가리킵니다."),

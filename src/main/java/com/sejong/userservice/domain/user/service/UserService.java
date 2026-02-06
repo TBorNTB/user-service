@@ -2,6 +2,9 @@ package com.sejong.userservice.domain.user.service;
 
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_EMAIL;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_NICKNAME;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_USER;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.WRONG_PASSWORD;
 
 import com.sejong.userservice.client.file.FileUploader;
@@ -46,6 +49,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -77,11 +81,30 @@ public class UserService {
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
+        if (userRepository.existsByEmail(joinRequest.getEmail())) {
+            throw new BaseException(DUPLICATE_EMAIL);
+        }
+        if (userRepository.existsByNickname(joinRequest.getNickname())) {
+            throw new BaseException(DUPLICATE_NICKNAME);
+        }
+
         User user = User.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
-        User savedUser = userRepository.save(user);
-        savedUser.updateUsername();
-        alarmService.save(AlarmDto.from(savedUser));
-        return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
+
+        try {
+            User savedUser = userRepository.saveAndFlush(user);
+            savedUser.updateUsername();
+            alarmService.save(AlarmDto.from(savedUser));
+            return JoinResponse.of(savedUser.getNickname(), "Registration successful!");
+        } catch (DataIntegrityViolationException e) {
+            // In case of race conditions, determine the duplicated field and map to a safe API error.
+            if (userRepository.existsByEmail(joinRequest.getEmail())) {
+                throw new BaseException(DUPLICATE_EMAIL);
+            }
+            if (userRepository.existsByNickname(joinRequest.getNickname())) {
+                throw new BaseException(DUPLICATE_NICKNAME);
+            }
+            throw new BaseException(DUPLICATE_USER);
+        }
     }
 
     @Transactional(readOnly = true)
