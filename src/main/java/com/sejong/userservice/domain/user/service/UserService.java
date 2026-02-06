@@ -1,13 +1,14 @@
 package com.sejong.userservice.domain.user.service;
 
-import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
-import static com.sejong.userservice.support.common.exception.type.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_EMAIL;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_NICKNAME;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.SAME_WITH_PREVIOUS_PASSWORD;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.WRONG_PASSWORD;
 
 import com.sejong.userservice.client.file.FileUploader;
+import com.sejong.userservice.client.file.S3FileUploader;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
 import com.sejong.userservice.domain.comment.repository.CommentRepository;
@@ -78,6 +79,7 @@ public class UserService {
 
     private final FileUploader fileUploader;
     private final FileValidator fileValidator;
+    private final S3FileUploader s3FileUploader;
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
@@ -174,10 +176,17 @@ public class UserService {
     public Map<String, UserNameInfo> getUserNameInfos(List<String> usernames) {
         List<User> users = userRepository.findByUsernameIn(usernames);
 
+
         return users.stream()
                 .collect(Collectors.toMap(
                         User::getUsername,
-                        user -> new UserNameInfo(user.getNickname(), user.getRealName())
+                    user -> {
+                        String profileImageUrl = null;
+                        if (user.getProfileImageKey() != null && !user.getProfileImageKey().isEmpty()) {
+                            profileImageUrl = s3FileUploader.getFileUrl(user.getProfileImageKey());
+                        }
+                        return new UserNameInfo(user.getNickname(), user.getRealName(), profileImageUrl);
+                    }
                 ));
     }
 
@@ -200,13 +209,13 @@ public class UserService {
     @Transactional
     public String batchUpdateUserRole(List<String> usernames, UserRole newUserRole) {
         List<User> users = userRepository.findByUsernameIn(usernames);
-        
+
         if (users.size() != usernames.size()) {
             throw new BaseException(NOT_FOUND_USER);
         }
 
         users.forEach(user -> user.updateUserRole(newUserRole));
-        
+
         if (users.size() == 1) {
             return "유저 등급 변경 성공";
         }
@@ -330,7 +339,7 @@ public class UserService {
         // 각 PostType별로 통계 계산
         for (PostType postType : PostType.values()) {
             List<Long> postIds = userPostIds.getOrDefault(postType, List.of());
-            
+
             if (postIds.isEmpty()) {
                 continue;
             }
@@ -340,10 +349,10 @@ public class UserService {
 
             // 총 조회수 계산 (Redis에서 가져오기)
             totalViewCount += calculateTotalViewCountFromRedis(postType, postIds);
-            
+
             // 받은 좋아요 수 계산
             totalLikeCount += likeRepository.countByPostTypeAndPostIds(postType, postIds);
-            
+
             // 받은 댓글 수 계산
             totalCommentCount += commentRepository.countByPostTypeAndPostIds(postType, postIds);
         }
@@ -401,9 +410,9 @@ public class UserService {
      */
     @Transactional(readOnly = true)
     public Page<UserCommentPostResponse> getCommentedPosts(String username, Pageable pageable) {
-        Page<com.sejong.userservice.domain.comment.domain.Comment> comments = 
+        Page<com.sejong.userservice.domain.comment.domain.Comment> comments =
                 commentRepository.findByUsernameOrderByCreatedAtDesc(username, pageable);
-        
+
         // postType과 postId로 그룹화하여 중복 제거
         Map<String, com.sejong.userservice.domain.comment.domain.Comment> uniquePosts = comments.stream()
                 .collect(Collectors.toMap(
@@ -411,7 +420,7 @@ public class UserService {
                         comment -> comment,
                         (existing, replacement) -> existing // 중복 시 기존 것 유지
                 ));
-        
+
         // Map을 List로 변환하고 정렬 (최신순)
         List<UserCommentPostResponse> uniquePostList = uniquePosts.values().stream()
                 .sorted((c1, c2) -> c2.getCreatedAt().compareTo(c1.getCreatedAt()))
@@ -420,17 +429,17 @@ public class UserService {
                         .postId(comment.getPostId())
                         .build())
                 .collect(Collectors.toList());
-        
+
         // 페이지네이션 적용
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), uniquePostList.size());
-        List<UserCommentPostResponse> pagedList = start < uniquePostList.size() 
-                ? uniquePostList.subList(start, end) 
+        List<UserCommentPostResponse> pagedList = start < uniquePostList.size()
+                ? uniquePostList.subList(start, end)
                 : List.of();
-        
+
         return new org.springframework.data.domain.PageImpl<>(
-                pagedList, 
-                pageable, 
+                pagedList,
+                pageable,
                 uniquePostList.size()
         );
     }
