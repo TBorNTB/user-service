@@ -13,6 +13,7 @@ import com.sejong.userservice.support.common.security.oauth.dto.CustomOAuth2User
 import com.sejong.userservice.support.common.security.oauth.dto.GithubResponse;
 import com.sejong.userservice.support.common.security.oauth.dto.OAuth2Response;
 import com.sejong.userservice.support.common.security.oauth.dto.UserDTO;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -57,6 +58,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .encryptPassword(bCryptPasswordEncoder.encode(UUID.randomUUID().toString())) // OAuth2 사용자용 더미 비밀번호
                     .role(UserRole.GUEST)
                     .profileImageKey(oAuth2Response.getAvatarUrl())
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
                     .build();
             try {
                 userRepository.save(user);
