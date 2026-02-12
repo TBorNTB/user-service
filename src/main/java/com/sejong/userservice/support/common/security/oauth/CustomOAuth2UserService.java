@@ -1,15 +1,21 @@
 package com.sejong.userservice.support.common.security.oauth;
 
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_EMAIL;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_NICKNAME;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.DUPLICATE_USER;
+
 import com.sejong.userservice.domain.role.domain.UserRole;
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.dto.request.UserUpdateRequest;
 import com.sejong.userservice.domain.user.repository.UserRepository;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.security.oauth.dto.CustomOAuth2User;
 import com.sejong.userservice.support.common.security.oauth.dto.GithubResponse;
 import com.sejong.userservice.support.common.security.oauth.dto.OAuth2Response;
 import com.sejong.userservice.support.common.security.oauth.dto.UserDTO;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -52,8 +58,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                     .role(UserRole.GUEST)
                     .profileImageKey(oAuth2Response.getAvatarUrl())
                     .build();
-
-            userRepository.save(user);
+            try {
+                userRepository.save(user);
+            } catch (DataIntegrityViolationException e) {
+                if (userRepository.existsByEmail(oAuth2Response.getEmail())) throw new BaseException(DUPLICATE_EMAIL);
+                if (userRepository.existsByNickname(oAuth2Response.getNickname())) throw new BaseException(DUPLICATE_NICKNAME);
+                throw new BaseException(DUPLICATE_USER);
+            }
 
             UserDTO userDTO = new UserDTO();
             userDTO.setUsername(username);

@@ -83,15 +83,7 @@ public class UserService {
 
     @Transactional
     public JoinResponse joinProcess(JoinRequest joinRequest) {
-        if (userRepository.existsByEmail(joinRequest.getEmail())) {
-            throw new BaseException(DUPLICATE_EMAIL);
-        }
-        if (userRepository.existsByNickname(joinRequest.getNickname())) {
-            throw new BaseException(DUPLICATE_NICKNAME);
-        }
-
         User user = User.from(joinRequest, bCryptPasswordEncoder.encode(joinRequest.getPassword()));
-
         try {
             User savedUser = userRepository.saveAndFlush(user);
             savedUser.updateUsername();
