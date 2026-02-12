@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +15,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "user-log")
+@Table(
+    name = "role-change",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_email_role", columnNames = {"email", "previousRole", "requestedRole"})
+    }
+)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder

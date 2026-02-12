@@ -47,6 +47,7 @@ public enum ExceptionType implements ExceptionTypeIfs {
     ALARM_ACCESS_DENIED(403, "본인의 알람만 읽음 처리할 수 있습니다."),
 
     ROLE_CHANGE_NOT_FOUND(400,"존재하지 않는 권한 변경 요청입니다."),
+    REQUEST_ALREADY_FILED(409, "이미 신청된 요청입니다"),
 
     NOT_FOUND_POST_TYPE_POST_ID(400, "존재하지 않는 포스트 타입, 포스트 id"),
 

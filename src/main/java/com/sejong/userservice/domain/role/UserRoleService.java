@@ -1,6 +1,7 @@
 package com.sejong.userservice.domain.role;
 
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.REQUEST_ALREADY_FILED;
 import static com.sejong.userservice.support.common.exception.type.ExceptionType.ROLE_CHANGE_NOT_FOUND;
 
 import com.sejong.userservice.domain.role.domain.RequestStatus;
@@ -13,6 +14,7 @@ import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,12 @@ public class UserRoleService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         RoleChange roleChange = new CreateRoleChange(request.getRequestRole()).toRoleChangeEntity(user);
-        userRoleRepository.save(roleChange);
+
+        try {
+            userRoleRepository.save(roleChange);
+        } catch (DataIntegrityViolationException e) {
+            throw new BaseException(REQUEST_ALREADY_FILED);
+        }
         return "저장성공";
     }
 
