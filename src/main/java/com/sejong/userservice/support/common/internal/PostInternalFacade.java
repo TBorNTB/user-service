@@ -5,8 +5,10 @@ import static com.sejong.userservice.support.common.exception.type.ExceptionType
 import com.sejong.userservice.domain.meta.MetaPostCountDto;
 import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.exception.type.BaseException;
+
 import java.util.List;
 import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -48,12 +50,13 @@ public class PostInternalFacade {
         Long projectCount = projectInternalService.getProjectCount();
         Long articleCount = CSKnowledgeInternalService.getCsCount();
         Long categoryCount = projectInternalService.getCategoryCount();
-
-        return MetaPostCountDto.of(projectCount, articleCount, categoryCount);
+        Long newsCount = projectInternalService.getCsCount();
+        return MetaPostCountDto.of(projectCount, newsCount, articleCount, categoryCount);
     }
 
     /**
      * 사용자가 작성한 모든 글의 ID 목록을 가져옵니다.
+     *
      * @param username 사용자 이름
      * @return PostType별로 그룹화된 글 ID 목록
      */

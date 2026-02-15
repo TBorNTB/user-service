@@ -22,7 +22,6 @@ public class MetaService {
     private final Executor metaAsyncExecutor;
 
     public MetaCountResponse getMetaCountInfo() {
-        long start = System.currentTimeMillis();
 
         CompletableFuture<Long> userFuture = CompletableFuture
                 .supplyAsync(userInternalService::getUserCount, metaAsyncExecutor)
@@ -42,7 +41,21 @@ public class MetaService {
 
         CompletableFuture.allOf(userFuture, postFuture).join();
 
-        log.info("[MetaService] 전체 조회 시간: {}ms", System.currentTimeMillis() - start);
         return MetaCountResponse.of(userFuture.join(), postFuture.join());
+    }
+
+    public MetaCountAdminResponse getMetaAdminCountInfo() {
+
+        CompletableFuture<MetaPostCountDto> postFuture = CompletableFuture
+                .supplyAsync(postInternalFacade::getPostCount, metaAsyncExecutor)
+                .orTimeout(5, TimeUnit.SECONDS)
+                .exceptionally(ex -> {
+                    log.error("[MetaService] Post count 조회 실패", ex);
+                    throw new BaseException(EXTERNAL_SERVER_ERROR);
+                });
+
+        CompletableFuture.allOf(postFuture).join();
+
+        return MetaCountAdminResponse.of(postFuture.join());
     }
 }

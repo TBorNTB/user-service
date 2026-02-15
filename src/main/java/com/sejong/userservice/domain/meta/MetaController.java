@@ -22,4 +22,13 @@ public class MetaController {
         return ResponseEntity.status(200)
                 .body(response);
     }
+
+    @Operation(summary = "어드민 데시보드 프로젝트, CS, 뉴스, 카테고리 수 반환 api")
+    @GetMapping("/admin/count")
+    public ResponseEntity<MetaCountAdminResponse> metaAdminResponse() {
+
+        MetaCountAdminResponse response = metaService.getMetaAdminCountInfo();
+        return ResponseEntity.status(200)
+                .body(response);
+    }
 }
