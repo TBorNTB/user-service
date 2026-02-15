@@ -45,6 +45,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -166,21 +167,36 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Map<String, UserNameInfo> getUserNameInfos(List<String> usernames) {
+        if (usernames == null || usernames.isEmpty()) {
+            return java.util.Collections.emptyMap();
+        }
+
+        // 1) 존재하는 유저만 조회됨
         List<User> users = userRepository.findByUsernameIn(usernames);
 
-
-        return users.stream()
+        // 2) 조회된 애들만 먼저 Map으로
+        Map<String, UserNameInfo> found = users.stream()
                 .collect(Collectors.toMap(
                         User::getUsername,
-                    user -> {
-                        String profileImageUrl = null;
-                        if (user.getProfileImageKey() != null && !user.getProfileImageKey().isEmpty()) {
-                            profileImageUrl = s3FileUploader.getFileUrl(user.getProfileImageKey());
-                        }
-                        return new UserNameInfo(user.getNickname(), user.getRealName(), profileImageUrl);
-                    }
+                        user -> {
+                            String profileImageUrl = null;
+                            if (user.getProfileImageKey() != null && !user.getProfileImageKey().isEmpty()) {
+                                profileImageUrl = s3FileUploader.getFileUrl(user.getProfileImageKey());
+                            }
+                            return new UserNameInfo(user.getNickname(), user.getRealName(), profileImageUrl);
+                        },
+                        (a, b) -> a // 혹시 모를 중복 대비 (원래 username 유니크면 필요 거의 없음)
                 ));
+
+        // 3) 요청한 usernames 전체를 결과에 포함. 없는 건 null로 채움
+        Map<String, UserNameInfo> result = new LinkedHashMap<>();
+        for (String username : usernames) {
+            result.put(username, found.getOrDefault(username, UserNameInfo.missing()));
+        }
+
+        return result;
     }
+
 
 
     @Transactional
