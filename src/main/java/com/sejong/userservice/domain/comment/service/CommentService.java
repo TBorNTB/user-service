@@ -8,6 +8,9 @@ import com.sejong.userservice.domain.comment.dto.command.CommentCommand;
 import com.sejong.userservice.domain.comment.dto.request.CommentReq;
 import com.sejong.userservice.domain.comment.dto.response.CommentRes;
 import com.sejong.userservice.domain.comment.repository.CommentRepository;
+import com.sejong.userservice.domain.user.dto.response.UserInfo;
+import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
+import com.sejong.userservice.domain.user.service.UserService;
 import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.internal.PostInternalFacade;
@@ -18,6 +21,8 @@ import com.sejong.userservice.support.common.pagination.CursorPageRes;
 import com.sejong.userservice.support.common.pagination.SortDirection;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,6 +41,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostInternalFacade postInternalFacade;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final UserService userService;
 
     @Transactional
     public CommentRes createComment(CommentCommand command) {
@@ -54,7 +60,9 @@ public class CommentService {
         comment = commentRepository.save(comment);
 
         publishAlarm(comment, parent, ownerUsername);
-        return CommentRes.from(comment);
+        
+        UserInfo userInfo = getUserInfo(comment.getUsername());
+        return CommentRes.from(comment, userInfo);
     }
 
     private void validateDepthLimit(Comment parent) {
@@ -88,7 +96,8 @@ public class CommentService {
             comments = commentRepository.findAllCommentsDesc(postId, postType, cursorId, pageable);
         }
 
-        return comments.stream().map(CommentRes::from).toList();
+        Map<String, UserInfo> userInfoMap = getUserInfoMap(comments);
+        return convertToCommentResList(comments, userInfoMap);
     }
 
     @Transactional(readOnly = true)
@@ -103,7 +112,8 @@ public class CommentService {
             replies = commentRepository.findRepliesDesc(parentId, cursorId, pageable);
         }
 
-        List<CommentRes> response = replies.stream().map(CommentRes::from).toList();
+        Map<String, UserInfo> userInfoMap = getUserInfoMap(replies);
+        List<CommentRes> response = convertToCommentResList(replies, userInfoMap);
         return CursorPageRes.from(response, cursorPageReq.getSize(), CommentRes::getId);
     }
 
@@ -113,7 +123,9 @@ public class CommentService {
                 .orElseThrow(() -> new BaseException(NOT_FOUND_COMMENT));
         comment.validateWriter(username);
         comment.update(request.getContent(), LocalDateTime.now());
-        return CommentRes.from(comment);
+        
+        UserInfo userInfo = getUserInfo(comment.getUsername());
+        return CommentRes.from(comment, userInfo);
     }
 
     @Transactional
@@ -122,5 +134,32 @@ public class CommentService {
                 .orElseThrow(() -> new BaseException(NOT_FOUND_COMMENT));
         comment.validateWriter(username);
         commentRepository.deleteById(commentId);
+    }
+
+    private UserInfo getUserInfo(String username) {
+        Map<String, UserNameInfo> userInfoMap = userService.getUserNameInfos(List.of(username));
+        UserNameInfo userNameInfo = userInfoMap.get(username);
+        return UserInfo.from(username, userNameInfo);
+    }
+
+    private Map<String, UserInfo> getUserInfoMap(List<Comment> comments) {
+        List<String> usernames = comments.stream()
+                .map(Comment::getUsername)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<String, UserNameInfo> userNameInfoMap = userService.getUserNameInfos(usernames);
+
+        return usernames.stream()
+                .collect(Collectors.toMap(
+                        username -> username,
+                        username -> UserInfo.from(username, userNameInfoMap.get(username))
+                ));
+    }
+
+    private List<CommentRes> convertToCommentResList(List<Comment> comments, Map<String, UserInfo> userInfoMap) {
+        return comments.stream()
+                .map(comment -> CommentRes.from(comment, userInfoMap.get(comment.getUsername())))
+                .toList();
     }
 }
