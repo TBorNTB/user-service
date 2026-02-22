@@ -59,10 +59,14 @@ public class AlarmController {
             @ModelAttribute @Valid OffsetPageReq offsetPageReq
     ) {
         UserContext currentUser = getCurrentUser();
+        // 안 읽은 알람(seen=false) 먼저, 그 다음 읽은 알람. 동일 그룹 내에서는 최신순
         var pageable = PageRequest.of(
                 offsetPageReq.getPage(),
                 offsetPageReq.getSize(),
-                Sort.by(Sort.Direction.DESC, "createdAt")
+                Sort.by(
+                        Sort.Order.asc("seen"),
+                        Sort.Order.desc("createdAt")
+                )
         );
         Page<AlarmDto> page = alarmService.findPage(currentUser.getUsername(), alarmType, seen, pageable);
         return OffsetPageRes.ok(page);
@@ -137,6 +141,16 @@ public class AlarmController {
     public ResponseEntity<Void> deleteAllRead() {
         UserContext currentUser = getCurrentUser();
         alarmService.deleteAllRead(currentUser.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/all")
+    @Operation(summary = "전체 알람 삭제", description = "읽음/안읽음 구분 없이 내 알람 전체 삭제")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER', 'GUEST')")
+    public ResponseEntity<Void> deleteAll() {
+        UserContext currentUser = getCurrentUser();
+        alarmService.deleteAll(currentUser.getUsername());
         return ResponseEntity.noContent().build();
     }
 

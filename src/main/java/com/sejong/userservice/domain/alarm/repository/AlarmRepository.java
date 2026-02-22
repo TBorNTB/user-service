@@ -40,4 +40,8 @@ public interface AlarmRepository extends JpaRepository<Alarm, Long> {
     int deleteAllReadByOwner(@Param("ownerUsername") String ownerUsername);
 
     void deleteByOwnerUsernameAndIdIn(String ownerUsername, List<Long> alarmIds);
+
+    @Modifying
+    @Query("DELETE FROM Alarm a WHERE a.ownerUsername = :ownerUsername")
+    int deleteAllByOwner(@Param("ownerUsername") String ownerUsername);
 }

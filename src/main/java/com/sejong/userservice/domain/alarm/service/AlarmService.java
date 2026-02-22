@@ -94,4 +94,10 @@ public class AlarmService {
     public int deleteAllRead(String username) {
         return alarmRepository.deleteAllReadByOwner(username);
     }
+
+    /** 전체 알람 삭제 (읽음/안읽음 구분 없이 모두) */
+    @Transactional
+    public int deleteAll(String username) {
+        return alarmRepository.deleteAllByOwner(username);
+    }
 }
