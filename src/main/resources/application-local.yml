@@ -20,6 +20,11 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    # 기존에 테이블이 이미 있는 DB에 처음 붙일 때만 baseline-on-migrate: true 로 두고,
+    # baseline-version 을 1로 두면 V1은 건너뛰고 그 다음 마이그레이션부터 적용됨.
 
   jpa:
     hibernate:
