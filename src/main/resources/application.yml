@@ -33,7 +33,7 @@ spring:
       idle-timeout: 600000
   jpa:
     hibernate:
-      ddl-auto: validate  # Flyway로 스키마 관리 시 Hibernate는 검증만
+      ddl-auto: create-drop  # Flyway로 스키마 관리 시 Hibernate는 검증만
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
