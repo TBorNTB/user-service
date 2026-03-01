@@ -1,6 +1,7 @@
 package com.sejong.userservice.domain.chat.controller;
 
 import com.sejong.userservice.domain.chat.controller.request.GroupRoomRequest;
+import com.sejong.userservice.domain.chat.controller.request.RoomNameRequest;
 import com.sejong.userservice.domain.chat.controller.request.SingleRoomRequest;
 import com.sejong.userservice.domain.chat.controller.response.ChatMessageResponse;
 import com.sejong.userservice.domain.chat.controller.response.ChatMessagesPageResponse;
@@ -16,6 +17,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -149,6 +152,20 @@ public class ChatController {
         UnreadCountResponse response = chatService.markRoomAsRead(roomId, currentUser.getUsername());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @Operation(summary = "채팅방 이름 변경하기")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SENIOR', 'FULL_MEMBER', 'ASSOCIATE_MEMBER')")
+    @PutMapping("/rooms/{roomId}/roomName")
+    public ResponseEntity<Void> changeRoomName(
+            @PathVariable("roomId") String roomId,
+            @Valid @RequestBody RoomNameRequest roomNameRequest
+    ) {
+        UserContext currentUser = getCurrentUser();
+        chatService.changeRoomName(roomId, roomNameRequest.getRoomName(), currentUser.getUsername());
+        return ResponseEntity.noContent().build();
+    }
+
 
     private UserContext getCurrentUser() {
         return (UserContext) SecurityContextHolder.getContext()

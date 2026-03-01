@@ -1,9 +1,5 @@
 package com.sejong.userservice.domain.chat.service;
 
-import static com.sejong.userservice.support.common.exception.type.ExceptionType.DM_ROOM_WITH_OTHER_PERSON;
-import static com.sejong.userservice.support.common.exception.type.ExceptionType.NOT_FOUND_USER;
-import static com.sejong.userservice.support.common.exception.type.ExceptionType.ROOM_ID_NOT_FOUND;
-
 import com.sejong.userservice.domain.chat.constant.ChatRoomUserRole;
 import com.sejong.userservice.domain.chat.controller.response.ChatMessageResponse;
 import com.sejong.userservice.domain.chat.controller.response.ChatMessagesPageResponse;
@@ -28,16 +24,21 @@ import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.sanitizer.RequestSanitizer;
+
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.*;
 
 @Service
 @RequiredArgsConstructor
@@ -126,13 +127,13 @@ public class ChatService {
         return RoomResponse.quitOf(roomId);
     }
 
-        @Transactional(readOnly = true)
-        public ChatRoomsPageResponse findRoomsPage(
+    @Transactional(readOnly = true)
+    public ChatRoomsPageResponse findRoomsPage(
             String username,
             java.time.LocalDateTime cursorAt,
             String cursorRoomId,
             int size
-        ) {
+    ) {
         User currentUser = resolveUser(username);
 
         int pageSize = Math.min(Math.max(size, 1), 50);
@@ -140,10 +141,10 @@ public class ChatService {
 
         // 1) 방 목록(최근 활동 기준) 페이지
         List<ChatRoomSummaryProjection> summaries = chatRoomUserRepository.findRoomSummariesPageByUserId(
-            currentUser.getId(),
-            cursorAt,
-            safeCursorRoomId,
-            PageRequest.of(0, pageSize)
+                currentUser.getId(),
+                cursorAt,
+                safeCursorRoomId,
+                PageRequest.of(0, pageSize)
         );
         List<String> roomIds = summaries.stream().map(ChatRoomSummaryProjection::getRoomId).toList();
 
@@ -162,68 +163,68 @@ public class ChatService {
 
         // 2) 참여자 정보 배치 로딩
         Map<String, List<ChatRoomUser>> membersByRoomId = chatRoomUserRepository.findAllByRoomIdsWithUser(roomIds)
-            .stream()
-            .collect(Collectors.groupingBy(it -> it.getChatRoom().getRoomId()));
+                .stream()
+                .collect(Collectors.groupingBy(it -> it.getChatRoom().getRoomId()));
 
         // 3) 멤버 수 배치 로딩
         Map<String, Long> memberCountByRoomId = chatRoomUserRepository.countMembersByRoomIds(roomIds)
-            .stream()
-            .collect(Collectors.toMap(RoomCountProjection::getRoomId, RoomCountProjection::getCount));
+                .stream()
+                .collect(Collectors.toMap(RoomCountProjection::getRoomId, RoomCountProjection::getCount));
 
         // 4) 안읽은 메시지 수 배치 로딩
         Map<String, Long> unreadByRoomId = chatRoomUserRepository.countUnreadByRoomIds(currentUser.getId(), roomIds)
-            .stream()
-            .collect(Collectors.toMap(RoomUnreadCountProjection::getRoomId, RoomUnreadCountProjection::getUnreadCount));
+                .stream()
+                .collect(Collectors.toMap(RoomUnreadCountProjection::getRoomId, RoomUnreadCountProjection::getUnreadCount));
 
         // 5) 최근 메시지 발신자 프로필 배치 로딩
         List<String> lastSenderUsernames = summaries.stream()
-            .map(ChatRoomSummaryProjection::getLastSenderUsername)
-            .filter(it -> it != null && !it.isBlank())
-            .distinct()
-            .toList();
+                .map(ChatRoomSummaryProjection::getLastSenderUsername)
+                .filter(it -> it != null && !it.isBlank())
+                .distinct()
+                .toList();
         Map<String, User> lastSenderByUsername = userRepository.findByUsernameIn(lastSenderUsernames)
-            .stream()
-            .collect(Collectors.toMap(User::getUsername, Function.identity()));
+                .stream()
+                .collect(Collectors.toMap(User::getUsername, Function.identity()));
 
         List<ChatRoomListItemResponse> items = summaries.stream()
-            .map(summary -> {
-                String roomId = summary.getRoomId();
+                .map(summary -> {
+                    String roomId = summary.getRoomId();
 
-                String roomName = summary.getRoomName();
-                if (roomName == null) {
-                roomName = summary.getDisplayName();
-                }
+                    String roomName = summary.getRoomName();
+                    if (roomName == null) {
+                        roomName = summary.getDisplayName();
+                    }
 
-                List<ChatRoomMemberResponse> others = membersByRoomId.getOrDefault(roomId, List.of())
-                    .stream()
-                    .map(ChatRoomUser::getUser)
-                    .filter(u -> u != null && !u.getId().equals(currentUser.getId()))
-                    .map(ChatRoomMemberResponse::of)
-                    .toList();
+                    List<ChatRoomMemberResponse> others = membersByRoomId.getOrDefault(roomId, List.of())
+                            .stream()
+                            .map(ChatRoomUser::getUser)
+                            .filter(u -> u != null && !u.getId().equals(currentUser.getId()))
+                            .map(ChatRoomMemberResponse::of)
+                            .toList();
 
-                User lastSender = summary.getLastSenderUsername() == null
-                    ? null
-                    : lastSenderByUsername.get(summary.getLastSenderUsername());
+                    User lastSender = summary.getLastSenderUsername() == null
+                            ? null
+                            : lastSenderByUsername.get(summary.getLastSenderUsername());
 
-                return ChatRoomListItemResponse.of(
-                    roomId,
-                    roomName,
-                    summary.getLastMessageAt(),
-                    summary.getLastMessage(),
-                    summary.getLastMessageImageUrl(),
-                    summary.getLastSenderUsername(),
-                    lastSender == null ? null : lastSender.getNickname(),
-                    lastSender == null ? null : lastSender.getRealName(),
-                    lastSender == null ? null : lastSender.getProfileImageKey(),
-                    memberCountByRoomId.getOrDefault(roomId, 0L),
-                    unreadByRoomId.getOrDefault(roomId, 0L),
-                    others
-                );
-            })
-            .toList();
+                    return ChatRoomListItemResponse.of(
+                            roomId,
+                            roomName,
+                            summary.getLastMessageAt(),
+                            summary.getLastMessage(),
+                            summary.getLastMessageImageUrl(),
+                            summary.getLastSenderUsername(),
+                            lastSender == null ? null : lastSender.getNickname(),
+                            lastSender == null ? null : lastSender.getRealName(),
+                            lastSender == null ? null : lastSender.getProfileImageKey(),
+                            memberCountByRoomId.getOrDefault(roomId, 0L),
+                            unreadByRoomId.getOrDefault(roomId, 0L),
+                            others
+                    );
+                })
+                .toList();
 
         return ChatRoomsPageResponse.of(items, cursorAt, cursorRoomId, nextCursorAt, nextCursorRoomId);
-        }
+    }
 
     @Transactional(readOnly = true)
     public String findExistingDmRoomId(String myUsernameOrUserId, String friendUsername) {
@@ -314,40 +315,55 @@ public class ChatService {
                 }).toList();
     }
 
-        @Transactional(readOnly = true)
-        public ChatMessagesPageResponse findChatMessagesPage(String roomId, Long cursorId, int size) {
+    @Transactional(readOnly = true)
+    public ChatMessagesPageResponse findChatMessagesPage(String roomId, Long cursorId, int size) {
         int pageSize = Math.min(Math.max(size, 1), 100);
         List<ChatMessage> chatMessagesDesc = chatMessageRepository.findChatMessagesPage(
-            roomId,
-            cursorId,
-            PageRequest.of(0, pageSize)
+                roomId,
+                cursorId,
+                PageRequest.of(0, pageSize)
         );
 
-            Long nextCursorId = null;
-            if (!chatMessagesDesc.isEmpty() && chatMessagesDesc.size() == pageSize) {
-                // DESC 정렬이므로 마지막 요소가 가장 오래된 메시지 -> 다음 페이지 cursor
-                nextCursorId = chatMessagesDesc.get(chatMessagesDesc.size() - 1).getId();
-            }
+        Long nextCursorId = null;
+        if (!chatMessagesDesc.isEmpty() && chatMessagesDesc.size() == pageSize) {
+            // DESC 정렬이므로 마지막 요소가 가장 오래된 메시지 -> 다음 페이지 cursor
+            nextCursorId = chatMessagesDesc.get(chatMessagesDesc.size() - 1).getId();
+        }
 
         // sender nickname 조회 최적화 (N+1 방지)
         List<String> usernames = chatMessagesDesc.stream()
-            .map(ChatMessage::getUsername)
-            .distinct()
-            .toList();
+                .map(ChatMessage::getUsername)
+                .distinct()
+                .toList();
 
         Map<String, User> userByUsername = userRepository.findByUsernameIn(usernames).stream()
-            .collect(java.util.stream.Collectors.toMap(User::getUsername, Function.identity()));
+                .collect(java.util.stream.Collectors.toMap(User::getUsername, Function.identity()));
 
         // 최신 메시지부터 보여주기 위해 DESC 순서를 그대로 반환
         List<ChatMessageResponse> items = chatMessagesDesc.stream()
-            .map(message -> {
-                User user = userByUsername.get(message.getUsername());
-                String nickname = (user == null) ? null : user.getNickname();
-                String thumbnailUrl = (user == null) ? null : user.getProfileImageKey();
-                return ChatMessageResponse.of(message, nickname, thumbnailUrl);
-            })
-            .toList();
+                .map(message -> {
+                    User user = userByUsername.get(message.getUsername());
+                    String nickname = (user == null) ? null : user.getNickname();
+                    String thumbnailUrl = (user == null) ? null : user.getProfileImageKey();
+                    return ChatMessageResponse.of(message, nickname, thumbnailUrl);
+                })
+                .toList();
 
         return ChatMessagesPageResponse.of(items, cursorId, nextCursorId);
-        }
+    }
+
+
+    @Transactional
+    public void changeRoomName(String roomId, String roomName, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BaseException(NOT_FOUND_USER));
+
+        ChatRoomUser membership = chatRoomUserRepository.findByUserIdAndRoomId(user.getId(), roomId)
+                .orElseThrow(() -> new BaseException(ROOM_ID_NOT_FOUND));
+
+        membership.validateOwner();
+
+        ChatRoom chatRoom = membership.getChatRoom();
+        chatRoom.updateRoomName(roomName);
+    }
 }

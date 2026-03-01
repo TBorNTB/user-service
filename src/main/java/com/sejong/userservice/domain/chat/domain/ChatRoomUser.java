@@ -2,6 +2,7 @@ package com.sejong.userservice.domain.chat.domain;
 
 import com.sejong.userservice.domain.chat.constant.ChatRoomUserRole;
 import com.sejong.userservice.domain.user.domain.User;
+import com.sejong.userservice.support.common.exception.type.BaseException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +19,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.sejong.userservice.support.common.exception.type.ExceptionType.CHAT_ROOM_NOT_OWNER;
 
 @Entity
 @Table(name = "chat_room_user")
@@ -81,5 +84,11 @@ public class ChatRoomUser {
 
     public void updateLastReadMessageId(Long lastReadMessageId) {
         this.lastReadMessageId = lastReadMessageId;
+    }
+
+    public void validateOwner(){
+        if (this.role.equals(ChatRoomUserRole.MEMBER)) {
+            throw new BaseException(CHAT_ROOM_NOT_OWNER);
+        }
     }
 }
