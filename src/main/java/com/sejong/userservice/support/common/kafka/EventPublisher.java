@@ -2,6 +2,8 @@ package com.sejong.userservice.support.common.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sejong.userservice.domain.view.kafka.ViewEvent;
+import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.kafka.event.DomainAlarmEvent;
 import com.sejong.userservice.support.common.kafka.event.PostLikeEvent;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +17,21 @@ import org.springframework.stereotype.Service;
 public class EventPublisher {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
-    private final String topic = "postlike";
+    private final String likeTopic = "postlike";
     private final String alarmTopic = "alarm";
+    private final String viewTopic = "view";
 
     // listener: elastic-service
     public void publishLike(PostLikeEvent event){
         log.info("발행 시작 좋아요 like event :{}", event);
         String key = "post:" + event.getPostId();
-        kafkaTemplate.send(topic,key, toJsonString(event));
+        kafkaTemplate.send(likeTopic,key, toJsonString(event));
+    }
+
+    public void publishView(ViewEvent event){
+        log.info("발행 시작 조회수 postId :{}, viewCount : {}", event.getPostId(), event.getViewCount());
+        String key = "post:" + event.getPostId();
+        kafkaTemplate.send(viewTopic,key, toJsonString(event));
     }
 
     public void publishLikedAlarm(DomainAlarmEvent event){

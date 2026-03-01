@@ -2,6 +2,7 @@ package com.sejong.userservice.support.common.kafka;
 
 import static org.springframework.transaction.event.TransactionPhase.AFTER_COMMIT;
 
+import com.sejong.userservice.domain.view.kafka.ViewEvent;
 import com.sejong.userservice.support.common.kafka.event.DomainAlarmEvent;
 import com.sejong.userservice.support.common.kafka.event.PostLikeEvent;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,12 @@ public class EventListener {
     public void handleLikeCreated(PostLikeEvent event) {
         // DB 커밋 후에만 Kafka 발행
         eventPublisher.publishLike(event);
+    }
+
+    @TransactionalEventListener(phase = AFTER_COMMIT)
+    public void handleViewCreated(ViewEvent event){
+        // DB 커밋 후에만 Kafka 발행
+        eventPublisher.publishView(event);
     }
 
     @TransactionalEventListener(phase = AFTER_COMMIT)

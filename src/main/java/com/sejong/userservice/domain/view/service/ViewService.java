@@ -6,6 +6,7 @@ import com.sejong.userservice.domain.view.domain.View;
 import com.sejong.userservice.domain.view.domain.ViewDailyHistory;
 import com.sejong.userservice.domain.view.dto.response.ViewCountResponse;
 import com.sejong.userservice.domain.view.dto.response.WeeklyViewCountResponse;
+import com.sejong.userservice.domain.view.kafka.ViewEvent;
 import com.sejong.userservice.domain.view.repository.ViewDailyHistoryRepository;
 import com.sejong.userservice.domain.view.repository.ViewJPARepository;
 import com.sejong.userservice.support.common.constants.PostType;
@@ -23,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,7 @@ public class ViewService {
     private final RedisService redisService;
     private final ViewJPARepository viewJPARepository;
     private final ViewDailyHistoryRepository viewDailyHistoryRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public void updateViewCount(Long postId, PostType postType, Long viewCount) {
@@ -45,6 +49,7 @@ public class ViewService {
                 .findByPostTypeAndPostId(postType, postId)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_POST_TYPE_POST_ID));
         view.updateViewCount(viewCount);
+        applicationEventPublisher.publishEvent(ViewEvent.of(view.getPostType(),view.getPostId(),view.getViewCount()));
     }
 
     public void checkPostExistence(Long postId, PostType postType) {
@@ -57,20 +62,23 @@ public class ViewService {
         
         String ipKey = RedisKeyUtil.viewIpKey(postType, postId, clientIp);
         String viewCountKey = RedisKeyUtil.viewCountKey(postType, postId);
+        View view = getOrCreateViewEntity(postType, postId);
 
         // cache miss일 때만 DB 조회 (SETNX)
         if (!redisService.hasKey(viewCountKey)) {
-            View view = getOrCreateViewEntity(postType, postId);
             redisService.setIfAbsent(viewCountKey, view.getViewCount());
         }
 
         // SETNX = SET if Not eXists
         boolean isFirstView = redisService.setIfAbsent(ipKey, "check", VIEW_TTL);
         if (!isFirstView) {
-            return new ViewCountResponse(redisService.getCount(viewCountKey));
+            Long viewCount = redisService.getCount(viewCountKey);
+            applicationEventPublisher.publishEvent(ViewEvent.of(view.getPostType(),view.getPostId(),viewCount));
+            return new ViewCountResponse(viewCount);
         }
-
-        return new ViewCountResponse(redisService.increment(viewCountKey));
+        Long incrementViewCount = redisService.increment(viewCountKey);
+        applicationEventPublisher.publishEvent(ViewEvent.of(view.getPostType(),view.getPostId(),incrementViewCount));
+        return new ViewCountResponse(incrementViewCount);
     }
 
     @Transactional
