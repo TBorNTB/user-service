@@ -14,6 +14,7 @@ import com.sejong.userservice.domain.user.service.UserService;
 import com.sejong.userservice.support.common.constants.PostType;
 import com.sejong.userservice.support.common.exception.type.BaseException;
 import com.sejong.userservice.support.common.internal.PostInternalFacade;
+import com.sejong.userservice.support.common.sanitizer.RequestSanitizer;
 import com.sejong.userservice.support.common.kafka.event.AlarmType;
 import com.sejong.userservice.support.common.kafka.event.DomainAlarmEvent;
 import com.sejong.userservice.support.common.pagination.CursorPageReq;
@@ -42,6 +43,7 @@ public class CommentService {
     private final PostInternalFacade postInternalFacade;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final UserService userService;
+    private final RequestSanitizer requestSanitizer;
 
     @Transactional
     public CommentRes createComment(CommentCommand command) {
@@ -56,7 +58,8 @@ public class CommentService {
         String ownerUsername = postInternalFacade.checkPostExistenceAndOwner(
                 command.getPostId(), command.getPostType());
 
-        Comment comment = CommentCommand.toComment(command, parent);
+        CommentCommand sanitizedCommand = requestSanitizer.sanitize(command);
+        Comment comment = CommentCommand.toComment(sanitizedCommand, parent);
         comment = commentRepository.save(comment);
 
         publishAlarm(comment, parent, ownerUsername);
@@ -122,6 +125,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new BaseException(NOT_FOUND_COMMENT));
         comment.validateWriter(username);
+        requestSanitizer.sanitize(request);
         comment.update(request.getContent(), LocalDateTime.now());
         
         UserInfo userInfo = getUserInfo(comment.getUsername());

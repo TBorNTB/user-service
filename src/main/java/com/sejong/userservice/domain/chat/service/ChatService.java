@@ -27,6 +27,7 @@ import com.sejong.userservice.domain.chat.repository.projection.RoomUnreadCountP
 import com.sejong.userservice.domain.user.domain.User;
 import com.sejong.userservice.domain.user.repository.UserRepository;
 import com.sejong.userservice.support.common.exception.type.BaseException;
+import com.sejong.userservice.support.common.sanitizer.RequestSanitizer;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -46,13 +47,15 @@ public class ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
+    private final RequestSanitizer requestSanitizer;
 
 
     @Transactional
     public void save(ChatMessageDto chatMessageDto) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getRoomId())
                 .orElseThrow(() -> new BaseException(ROOM_ID_NOT_FOUND));
-        ChatMessage chatMessage = ChatMessage.from(chatMessageDto, chatRoom);
+        ChatMessageDto sanitized = requestSanitizer.sanitize(chatMessageDto);
+        ChatMessage chatMessage = ChatMessage.from(sanitized, chatRoom);
         chatMessageRepository.save(chatMessage);
     }
 

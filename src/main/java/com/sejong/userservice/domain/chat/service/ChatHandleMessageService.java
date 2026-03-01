@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sejong.userservice.domain.chat.dto.BroadCastDto;
 import com.sejong.userservice.domain.chat.dto.ChatMessageDto;
+import com.sejong.userservice.support.common.sanitizer.RequestSanitizer;
 import com.sejong.userservice.support.config.ServerIdProvider;
 import java.io.IOException;
 import java.util.Map;
@@ -22,12 +23,14 @@ public class ChatHandleMessageService {
     private final ConcurrentHashMap<String, Set<WebSocketSession>> roomSessions = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
     private final ServerIdProvider serverIdProvider;
+    private final RequestSanitizer requestSanitizer;
 
     public Map<String, Object> getPayLoad(TextMessage message) throws JsonProcessingException {
         return objectMapper.readValue(message.getPayload(), Map.class);
     }
 
     public BroadCastDto handleClose(ChatMessageDto msg, WebSocketSession session) {
+        msg = requestSanitizer.sanitize(msg);
         validateSessionInRoom(msg.getRoomId(), session);
         Set<WebSocketSession> sessions = roomSessions.get(msg.getRoomId());
         if (sessions != null) {
@@ -42,6 +45,7 @@ public class ChatHandleMessageService {
 
     //해당 세션이 실제로 ROOMiD에 존재하는지 안한다면 따로 처리를 해줘야 될듯??
     public BroadCastDto handleChat(ChatMessageDto msg, WebSocketSession session) {
+        msg = requestSanitizer.sanitize(msg);
         validateSessionInRoom(msg.getRoomId(), session);
         ChatMessageDto messageDto = ChatMessageDto.chatMethod(msg, serverIdProvider.getServerId());
         return BroadCastDto.of(messageDto);
@@ -88,6 +92,7 @@ public class ChatHandleMessageService {
     }
 
     public BroadCastDto handleJoin(ChatMessageDto chatMessageDto, WebSocketSession session) {
+        chatMessageDto = requestSanitizer.sanitize(chatMessageDto);
         String roomId = chatMessageDto.getRoomId();
         roomSessions.computeIfAbsent(roomId, k -> ConcurrentHashMap.newKeySet()).add(session);
 
