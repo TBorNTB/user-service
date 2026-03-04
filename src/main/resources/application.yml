@@ -100,6 +100,12 @@ springdoc:
     enabled: true
     path: /swagger-ui.html
 
+# Kafka 채팅 브로드캐스트: 인스턴스마다 고유 groupId → 모든 인스턴스가 메시지 수신 (Redis Pub/Sub 대체)
+# Eureka 사용 시 instance-id로 구분, 미사용 시(로컬 등) name-port-uuid 로 인스턴스별 구분
+chat:
+  kafka:
+    broadcast-group-id: chat-broadcast-${eureka.instance.instance-id:${spring.application.name}-${server.port:0}-${random.uuid}}
+
 eureka:
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}

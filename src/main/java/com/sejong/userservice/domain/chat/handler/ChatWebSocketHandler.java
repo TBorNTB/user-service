@@ -138,27 +138,20 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     private void handleJoin(ChatMessageDto chatMessageDto, WebSocketSession session) {
         log.info("join 메서드");
         BroadCastDto broadCastDto = chatHandleMessageService.handleJoin(chatMessageDto, session);
-        // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
-        chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());
-        // Kafka에 발행 (영구 저장 + 다른 서버 전파용)
+        // Kafka 중심: 브로드캐스트는 Consumer → Redis → 각 서버에서 수행
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleChat(ChatMessageDto chatMessageDto, WebSocketSession session) {
         log.info("chat 메서드");
-        BroadCastDto broadCastDto = chatHandleMessageService.handleChat(chatMessageDto,session);
-        // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
-        chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());
-        // Kafka에 발행 (영구 저장 + 다른 서버 전파용)
+        BroadCastDto broadCastDto = chatHandleMessageService.handleChat(chatMessageDto, session);
+        // Kafka 중심: 저장·브로드캐스트는 Consumer에서 일괄 처리
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
     private void handleClose(ChatMessageDto chatMessageDto, WebSocketSession session) {
         log.info("close 메서드");
         BroadCastDto broadCastDto = chatHandleMessageService.handleClose(chatMessageDto, session);
-        // 로컬 세션에 즉시 브로드캐스트 (지연 최소화)
-        chatHandleMessageService.broadcastToLocalSessions(broadCastDto.getChatMessageDto());
-        // Kafka에 발행 (영구 저장 + 다른 서버 전파용)
         chatEventPublisher.publish(broadCastDto.getChatMessageDto());
     }
 
@@ -167,8 +160,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
      */
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        chatHandleMessageService.leaveRooms(session);
         String username = getCurrentUser(session);
+        chatHandleMessageService.leaveRooms(session);
         if (username != null) {
             log.info("username: {} 사용자가 세션에서 제외되었습니다. sessionId: {}", username, session.getId());
         } else {

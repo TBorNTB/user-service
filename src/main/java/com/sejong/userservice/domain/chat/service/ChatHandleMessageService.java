@@ -32,12 +32,13 @@ public class ChatHandleMessageService {
     public BroadCastDto handleClose(ChatMessageDto msg, WebSocketSession session) {
         msg = requestSanitizer.sanitize(msg);
         validateSessionInRoom(msg.getRoomId(), session);
-        Set<WebSocketSession> sessions = roomSessions.get(msg.getRoomId());
+        String roomId = msg.getRoomId();
+        Set<WebSocketSession> sessions = roomSessions.get(roomId);
         if (sessions != null) {
             sessions.remove(session);
             if (sessions.isEmpty()) {
-                roomSessions.remove(msg.getRoomId());
-                log.info("빈방 삭제 : {}", msg.getRoomId());
+                roomSessions.remove(roomId);
+                log.info("빈방 삭제 : {}", roomId);
             }
         }
         return BroadCastDto.of(ChatMessageDto.chatClose(msg, serverIdProvider.getServerId()));
@@ -51,43 +52,17 @@ public class ChatHandleMessageService {
         return BroadCastDto.of(messageDto);
     }
 
+    /**
+     * Kafka Consumer에서 호출. 해당 방의 로컬 WebSocket 세션들에게만 전달.
+     */
     public void broadcast(String roomId, String json) throws IOException {
         Set<WebSocketSession> sessions = roomSessions.get(roomId);
         if (sessions == null) return;
 
         for (WebSocketSession session : sessions) {
-            session.sendMessage(new TextMessage(json));
-        }
-    }
-
-    /**
-     * 로컬 서버의 세션들에게만 즉시 브로드캐스트 (지연 최소화)
-     * serverId를 메시지에 추가하여 Redis를 통한 중복 전송 방지
-     */
-    public void broadcastToLocalSessions(ChatMessageDto chatMessageDto) {
-        String roomId = chatMessageDto.getRoomId();
-        Set<WebSocketSession> sessions = roomSessions.get(roomId);
-        if (sessions == null || sessions.isEmpty()) {
-            log.debug("로컬 브로드캐스트 스킵 - roomId: {}에 세션 없음", roomId);
-            return;
-        }
-
-        try {
-            // 서버 ID 추가 (중복 방지용)
-            chatMessageDto.setServerId(serverIdProvider.getServerId());
-
-            String json = objectMapper.writeValueAsString(chatMessageDto);
-            int sentCount = 0;
-            for (WebSocketSession session : sessions) {
-                if (session.isOpen()) {
-                    session.sendMessage(new TextMessage(json));
-                    sentCount++;
-                }
+            if (session.isOpen()) {
+                session.sendMessage(new TextMessage(json));
             }
-            log.info("로컬 브로드캐스트 완료 - roomId: {}, serverId: {}, 전송 세션 수: {}/{}",
-                    roomId, serverIdProvider.getServerId(), sentCount, sessions.size());
-        } catch (Exception e) {
-            log.error("로컬 브로드캐스트 실패 - roomId: {}", roomId, e);
         }
     }
 
@@ -100,22 +75,20 @@ public class ChatHandleMessageService {
         return BroadCastDto.of(responseMessage);
     }
 
+    /**
+     * 세션이 속한 모든 방에서 제거.
+     */
     public void leaveRooms(WebSocketSession session) {
-        roomSessions.entrySet().removeIf(entry -> {
-            Set<WebSocketSession> sessions = entry.getValue();
-            if (sessions == null) return false;
+        roomSessions.forEach((roomId, sessions) -> {
+            if (sessions == null) return;
             synchronized (sessions) {
-                // NOTE(sigmaith): 같은 roomId에 여러 스레드가 접근할 수 있다.
-                // 빈방 삭제와 거의 동시에 session 추가 메서드가 실행되면, 없어진 참조를 가질 수 있다.
-                boolean removed = sessions.remove(session);
-                boolean empty = sessions.isEmpty();
-
-                if (removed && empty) {
-                    log.info("빈 방 삭제: {}", entry.getKey());
-                    return true;
+                if (sessions.remove(session)) {
+                    if (sessions.isEmpty()) {
+                        roomSessions.remove(roomId);
+                        log.info("빈 방 삭제: {}", roomId);
+                    }
                 }
             }
-            return false;
         });
     }
 
