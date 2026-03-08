@@ -52,4 +52,11 @@ public class ChatMessage {
                 .updatedAt(dto.getCreatedAt())
                 .build();
     }
+
+    public boolean validateJoin(){
+        if(type.equals("JOIN")){
+            return true;
+        }
+        return false;
+    }
 }

@@ -51,12 +51,18 @@ public class ChatService {
     private final RequestSanitizer requestSanitizer;
 
 
+    /*
+    * type : JOIN 이 같은 유저가 2번 메세지에 들어가는 문제가 있어서
+    * join type은 메세지를 저장하지 않도록 일단은 코드 리팩터링 하겠습니다.
+    * */
     @Transactional
     public void save(ChatMessageDto chatMessageDto) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatMessageDto.getRoomId())
                 .orElseThrow(() -> new BaseException(ROOM_ID_NOT_FOUND));
         ChatMessageDto sanitized = requestSanitizer.sanitize(chatMessageDto);
         ChatMessage chatMessage = ChatMessage.from(sanitized, chatRoom);
+        if(chatMessage.validateJoin())return;
+
         chatMessageRepository.save(chatMessage);
     }
 
