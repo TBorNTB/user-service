@@ -15,9 +15,10 @@ public class OffsetPageRes<T> {
     private int size;
     private int page;
     private int totalPage;
+    private Long totalElement;
     private T data;
 
     public static <T> OffsetPageRes<List<T>> ok(Page<T> page) {
-        return new OffsetPageRes<>("조회 성공", page.getSize(), page.getNumber(), page.getTotalPages(), page.getContent());
+        return new OffsetPageRes<>("조회 성공", page.getSize(), page.getNumber(), page.getTotalPages(),page.getTotalElements() ,page.getContent());
     }
 }
