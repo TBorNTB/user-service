@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-push:
-    name: 🔧 Build & Push Docker Image to ECR
+    name: 🔧 Build & Push Docker Image to Docker Hub
     runs-on: ubuntu-latest
 
     steps:
@@ -25,53 +25,41 @@ jobs:
           chmod +x ./gradlew
           ./gradlew clean build
 
-      - name: 🔐 AWS 자격 증명 설정
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: 🐳 Docker Hub 로그인
+        uses: docker/login-action@v3
         with:
-          aws-region: ap-northeast-2
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: 🔐 ECR 로그인
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 🐳 Docker 이미지 생성
         run: docker build -t ${{ secrets.IMAGE_NAME }} .
 
       - name: 🏷️ Docker 이미지에 Tag 붙이기
-        run: docker tag ${{ secrets.IMAGE_NAME }} ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
+        run: docker tag ${{ secrets.IMAGE_NAME }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
 
-      - name: 🚀 ECR에 Docker 이미지 Push
-        run: docker push ${{ steps.login-ecr.outputs.registry }}/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
+      - name: 🚀 Docker Hub에 Push
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
 
-  deploy-to-ec2:
-    name: 🚀 Deploy To EC2 (Self-hosted)
+  deploy-to-on-premise:
+    name: 🚀 Deploy To On-premise
     # ✅ 배포만 self-hosted runner에서 실행
     runs-on: self-hosted # 추후 해당 부분 label을 붙여 특정 runner에서만 실행되도록 바궈야 됨
     needs: build-and-push
 
     steps:
-      - name: 🔐 AWS 자격 증명 설정
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: 🐳 Docker Hub 로그인
+        uses: docker/login-action@v3
         with:
-          aws-region: ap-northeast-2
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - name: 🔐 ECR 로그인
-        run: |
-          aws ecr get-login-password --region ap-northeast-2 | \
-            docker login --username AWS --password-stdin 869508798906.dkr.ecr.ap-northeast-2.amazonaws.com
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: 🧹 Stop & Remove existing container
         run: |
           docker stop ${{ secrets.IMAGE_NAME }} || true
           docker rm ${{ secrets.IMAGE_NAME }} || true
 
-      - name: 📥 Pull image from ECR
-        run: |
-          docker pull 869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
+      - name: 📥 Pull image from Docker Hub
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
 
       - name: 🚀 Run container
         run: |
@@ -99,4 +87,4 @@ jobs:
               -e OAUTH_GITHUB_CLIENT_SECRET="${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}" \
               -e FRONTEND="${{ secrets.FRONTEND }}" \
               -e COOKIE_DOMAIN="${{ secrets.COOKIE_DOMAIN }}" \
-              869508798906.dkr.ecr.ap-northeast-2.amazonaws.com/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
+              ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:${{ secrets.IMAGE_NAME }}
