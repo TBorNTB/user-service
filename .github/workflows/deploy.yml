@@ -1,4 +1,4 @@
-name: Deploy To EC2
+name: Deploy To On-premise
 
 on:
   push:
