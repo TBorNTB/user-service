@@ -93,7 +93,14 @@ springdoc:
 chat:
   kafka:
     broadcast-group-id: chat-broadcast-${eureka.instance.instance-id:${spring.application.name}-${server.port:0}-${random.uuid}}
-
+    # DB 저장 실패 시 재시도. 최종 실패 시 예외 전파 → offset 미커밋 → Kafka가 재전달
+    persistence:
+      max-attempts: 3
+      retry-delay-ms: 200
+    # 브로드캐스트 실패 시 재시도 (일시적 오류 대응, 최종 실패 시 로그만 하고 계속)
+    broadcast:
+      max-attempts: 3
+      retry-delay-ms: 100
 
 eureka:
   instance:
