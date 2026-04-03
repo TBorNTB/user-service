@@ -11,6 +11,7 @@ import com.sejong.userservice.client.file.FileUploader;
 import com.sejong.userservice.client.file.S3FileUploader;
 import com.sejong.userservice.domain.alarm.controller.dto.AlarmDto;
 import com.sejong.userservice.domain.alarm.service.AlarmService;
+import com.sejong.userservice.domain.chat.repository.ChatRoomUserRepository;
 import com.sejong.userservice.domain.comment.repository.CommentRepository;
 import com.sejong.userservice.domain.like.domain.Like;
 import com.sejong.userservice.domain.like.repository.LikeRepository;
@@ -75,6 +76,7 @@ public class UserService {
     private final LikeRepository likeRepository;
     private final ViewJPARepository viewJPARepository;
     private final AlarmService alarmService;
+    private final ChatRoomUserRepository chatRoomUserRepository;
     private final CommentRepository commentRepository;
     private final PostInternalFacade postInternalFacade;
 
@@ -118,6 +120,7 @@ public class UserService {
     public UserRes deleteUser(String username) {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new BaseException(NOT_FOUND_USER));
         UserRes userRes = toUserResWithUrl(user);
+        chatRoomUserRepository.deleteAllByUserId(user.getId());
         userRepository.deleteByUsername(username);
         log.info("User {} deleted successfully.", username);
         return userRes;

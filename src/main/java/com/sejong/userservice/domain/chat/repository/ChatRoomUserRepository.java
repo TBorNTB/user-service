@@ -15,6 +15,10 @@ import org.springframework.data.repository.query.Param;
 public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUser, Long> {
 
     @Modifying
+    @Query("DELETE FROM ChatRoomUser cu WHERE cu.user.id = :userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
+
+    @Modifying
     @Query("DELETE FROM ChatRoomUser cu WHERE cu.user.id = :userId AND cu.chatRoom.roomId = :roomId ")
     void deleteByUserIdAndRoomId(@Param("userId") Long userId, @Param("roomId") String roomId);
 
