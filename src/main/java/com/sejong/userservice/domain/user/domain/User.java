@@ -114,6 +114,9 @@ public class User {
         if (updateRequest.getEmail() != null) {
             this.email = updateRequest.getEmail();
         }
+        if (updateRequest.getNickname() != null){
+            this.nickname = updateRequest.getNickname();
+        }
         if (updateRequest.getRealName() != null) {
             this.realName = updateRequest.getRealName();
         }

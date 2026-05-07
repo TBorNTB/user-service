@@ -15,6 +15,7 @@ import lombok.Setter;
 public class UserUpdateRequest {
     @NotBlank(message = "Real name cannot be empty")
     private String email;
+    private String nickname;
     private String realName;
     private String description;
     private String techStack;
