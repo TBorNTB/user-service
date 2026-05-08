@@ -66,6 +66,8 @@ spring:
           min-idle: 0
 
   cloud:
+    compatibility-verifier:
+      enabled: false
     aws:
       credentials:
         access-key: ${S3_ACCESS_KEY}
