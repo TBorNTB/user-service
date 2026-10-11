@@ -7,6 +7,7 @@ import com.sejong.userservice.domain.comment.domain.Comment;
 import com.sejong.userservice.domain.comment.dto.command.CommentCommand;
 import com.sejong.userservice.domain.comment.dto.request.CommentReq;
 import com.sejong.userservice.domain.comment.dto.response.CommentRes;
+import com.sejong.userservice.domain.comment.dto.response.CommentCountRes;
 import com.sejong.userservice.domain.comment.repository.CommentRepository;
 import com.sejong.userservice.domain.user.dto.response.UserInfo;
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
@@ -101,6 +102,17 @@ public class CommentService {
 
         Map<String, UserInfo> userInfoMap = getUserInfoMap(comments);
         return convertToCommentResList(comments, userInfoMap);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CommentCountRes> getCommentCounts(PostType postType, List<Long> postIds) {
+        if (postIds.isEmpty()) {
+            return List.of();
+        }
+
+        return commentRepository.countByPostTypeAndPostIdsGrouped(postType, postIds).stream()
+                .map(CommentCountRes::from)
+                .toList();
     }
 
     @Transactional(readOnly = true)

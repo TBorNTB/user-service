@@ -2,6 +2,9 @@ package com.sejong.userservice.domain.user.internal;
 
 import com.sejong.userservice.domain.user.dto.response.UserNameInfo;
 import com.sejong.userservice.domain.user.service.UserService;
+import com.sejong.userservice.domain.comment.dto.response.CommentCountRes;
+import com.sejong.userservice.domain.comment.service.CommentService;
+import com.sejong.userservice.support.common.constants.PostType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class InternalController {
 
     private final UserService userService;
+    private final CommentService commentService;
 
     @Operation(summary = "사용자 존재 여부 확인", description = "단일 사용자의 존재 여부를 확인합니다 (내부 API)")
     @GetMapping("/{username}/exists")
@@ -43,6 +47,14 @@ public class InternalController {
     public ResponseEntity<Map<String, UserNameInfo>> getUserNameInfos(@RequestParam("usernames") List<String> usernames){
         Map<String, UserNameInfo> userNameInfos = userService.getUserNameInfos(usernames);
         return new ResponseEntity<>(userNameInfos, HttpStatus.OK);
+    }
+
+    @Operation(summary = "게시물별 댓글 수 조회", description = "목록 카드에 표시할 게시물별 댓글 수를 조회합니다 (내부 API)")
+    @GetMapping("/comments/counts")
+    public ResponseEntity<List<CommentCountRes>> getCommentCounts(
+            @RequestParam PostType postType,
+            @RequestParam List<Long> postIds) {
+        return ResponseEntity.ok(commentService.getCommentCounts(postType, postIds));
     }
 
     @Operation(summary = "User count 조회")
